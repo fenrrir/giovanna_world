@@ -3,6 +3,7 @@ import type { JSX } from 'react';
 import { PALETTES } from '../model/palettes';
 import { useLook } from '../state/lookContext';
 import { DraggablePart } from './DraggablePart';
+import { HairParamsPanel } from './HairParamsPanel';
 import { customHairParams, equippedIn, trayItems, type TrayDefinition } from './trays';
 import type { DragPoint } from './useDrag';
 import styles from './controls.module.css';
@@ -23,23 +24,36 @@ export const PartTray = ({ tray, isInsideDropZone }: PartTrayProps): JSX.Element
   const { look, dispatch } = useLook();
   const worn = equippedIn(look, tray);
   const currentColor = look.equipped[tray.slot]?.color ?? PALETTES[tray.palette][0];
+  const items = trayItems(tray, customHairParams(look));
 
   return (
-    <ul className={styles.row}>
-      {trayItems(tray, customHairParams(look)).map((item) => (
-        <li key={item.id}>
-          <DraggablePart
-            tray={tray}
-            item={item}
-            color={currentColor}
-            worn={item.id === worn}
-            onChoose={() => {
-              dispatch(item.apply(currentColor));
-            }}
-            isInsideDropZone={isInsideDropZone}
-          />
-        </li>
-      ))}
-    </ul>
+    <>
+      <ul className={styles.row}>
+        {items.map((item) => (
+          <li key={item.id}>
+            <DraggablePart
+              tray={tray}
+              item={item}
+              color={currentColor}
+              worn={item.id === worn}
+              onChoose={() => {
+                dispatch(item.apply(currentColor));
+              }}
+              isInsideDropZone={isInsideDropZone}
+            />
+          </li>
+        ))}
+      </ul>
+
+      {/*
+       * Below the row rather than instead of it, and with no open state of its
+       * own: the axes are on screen exactly while the piece they shape is the
+       * one worn. Picking any other piece puts them away, which is what keeps
+       * the game at one level of navigation with nothing to go back from.
+       */}
+      {items.some((item) => item.shaped && item.id === worn) && (
+        <HairParamsPanel color={currentColor} />
+      )}
+    </>
   );
 };

@@ -27,6 +27,20 @@ export const ptBR = {
   'scroll.forward': 'Ver as próximas opções',
   'part.choose': 'Vestir esta peça de {tray}',
   'hair.custom': 'Fazer um cabelo do meu jeito',
+
+  /*
+   * The one screen in the game that shows words. The generator asks the child
+   * to tell three identical sliders apart, and without a label she can only do
+   * it by trying each one — see SPEC section 4 for the scope of the exception.
+   */
+  'hair.length': 'Comprimento',
+  'hair.volume': 'Volume',
+  'hair.wave': 'Cachos',
+  'hair.fringe': 'Franja',
+  'hair.fringe.none': 'Sem franja',
+  'hair.fringe.straight': 'Reta',
+  'hair.fringe.side': 'De lado',
+  'hair.fringe.curtain': 'Repartida',
   'color.pick': 'Escolher qualquer outra cor',
   'skin.pick': 'Escolher qualquer outro tom de pele',
   'look.randomise': 'Segurar para sortear uma roupa nova',

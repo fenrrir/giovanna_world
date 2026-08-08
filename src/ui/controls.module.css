@@ -85,11 +85,12 @@
 }
 
 /*
- * The zoom slider. SPEC section 4 asks for 60 px of touch target, which for a
- * slider means the whole strip, not just the thumb — a six-year-old drags at
- * the height they happen to land on.
+ * Every slider: the zoom, and the axes of the generated hairstyle. SPEC
+ * section 4 asks for 60 px of touch target, which for a slider means the whole
+ * strip, not just the thumb — a six-year-old drags at the height they happen
+ * to land on.
  */
-.zoom {
+.slider {
   width: min(100%, 320px);
   height: 60px;
   margin: 0;
@@ -99,19 +100,19 @@
   appearance: none;
 }
 
-.zoom::-webkit-slider-runnable-track {
+.slider::-webkit-slider-runnable-track {
   height: 10px;
   border-radius: 5px;
   background: #d9d5f4;
 }
 
-.zoom::-moz-range-track {
+.slider::-moz-range-track {
   height: 10px;
   border-radius: 5px;
   background: #d9d5f4;
 }
 
-.zoom::-webkit-slider-thumb {
+.slider::-webkit-slider-thumb {
   width: 40px;
   height: 40px;
   margin-top: -15px;
@@ -122,7 +123,7 @@
   appearance: none;
 }
 
-.zoom::-moz-range-thumb {
+.slider::-moz-range-thumb {
   width: 40px;
   height: 40px;
   border: none;
@@ -218,4 +219,66 @@
   display: flex;
   gap: 10px;
   padding: 8px;
+}
+
+/*
+ * The axes of the generated hairstyle.
+ *
+ * The one surface in the game that carries words (SPEC section 4). Three
+ * unlabelled sliders are indistinguishable to a child who cannot read, so she
+ * could only tell them apart by dragging each in turn; the exception buys the
+ * whole control its meaning and is confined to this panel.
+ */
+.params {
+  display: grid;
+  gap: 10px;
+  padding: 8px;
+}
+
+.axis {
+  display: grid;
+  gap: 2px;
+  color: #2a2a33;
+  font:
+    600 15px/1.2 system-ui,
+    sans-serif;
+}
+
+.fringes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.fringes > legend {
+  padding: 0 0 4px;
+  color: #2a2a33;
+  font:
+    600 15px/1.2 system-ui,
+    sans-serif;
+}
+
+.fringe {
+  min-width: 68px;
+  min-height: 60px;
+  padding: 4px 12px;
+  border: 3px solid transparent;
+  border-radius: 16px;
+  background: #ffffff;
+  color: #2a2a33;
+  font:
+    500 14px/1.2 system-ui,
+    sans-serif;
+  cursor: pointer;
+  transition:
+    background-color 100ms ease,
+    border-color 100ms ease;
+}
+
+.fringe[aria-pressed='true'] {
+  border-color: #7f77dd;
+  background: #eeecfb;
 }

@@ -22,7 +22,7 @@ export const ZoomSlider = ({ zoom, onChange }: ZoomSliderProps): JSX.Element => 
 
   return (
     <input
-      className={styles.zoom}
+      className={styles.slider}
       type="range"
       min={MIN_ZOOM}
       max={MAX_ZOOM}
