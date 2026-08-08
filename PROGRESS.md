@@ -301,6 +301,14 @@ colour row goes away with it — there is nothing in an outfit to recolour.
 The star is not the save button SPEC §4 rules out. The current look is already saved, always; this
 is her saying she wants to find this one again.
 
+### Decisions closed
+
+- **The free colour picker stays as it is.** On iOS it opens a modal sheet with words in it, which
+  makes it and the axes panel the only text in the game. Weighed and accepted: any colour at all is
+  worth more here than the last of the no-words rule.
+- **`PROMPT-*.md` is not versioned.** Working notes live beside the repo, not in it; `.gitignore`
+  covers the pattern.
+
 ## MVP acceptance checklist
 
 From SPEC §17. Ticked only where actually verified; the rest name the exact step still owed.

@@ -26,3 +26,6 @@ coverage/
 
 # Headless art preview output (see tests/tools/renderPreview.test.tsx)
 preview/
+
+# Working notes and prompts kept beside the repo, deliberately not versioned.
+PROMPT-*.md
