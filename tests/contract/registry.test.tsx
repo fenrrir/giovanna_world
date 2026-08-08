@@ -5,6 +5,7 @@ import { ANCHORS, VIEW_BOX } from '../../src/anchors';
 import { FIXED_COLORS, PALETTES } from '../../src/model/palettes';
 import { RENDER_ORDER, type Slot } from '../../src/model/slots';
 import type { Part } from '../../src/model/types';
+import { CUSTOM_HAIR_ID } from '../../src/parts/hair/custom';
 import { HAIR_STYLES, PARTS_BY_SLOT, findHairStyle, findPart } from '../../src/parts/registry';
 import { boundsOf, colorsOf, pathDataOf } from './svgGeometry';
 
@@ -123,6 +124,37 @@ describe('registry invariants', () => {
     for (const hair of HAIR_STYLES) {
       expect(findHairStyle(hair.id)).toBe(hair);
     }
+  });
+
+  describe('the generated hairstyle', () => {
+    const params = { length: 1, volume: 1, wave: 1, fringe: 'curtain' };
+
+    it('is registered in both hair slots like any other', () => {
+      expect(findPart('hairBack', CUSTOM_HAIR_ID)).toBeDefined();
+      expect(findPart('hairFront', CUSTOM_HAIR_ID)).toBeDefined();
+    });
+
+    it('builds different artwork for different axes', () => {
+      const wide = renderPart(findPart('hairBack', CUSTOM_HAIR_ID, params)!, '#6B3A1F');
+      const plain = renderPart(findPart('hairBack', CUSTOM_HAIR_ID)!, '#6B3A1F');
+
+      expect(pathDataOf(wide)).not.toStrictEqual(pathDataOf(plain));
+    });
+
+    it('answers with the registered instance when no axes are given', () => {
+      // Identity matters: the lookup above asserts findPart returns the very
+      // part PARTS_BY_SLOT holds, and a part rebuilt per call would not.
+      expect(findPart('hairFront', CUSTOM_HAIR_ID)).toBe(findPart('hairFront', CUSTOM_HAIR_ID));
+    });
+
+    it('stays out of a slot that is not hair, whatever axes arrive', () => {
+      expect(findPart('top', CUSTOM_HAIR_ID, params)).toBeUndefined();
+    });
+
+    it('is not a ready-made hairstyle, so the randomiser cannot draw it', () => {
+      expect(HAIR_STYLES.map((hair) => hair.id)).not.toContain(CUSTOM_HAIR_ID);
+      expect(findHairStyle(CUSTOM_HAIR_ID)).toBeUndefined();
+    });
   });
 });
 

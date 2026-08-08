@@ -26,7 +26,7 @@ export type HairAnchors = {
 /** How far above the skull the crown of the hair sits. */
 const CROWN_LIFT = 10;
 /** How much wider than the head the back mass gets at full volume. */
-const VOLUME_GAIN = 34;
+const VOLUME_GAIN = 26;
 /** How much wider than the head the front layer gets at full volume. */
 const FRONT_GAIN = 8;
 /** How far past the hip the longest setting falls. */
@@ -42,6 +42,8 @@ const round = (value: number): number => Math.round(value);
 
 const move = (x: number, y: number): string => `M ${String(round(x))} ${String(round(y))}`;
 
+const line = (x: number, y: number): string => `L ${String(round(x))} ${String(round(y))}`;
+
 const curve = (...points: number[]): string =>
   `C ${points.map((value) => String(round(value))).join(' ')}`;
 
@@ -54,10 +56,18 @@ type Frame = {
   w: number;
   wh: number;
   dip: number;
+  corner: number;
 };
 
 const frameOf = ({ length, volume, wave }: HairParams, a: HairAnchors): Frame => {
   const w = a.headCenter.r + round(volume * VOLUME_GAIN);
+  /*
+   * Narrows towards the hem, and the further it falls the more it narrows.
+   * Held at full width all the way down, long hair at full volume stops
+   * reading as hair: it becomes a slab wider than the shoulders with the doll
+   * sitting inside it.
+   */
+  const wh = w - round(w * (0.12 + length * 0.22));
 
   return {
     cx: a.headCenter.x,
@@ -65,16 +75,24 @@ const frameOf = ({ length, volume, wave }: HairParams, a: HairAnchors): Frame =>
     temple: a.headCenter.y,
     hemY: a.neckBase.y + round(length * (a.hip.y - a.neckBase.y + LENGTH_GAIN)),
     w,
-    wh: w - 4,
+    wh,
     dip: round(wave * WAVE_DEPTH),
+    corner: round(wh * 0.3),
   };
 };
 
-/** The scalloped hem, right edge to left. Its depth is the whole wave axis. */
-const hem = ({ cx, hemY, wh, dip }: Frame): string =>
+/**
+ * The scalloped hem, right edge to left, entered and left at `hemY - corner`.
+ *
+ * The corners are rounded here rather than at the side edges, so the silhouette
+ * and the fold band cannot round them differently and part company.
+ */
+const hem = ({ cx, hemY, wh, dip, corner }: Frame): string =>
   [
-    curve(cx + wh * 0.5, hemY + dip, cx + wh * 0.25, hemY + dip, cx, hemY + dip * 0.5),
-    curve(cx - wh * 0.25, hemY + dip, cx - wh * 0.5, hemY + dip, cx - wh, hemY),
+    curve(cx + wh, hemY - corner * 0.45, cx + wh - corner * 0.45, hemY, cx + wh - corner, hemY),
+    curve(cx + wh * 0.45, hemY + dip, cx + wh * 0.2, hemY + dip, cx, hemY + dip * 0.55),
+    curve(cx - wh * 0.2, hemY + dip, cx - wh * 0.45, hemY + dip, cx - wh + corner, hemY),
+    curve(cx - wh + corner * 0.45, hemY, cx - wh, hemY - corner * 0.45, cx - wh, hemY - corner),
   ].join(' ');
 
 /**
@@ -85,14 +103,14 @@ const hem = ({ cx, hemY, wh, dip }: Frame): string =>
  */
 export const hairBackPath = (params: HairParams, a: HairAnchors = ANCHORS): string => {
   const frame = frameOf(params, a);
-  const { cx, crown, temple, hemY, w, wh } = frame;
+  const { cx, crown, temple, hemY, w, wh, corner } = frame;
   const drop = round((hemY - temple) * 0.4);
 
   return [
     move(cx - w, temple),
     curve(cx - w, crown + 20, cx - w * 0.62, crown, cx, crown),
     curve(cx + w * 0.62, crown, cx + w, crown + 20, cx + w, temple),
-    curve(cx + w, temple + drop, cx + wh, hemY - drop, cx + wh, hemY),
+    curve(cx + w, temple + drop, cx + wh, hemY - drop, cx + wh, hemY - corner),
     hem(frame),
     curve(cx - wh, hemY - drop, cx - w, temple + drop, cx - w, temple),
     'Z',
@@ -107,7 +125,7 @@ export const hairBackPath = (params: HairParams, a: HairAnchors = ANCHORS): stri
  */
 export const hairFoldPath = (params: HairParams, a: HairAnchors = ANCHORS): string => {
   const frame = frameOf(params, a);
-  const { cx, temple, hemY, wh } = frame;
+  const { cx, temple, hemY, wh, corner } = frame;
   const foldY = temple + round((hemY - temple) * 0.55);
   const arc = round((hemY - foldY) * 0.18);
   const q = round((hemY - foldY) * 0.3);
@@ -115,7 +133,7 @@ export const hairFoldPath = (params: HairParams, a: HairAnchors = ANCHORS): stri
   return [
     move(cx - wh, foldY),
     curve(cx - wh * 0.45, foldY + arc, cx + wh * 0.45, foldY + arc, cx + wh, foldY),
-    curve(cx + wh, foldY + q, cx + wh, hemY - q, cx + wh, hemY),
+    curve(cx + wh, foldY + q, cx + wh, hemY - q, cx + wh, hemY - corner),
     hem(frame),
     curve(cx - wh, hemY - q, cx - wh, foldY + q, cx - wh, foldY),
     'Z',
@@ -158,9 +176,18 @@ export const hairFrontPath = (params: HairParams, a: HairAnchors = ANCHORS): str
       crown + h * 0.15,
     ),
     curve(cx + wf - 2, crown + h * 0.26, cx + wf + 4, crown + h * 0.7, cx + wf, sideY),
-    curve(cx + wf - 4, sideY - h * 0.3, cx + wi + 6, right + h * 0.3, cx + wi, right),
+    /*
+     * The inner edge comes back down to the same height as the outer one, so
+     * each side ends as a strand of its own width with a flat foot. Running it
+     * back to the outer edge instead closes the shape across the jaw: the chin
+     * and both cheeks disappear under the hair, and because a single Z can only
+     * shut one of the two feet the strands come out different shapes — the
+     * mirror has to be written out on both sides (CLAUDE.md).
+     */
+    line(cx + wi, sideY),
+    curve(cx + wi + 2, right + h * 0.35, cx + wi + 4, right + h * 0.12, cx + wi, right),
     across,
-    curve(cx - wi - 6, left + h * 0.3, cx - wf + 4, sideY - h * 0.3, cx - wf, sideY),
+    curve(cx - wi - 4, left + h * 0.12, cx - wi - 2, left + h * 0.35, cx - wi, sideY),
     'Z',
   ].join(' ');
 };

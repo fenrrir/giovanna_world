@@ -1,6 +1,7 @@
 import type { PartLookup } from '../model/sanitize';
 import type { Slot } from '../model/slots';
 import type { HairStyle, Part } from '../model/types';
+import { CUSTOM_HAIR_ID, customHair } from './hair/custom';
 import { BOW } from './accessoryHead/bow';
 import { ROUND_BLUSH } from './blush/round';
 import { SOFT_ARCH } from './brows/softArch';
@@ -32,6 +33,17 @@ export { BODY };
 /** Hairstyles are chosen as a pair and written into two slots by the reducer. */
 export const HAIR_STYLES: readonly HairStyle[] = [BOB_FRINGE, LONG_WAVY, TWIN_BUNS];
 
+/**
+ * The generated hairstyle at its default axes.
+ *
+ * Registered like any other part so the contract suite subjects it to the six
+ * criteria of SPEC section 12 with no test written for it, and so a lookup that
+ * carries no params still answers with one stable instance. It stays out of
+ * `HAIR_STYLES`, which is what the randomiser draws from: a random outfit
+ * chooses among the drawn hairstyles rather than inventing axes.
+ */
+const CUSTOM_HAIR = customHair();
+
 const TOPS: readonly Part[] = [T_SHIRT, POLKA_DOT_DRESS, STRIPED_SWEATSHIRT, TANK_TOP];
 const BOTTOMS: readonly Part[] = [SKIRT, JEANS, SHORTS];
 const SHOES: readonly Part[] = [SNEAKERS, MARY_JANES];
@@ -46,8 +58,8 @@ const BLUSHES: readonly Part[] = [ROUND_BLUSH];
  * change of shape.
  */
 export const PARTS_BY_SLOT: Readonly<Record<Slot, readonly Part[]>> = {
-  hairBack: HAIR_STYLES.map((hair) => hairPart(hair, 'hairBack')),
-  hairFront: HAIR_STYLES.map((hair) => hairPart(hair, 'hairFront')),
+  hairBack: [...HAIR_STYLES, CUSTOM_HAIR].map((hair) => hairPart(hair, 'hairBack')),
+  hairFront: [...HAIR_STYLES, CUSTOM_HAIR].map((hair) => hairPart(hair, 'hairFront')),
   body: [BODY],
   brows: BROWS,
   lips: LIPS,
@@ -87,7 +99,20 @@ const indexBySlot = (): Record<Slot, ReadonlyMap<string, Part>> => {
 
 const INDEX = indexBySlot();
 
-export const findPart: PartLookup = (slot, partId) => INDEX[slot].get(partId);
+const isHairSlot = (slot: Slot): slot is 'hairBack' | 'hairFront' =>
+  slot === 'hairBack' || slot === 'hairFront';
+
+/**
+ * Only taken when params actually arrive.
+ *
+ * A lookup without them falls through to the index, which holds one stable
+ * instance — the contract suite asserts `findPart(slot, id)` is that very
+ * object, and a part rebuilt on every call would never satisfy it.
+ */
+export const findPart: PartLookup = (slot, partId, params) =>
+  params && partId === CUSTOM_HAIR_ID && isHairSlot(slot)
+    ? hairPart(customHair(params), slot)
+    : INDEX[slot].get(partId);
 
 export const findHairStyle = (id: string): HairStyle | undefined =>
   HAIR_STYLES.find((hair) => hair.id === id);

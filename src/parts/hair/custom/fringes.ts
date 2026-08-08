@@ -55,7 +55,8 @@ const straight = ({ cx, wi, eyeY }: FaceOpening): FringeEdge => {
 
 /** Swept to one side: low over one brow, high at the opposite temple. */
 const side = ({ cx, wi, crown, h, eyeY }: FaceOpening): FringeEdge => {
-  const low = eyeY - 4;
+  // Clear of the eye it sweeps over: at the eye line itself it cuts the pupil.
+  const low = eyeY - 12;
   const high = crown + Math.round(h * 0.2);
 
   return {
