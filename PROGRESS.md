@@ -290,10 +290,16 @@ The storage half is done: `look:saved`, twelve slots, newest first, in `lib/stor
 Past twelve the oldest falls off the end, which is deliberately why there is no delete: the album
 empties itself, and a delete gesture is one more thing to explain to someone who cannot read.
 
-**Still to build:** the tray itself — a `saved` tray whose items are looks rather than parts, and
-the gesture that keeps one. `TrayItem` assumes a part today, so that is the join to look at. The
-keep gesture should be a thumbnail inside that tray, not a button elsewhere; it is not the save
-button SPEC §4 forbids, which is about the current look needing to be saved at all.
+**Built.** The album is a tray: a star to keep the doll as she stands, then every kept look as a
+whole small doll. Tapping one puts it back on, and the one she is wearing is the one marked.
+
+It does _not_ go through `TrayItem`, and that was the right call rather than a shortcut. That type
+carries a slot and a colour; an outfit has neither, and forcing it through would have cost both of
+them their meaning. `SavedTray` is its own component, and `App` holds `TraySlot | 'saved'` so the
+colour row goes away with it — there is nothing in an outfit to recolour.
+
+The star is not the save button SPEC §4 rules out. The current look is already saved, always; this
+is her saying she wants to find this one again.
 
 ## MVP acceptance checklist
 

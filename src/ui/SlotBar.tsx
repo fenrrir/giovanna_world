@@ -10,9 +10,14 @@ import { TapTarget } from './TapTarget';
 import { TRAYS, equippedIn, trayIcon } from './trays';
 import styles from './controls.module.css';
 
+/** The album is not a slot, so it is named apart from the trays that are. */
+export const SAVED_TRAY = 'saved';
+
+export type ActiveTray = TraySlot | typeof SAVED_TRAY;
+
 type SlotBarProps = {
-  active: TraySlot;
-  onSelect: (tray: TraySlot) => void;
+  active: ActiveTray;
+  onSelect: (tray: ActiveTray) => void;
 };
 
 /**
@@ -57,6 +62,25 @@ export const SlotBar = ({ active, onSelect }: SlotBarProps): JSX.Element => {
           </li>
         );
       })}
+
+      {/* Last, and a drawn star rather than a piece: the album holds outfits,
+          not something she can wear on its own. */}
+      <li>
+        <TapTarget
+          label={t('tray.open', { tray: t('tray.saved') })}
+          selected={active === SAVED_TRAY}
+          onSelect={() => {
+            onSelect(SAVED_TRAY);
+          }}
+        >
+          <svg viewBox="0 0 24 24" className={styles.thumb} aria-hidden="true" focusable="false">
+            <path
+              d="M 12 3 L 14.6 9.2 L 21.2 9.7 L 16.2 14.1 L 17.7 20.6 L 12 17.1 L 6.3 20.6 L 7.8 14.1 L 2.8 9.7 L 9.4 10.2 Z"
+              fill="currentColor"
+            />
+          </svg>
+        </TapTarget>
+      </li>
     </ScrollRow>
   );
 };

@@ -23,6 +23,9 @@ export const ptBR = {
   'tray.outer': 'Casaco',
   'tray.accessoryHead': 'Enfeite de cabelo',
   'tray.handheld': 'Na mão',
+  'tray.saved': 'Roupas guardadas',
+  'saved.keep': 'Guardar esta roupa',
+  'saved.wear': 'Vestir esta roupa guardada',
   'zoom.label': 'Aproximar a boneca',
 
   'tray.open': 'Abrir as opções de {tray}',
