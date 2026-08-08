@@ -23,9 +23,18 @@ const back = (color: string): ReactNode => (
          C 292 226 290 248 284 255 C 276 260 268 256 268 248 Z"
       fill={color}
     />
+    {/*
+      Depth at the bottom of each fall. This must not cross the notch between
+      them: filling that gap turns the neckline into a dark rectangular yoke
+      instead of two lengths of hair either side of the neck.
+    */}
     <path
-      d="M 294 198 L 386 198 C 386 214 384 232 382 244 L 298 244
-         C 296 232 294 214 294 198 Z"
+      d="M 268 212 L 292 212 C 291 232 290 248 284 255 C 276 260 268 256 268 248 Z"
+      fill={shade(color, FOLD)}
+    />
+    <path
+      d="M 388 212 L 412 212 L 412 248 C 412 256 404 260 396 255
+         C 390 248 389 232 388 212 Z"
       fill={shade(color, FOLD)}
     />
     <path
