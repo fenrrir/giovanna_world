@@ -17,24 +17,22 @@ const STRAND_OPACITY = 0.55;
 
 const back = (color: string): ReactNode => (
   <g>
-    <path
-      d="M 268 152 C 268 78 292 62 340 62 C 388 62 412 78 412 152 L 412 248
-         C 412 256 404 260 396 255 C 390 248 388 226 386 198 L 294 198
-         C 292 226 290 248 284 255 C 276 260 268 256 268 248 Z"
-      fill={color}
-    />
     {/*
-      Depth at the bottom of each fall. This must not cross the notch between
-      them: filling that gap turns the neckline into a dark rectangular yoke
-      instead of two lengths of hair either side of the neck.
+      A solid curtain, with no notch cut for the neck. hairBack renders behind
+      the body (z 0 against 10), so the doll already occludes whatever should be
+      hidden. Cutting a notch to "let the neck through" duplicates that, and any
+      millimetre where the notch is wider than the torso becomes a hole with the
+      background showing straight through the shoulders.
     */}
     <path
-      d="M 268 212 L 292 212 C 291 232 290 248 284 255 C 276 260 268 256 268 248 Z"
-      fill={shade(color, FOLD)}
+      d="M 268 152 C 268 78 292 62 340 62 C 388 62 412 78 412 152 L 412 244
+         C 412 254 404 259 396 253 C 378 245 302 245 284 253
+         C 276 259 268 254 268 244 Z"
+      fill={color}
     />
     <path
-      d="M 388 212 L 412 212 L 412 248 C 412 256 404 260 396 255
-         C 390 248 389 232 388 212 Z"
+      d="M 268 214 L 412 214 L 412 244 C 412 254 404 259 396 253
+         C 378 245 302 245 284 253 C 276 259 268 254 268 244 Z"
       fill={shade(color, FOLD)}
     />
     <path
@@ -56,16 +54,13 @@ const front = (color: string): ReactNode => (
          C 288 134 284 141 282 148 Z"
       fill={color}
     />
-    <path
-      d="M 284 122 C 276 152 274 182 278 206 C 282 211 291 211 294 205
-         C 291 178 293 150 299 128 Z"
-      fill={color}
-    />
-    <path
-      d="M 396 122 C 404 152 406 182 402 206 C 398 211 389 211 386 205
-         C 389 178 387 150 381 128 Z"
-      fill={color}
-    />
+    {/*
+      Temple locks, tapered to a point. hairFront paints over the clothing
+      (z 70 against 50), so a lock that ends in a blunt rounded stub lands on
+      the shoulder as a bite taken out of the sleeve rather than as hair.
+    */}
+    <path d="M 284 124 C 275 154 273 184 280 208 C 288 184 292 152 299 130 Z" fill={color} />
+    <path d="M 396 124 C 405 154 407 184 400 208 C 392 184 388 152 381 130 Z" fill={color} />
     <path
       d="M 316 82 C 336 72 362 76 378 92"
       fill="none"

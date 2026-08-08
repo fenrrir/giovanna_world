@@ -23,9 +23,17 @@ import { resolveLayers } from '../../src/render/resolve';
 
 const OUT = 'preview';
 
-const page = (body: string): string =>
+/**
+ * Magenta, so a gap between two parts is unmistakable. A hole where one layer
+ * fails to meet the next is invisible against a soft background and impossible
+ * to miss against this one — it is how the shoulder seam and the shoe join were
+ * both found.
+ */
+const HOLE_BACKDROP = '#FF00FF';
+
+const page = (body: string, backdrop = '#F1F0FB'): string =>
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${VIEW_BOX_ATTR}" width="680" height="540">` +
-  `<rect width="680" height="540" fill="#F1F0FB"/>${body}</svg>`;
+  `<rect width="680" height="540" fill="${backdrop}"/>${body}</svg>`;
 
 const draw = (look: Look): string =>
   resolveLayers(look, findPart, BODY)
@@ -51,5 +59,6 @@ describe('preview', () => {
     mkdirSync(OUT, { recursive: true });
     writeFileSync(`${OUT}/bare.svg`, page(draw(BARE)));
     writeFileSync(`${OUT}/dressed.svg`, page(draw(DRESSED)));
+    writeFileSync(`${OUT}/holes.svg`, page(draw(DRESSED), HOLE_BACKDROP));
   });
 });

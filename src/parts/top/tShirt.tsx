@@ -25,13 +25,13 @@ const render = (color: string): ReactNode => (
       them at the body's edge leaves a sliver of skin at the shoulder seam.
     */}
     <path
-      d="M 306 204 C 282 202 262 214 259 232 L 263 262
-         C 265 272 280 275 286 267 L 306 242 Z"
+      d="M 322 198 C 288 198 262 212 259 232 L 263 262
+         C 265 272 280 275 286 267 L 322 240 Z"
       fill={shade(color, FOLD)}
     />
     <path
-      d="M 374 204 C 398 202 418 214 421 232 L 417 262
-         C 415 272 400 275 394 267 L 374 242 Z"
+      d="M 358 198 C 392 198 418 212 421 232 L 417 262
+         C 415 272 400 275 394 267 L 358 240 Z"
       fill={shade(color, FOLD)}
     />
 

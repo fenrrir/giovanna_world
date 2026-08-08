@@ -54,6 +54,19 @@ the torso, two shoes reading as one platform, a sleeve leaving a sliver of skin 
 Where no browser is available, `npx vitest run tests/tools` writes the doll to `preview/*.svg`,
 and on macOS `qlmanage -t -s 680 -o preview preview/*.svg` turns those into images.
 
+**Check `preview/holes.svg` for gaps.** It is the same doll on a magenta backdrop: any magenta
+inside the silhouette is a place where one layer failed to meet the next. Skin showing between a
+shoe and its sole, background showing through the shoulder — both were found this way and neither
+was visible against the normal background.
+
+Two rules that follow from those bugs, and are worth checking before drawing:
+
+- **A garment must cover the limb it sits on**, and its edge should be derived from that limb's
+  anchor rather than chosen by eye. Cut past it and skin shows through.
+- **A back layer needs no cut-out for the body.** `hairBack` renders behind the doll; the body
+  already occludes it. Carving a notch to "let the neck show" duplicates the z-order, and wherever
+  the notch is wider than the torso it becomes a hole.
+
 ## UX rules that outrank aesthetics
 
 - **Zero visible text in the game.** Every control is a thumbnail or a colour swatch; its accessible
