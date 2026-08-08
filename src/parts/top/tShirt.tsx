@@ -2,11 +2,10 @@ import type { ReactNode } from 'react';
 
 import { ANCHORS } from '../../anchors';
 import { FOLD, HIGHLIGHT, shade } from '../../lib/color';
-import { FIXED_COLORS } from '../../model/palettes';
 import type { Part } from '../../model/types';
 
 /**
- * A short-sleeved t-shirt with a white collar.
+ * A short-sleeved t-shirt with a plain round neck.
  *
  * Sits on the shoulder line (282,216) and (398,216), runs to the waist at
  * y 280, and the sleeves end mid-upper-arm. Volume comes from two layers only:
@@ -55,12 +54,6 @@ const render = (color: string): ReactNode => (
       d={`M 285 ${String(HEM - 14)} C 310 ${String(HEM - 8)} 370 ${String(HEM - 8)} 395 ${String(HEM - 14)}
           L 396 ${String(HEM)} C 372 ${String(HEM + 8)} 308 ${String(HEM + 8)} 284 ${String(HEM)} Z`}
       fill={shade(color, FOLD)}
-    />
-
-    <path
-      d={`M ${String(neckBase.x1)} 198 C 328 212 352 212 ${String(neckBase.x2)} 198
-          C 352 206 328 206 ${String(neckBase.x1)} 198 Z`}
-      fill={FIXED_COLORS.collarWhite}
     />
   </g>
 );
