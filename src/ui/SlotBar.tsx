@@ -5,7 +5,7 @@ import { PALETTES } from '../model/palettes';
 import type { TraySlot } from '../model/slots';
 import { Thumb } from '../render/Thumb';
 import { useLook } from '../state/lookContext';
-import { ScrollRow } from './ScrollRow';
+import { ScrollRail } from './ScrollRail';
 import { TapTarget } from './TapTarget';
 import { TRAYS, equippedIn, trayIcon } from './trays';
 import styles from './controls.module.css';
@@ -32,7 +32,7 @@ export const SlotBar = ({ active, onSelect }: SlotBarProps): JSX.Element => {
   const { look } = useLook();
 
   return (
-    <ScrollRow>
+    <ScrollRail>
       {TRAYS.map((tray) => {
         const icon = trayIcon(look, tray);
         const wornColor = look.equipped[tray.slot]?.color;
@@ -81,6 +81,6 @@ export const SlotBar = ({ active, onSelect }: SlotBarProps): JSX.Element => {
           </svg>
         </TapTarget>
       </li>
-    </ScrollRow>
+    </ScrollRail>
   );
 };

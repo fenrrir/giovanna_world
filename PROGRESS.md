@@ -206,10 +206,11 @@ is not "leave what the dice do not own", it is **painted stays, worn goes**. Reb
 have reset them without ever looking like a bug — the thing to check when adding a tray is which
 side of that line it falls on.
 
-**The tray bar scrolls sideways** rather than wrapping, with chevrons at the ends. What exposed the
-bug that made it necessary was the randomise button being clipped: a grid item will not shrink below
-its content without `min-width: 0`, so the bar grew past the panel _and_ never overflowed inside
-itself, which is the condition the chevrons look for.
+**The tray bar scrolls** rather than wrapping, with chevrons at the ends. What exposed the bug that
+made it necessary was the randomise button being clipped: a grid item will not shrink below its
+content without `min-width: 0`, so the bar grew past the panel _and_ never overflowed inside itself,
+which is the condition the chevrons look for. (It ran sideways until Phase 3 stood the controls on
+their side; the same `ScrollRail` runs down the screen now.)
 
 **Colours are a free picker now**, not six swatches — the platform's own, for the skin and for the
 open tray. The palettes stay as what a new piece arrives wearing and what the randomiser draws from.
@@ -307,6 +308,42 @@ sky — because they are the two a `Look` cannot answer.
 **PNG export is out of the plan**, by decision rather than deferral — it is not waiting for a
 session, it is not wanted. What closes Phase 3 is the second character's shell.
 
+### The controls stand on their side now
+
+The backdrop is what exposed the layout: two equal halves gave a scene the child chose at most half
+the window. The trays and the pieces are vertical rails down the right-hand edge instead, and the
+stage is everything left over — 1146 px of 1366 where it used to be 665.
+
+**Only the stage is an explicit grid track.** `.app` is `grid-auto-flow: column` over a single
+`minmax(0, 1fr)`, and every rail lands in an implicit `auto` column. That is the whole mechanism
+behind the axes panel retracting: a column that is not rendered leaves no empty track and no gap
+behind it, so the scene takes the width back the instant she stops shaping something. Declaring
+three fixed columns and collapsing one to zero would have left its gap on screen for ever.
+
+`PartTray` returns the axes and the pieces as a **fragment**, which is how both reach that grid as
+sibling columns without a wrapper between them. It also meant `shaping` did not have to move: it
+still lives in a component `App` keys by tray, which is what tells her tap from a roll of the dice.
+The axes are emitted first, so the order she reads the columns in is the order a keyboard walks
+them.
+
+Three things fell out of it:
+
+- **The colours belong with the pieces.** `ColorTray` moved from `App` into `PartTray`, at the foot
+  of the rail it paints. The die stayed with the trays, because it replaces the whole outfit rather
+  than the piece any one tray holds.
+- **The narrow-screen stack is gone.** Two rails cost about 200 px at any width, which is less than
+  stacking the panel under the doll ever cost, so the `max-width: 900px` case had nothing left to
+  buy.
+- **`scroll-padding` has to match the rail's padding.** With `scroll-snap-type` and 8 px of padding
+  and no scroll padding, the first thumbnail can only snap into place 8 px down, so the rail never
+  rests at zero and a chevron pointed at nothing whenever it was long enough to scroll. It was there
+  horizontally too, unnoticed, and only became obvious once the rail was tall.
+
+**The one thing this trades away is iPad portrait.** At 768×1024 the scene renders 532×422 against
+roughly 744×591 under the old stack — the rails cost proportionally more of a narrow window than a
+wide one. It is a landscape game and landscape is where the whole gain is; the portrait case is
+still functional, with no overflow and every target over 60 px.
+
 ### Still deferred
 
 Not built, deliberately. Each is real scope, recorded so nothing is lost — but no stub exists in the source.
@@ -379,9 +416,10 @@ iterating but cannot answer the offline one; see the README for which criteria i
 - [x] **Not a single word in the game's interface.** Asserted mechanically: the dress-up
       integration test dresses the doll from every tray and then requires the whole rendered tree
       to contain no text at all, with every control named through `aria-label`.
-- [x] **Every touch target is at least 60×60 px.** Measured on the live site in a real browser at
-      both 1280×720 and 768×1024: all nine controls are 68×68 or 70×70, and the smallest gap
-      between any two is 10 px. The layout also holds at both widths, covering the 768–1366 range.
+- [x] **Every touch target is at least 60×60 px.** Re-measured in a real browser after the rails
+      went vertical, at both 1366×800 and 768×1024: every thumbnail is 70×70, both colour pickers
+      68×68, the chevrons 68×60 and the sliders 60 tall, with 10 px between neighbours in a rail.
+      Neither width overflows horizontally, which covers the 768–1366 range.
 - [ ] **No elastic overscroll bounce and no accidental double-tap zoom.** `overscroll-behavior:
 none` and `touch-action: manipulation` are in `src/styles/global.css`; needs the iPad.
 - [ ] **Holding a finger on the doll does not open Safari's context menu.**

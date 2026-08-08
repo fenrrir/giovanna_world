@@ -6,7 +6,7 @@ import type { Look } from '../model/types';
 import { BODY, findPart } from '../parts/registry';
 import { Doll } from '../render/Doll';
 import { useLook } from '../state/lookContext';
-import { ScrollRow } from './ScrollRow';
+import { ScrollRail } from './ScrollRail';
 import { TapTarget } from './TapTarget';
 import styles from './controls.module.css';
 
@@ -53,32 +53,36 @@ export const SavedTray = (): JSX.Element => {
   const worn = signature(look);
 
   return (
-    <ScrollRow>
-      <li>
-        <TapTarget label={t('saved.keep')} selected={false} onSelect={keep}>
-          <Star />
-        </TapTarget>
-      </li>
-
-      {album.map((kept) => (
-        <li key={signature(kept)}>
-          <TapTarget
-            label={t('saved.wear')}
-            selected={signature(kept) === worn}
-            onSelect={() => {
-              dispatch({ type: 'replaceLook', look: kept });
-            }}
-          >
-            <Doll
-              className={styles.thumb}
-              look={kept}
-              lookup={findPart}
-              body={BODY}
-              label={t('saved.wear')}
-            />
+    /* The same column the pieces stand in, minus the colours: there is nothing
+       in a whole outfit for a single picker to paint. */
+    <div className={styles.column}>
+      <ScrollRail>
+        <li>
+          <TapTarget label={t('saved.keep')} selected={false} onSelect={keep}>
+            <Star />
           </TapTarget>
         </li>
-      ))}
-    </ScrollRow>
+
+        {album.map((kept) => (
+          <li key={signature(kept)}>
+            <TapTarget
+              label={t('saved.wear')}
+              selected={signature(kept) === worn}
+              onSelect={() => {
+                dispatch({ type: 'replaceLook', look: kept });
+              }}
+            >
+              <Doll
+                className={styles.thumb}
+                look={kept}
+                lookup={findPart}
+                body={BODY}
+                label={t('saved.wear')}
+              />
+            </TapTarget>
+          </li>
+        ))}
+      </ScrollRail>
+    </div>
   );
 };

@@ -2,14 +2,32 @@
  * SPEC section 4: every touch target is at least 60x60 CSS px with at least
  * 8 px between them. These two values are the floor for every control here.
  */
-.row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-content: flex-start;
-  margin: 0;
-  padding: 8px;
-  list-style: none;
+
+/*
+ * The column the pieces stand in, with whatever paints them at its foot. The
+ * album borrows it too: same width, same panel, no colours.
+ */
+.column {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  justify-items: center;
+  gap: 8px;
+  min-height: 0;
+  border-radius: 20px;
+  background: #f1f0fb;
+}
+
+/*
+ * The axes of a generated piece, in a column of their own between the stage and
+ * the pieces. It is the widest thing on the right because it is the only one
+ * carrying words, and it is gone entirely whenever nothing shaped is worn.
+ */
+.axes {
+  width: clamp(180px, 26vw, 300px);
+  min-height: 0;
+  overflow-y: auto;
+  border-radius: 20px;
+  background: #f1f0fb;
 }
 
 .target {
@@ -132,35 +150,48 @@
 }
 
 /*
- * One row that travels sideways, with a chevron at whichever end still has
- * something on it. Wrapping to a second line was the alternative and it costs
- * height the doll needs — on an iPad the panel is the short side of the screen.
+ * One column that travels up and down, with a chevron at whichever end still
+ * has something on it. Running the controls down the side rather than across
+ * the bottom is what leaves the scene the width of the window; one deep, so the
+ * rail never wraps and never grows sideways into the stage.
  */
 .scroller {
   display: flex;
-  flex: 1;
+  flex-direction: column;
   align-items: center;
   gap: 4px;
-  min-width: 0;
+  min-height: 0;
 }
 
-.scroller > .row {
+.rail {
+  display: flex;
   flex: 1;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 8px;
+  overflow-y: auto;
+  min-height: 0;
+  list-style: none;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
-  /* Comes to rest on a whole thumbnail, never halfway across one. */
-  scroll-snap-type: x mandatory;
+  /* Comes to rest on a whole thumbnail, never halfway down one. */
+  scroll-snap-type: y mandatory;
+  /*
+   * Matching the padding above, or the first thumbnail can only snap into place
+   * 8 px down and the rail never sits at zero — which lit a chevron pointing at
+   * nothing every time the rail was long enough to scroll at all.
+   */
+  scroll-padding-block: 8px;
 }
 
-.scroller > .row > li {
+.rail > li {
   scroll-snap-align: start;
 }
 
-/* The bar is dragged with a finger; a scrollbar would only take up room. */
-.scroller > .row::-webkit-scrollbar {
+/* The rail is dragged with a finger; a scrollbar would only take up room. */
+.rail::-webkit-scrollbar {
   display: none;
 }
 
@@ -168,8 +199,8 @@
   display: grid;
   flex: none;
   place-items: center;
-  width: 44px;
-  height: 68px;
+  width: 68px;
+  height: 60px;
   padding: 0;
   border: none;
   border-radius: 16px;
@@ -214,9 +245,11 @@
   border-radius: 50%;
 }
 
-/* Two round pickers: the skin, and whatever is worn in the open tray. */
+/* Two round pickers: the skin, and whatever is worn in the open tray. Stacked,
+   because they sit at the foot of a column one thumbnail wide. */
 .pickers {
   display: flex;
+  flex-direction: column;
   gap: 10px;
   padding: 8px;
 }

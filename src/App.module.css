@@ -1,6 +1,16 @@
+/*
+ * The stage, then one narrow rail per column of controls.
+ *
+ * Only the stage is declared. Every rail lands in an implicit column that sizes
+ * to its own content, which is what makes a column that is not rendered cost
+ * nothing: no empty track, no gap left behind, and the scene grows into the
+ * space the moment the axes panel goes away.
+ */
 .app {
   display: grid;
-  grid-template-columns: minmax(300px, 1fr) minmax(320px, 1fr);
+  grid-auto-flow: column;
+  grid-template-columns: minmax(0, 1fr);
+  grid-auto-columns: auto;
   /*
    * An auto row grows past the container when its content does, which is how a
    * zoomed-in doll pushed the slider off the screen. Bounding the row here, and
@@ -51,46 +61,23 @@
 
 /*
  * One level of navigation (SPEC section 4): the tray chooser, the pieces and
- * the colours are all on screen at once. Opening a tray swaps the contents in
+ * the colours are all on screen at once. Opening a tray swaps a column in
  * place — there is no modal and no way back to find.
+ *
+ * The trays run down the outer edge with the die beneath them, apart from the
+ * trays because it is not a choice of piece — it replaces the whole outfit.
+ *
+ * There is no narrow-screen stack any more. Two rails cost the stage about
+ * 200 px at 768 px, which leaves it more room than stacking the panel under the
+ * doll ever did, so the special case had nothing left to buy.
  */
-.panel {
+.trays {
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: minmax(0, 1fr) auto;
+  justify-items: center;
   gap: 8px;
-  min-width: 0;
-  overflow: hidden;
-}
-
-.parts {
-  overflow-y: auto;
-  border-radius: 20px;
-  background: #f1f0fb;
-}
-
-/* iPad portrait and anything narrower stacks instead of splitting. */
-@media (max-width: 900px) {
-  .app {
-    grid-template-columns: 1fr;
-    grid-template-rows: minmax(0, 1fr) auto;
-  }
-}
-
-/*
- * The tray chooser and the randomise button share the top row. Randomise sits
- * apart from the trays because it is not a choice of piece — it replaces the
- * whole outfit.
- */
-.top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  /*
-   * A grid item refuses to shrink below its content without this, so the tray
-   * bar grew to the width of all its trays and the randomise button was clipped
-   * off the end of the panel. It is also what lets the row overflow inside
-   * itself, which is the condition the chevrons look for.
-   */
-  min-width: 0;
+  /* A grid item refuses to shrink below its content without this, and it is
+     also what lets the rail overflow inside itself — the condition the chevrons
+     look for. */
+  min-height: 0;
 }

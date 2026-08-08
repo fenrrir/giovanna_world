@@ -4,44 +4,44 @@ import { edgesOf, scrollStep } from './scrollEdges';
 
 describe('edgesOf', () => {
   it('offers neither way when everything fits', () => {
-    expect(edgesOf({ scrollLeft: 0, clientWidth: 400, scrollWidth: 400 })).toStrictEqual({
+    expect(edgesOf({ offset: 0, viewport: 400, content: 400 })).toStrictEqual({
       start: false,
       end: false,
     });
   });
 
-  it('offers the way forward at the start of a long row', () => {
-    expect(edgesOf({ scrollLeft: 0, clientWidth: 400, scrollWidth: 900 })).toStrictEqual({
+  it('offers the way forward at the start of a long rail', () => {
+    expect(edgesOf({ offset: 0, viewport: 400, content: 900 })).toStrictEqual({
       start: false,
       end: true,
     });
   });
 
   it('offers both ways in the middle', () => {
-    expect(edgesOf({ scrollLeft: 250, clientWidth: 400, scrollWidth: 900 })).toStrictEqual({
+    expect(edgesOf({ offset: 250, viewport: 400, content: 900 })).toStrictEqual({
       start: true,
       end: true,
     });
   });
 
   it('offers only the way back at the end', () => {
-    expect(edgesOf({ scrollLeft: 500, clientWidth: 400, scrollWidth: 900 })).toStrictEqual({
+    expect(edgesOf({ offset: 500, viewport: 400, content: 900 })).toStrictEqual({
       start: true,
       end: false,
     });
   });
 
-  it('points nowhere when the row is a fraction short of its end', () => {
-    expect(edgesOf({ scrollLeft: 499.4, clientWidth: 400, scrollWidth: 900 }).end).toBe(false);
+  it('points nowhere when the rail is a fraction short of its end', () => {
+    expect(edgesOf({ offset: 499.4, viewport: 400, content: 900 }).end).toBe(false);
   });
 
   it('ignores a fraction of scroll at the very start', () => {
-    expect(edgesOf({ scrollLeft: 0.6, clientWidth: 400, scrollWidth: 900 }).start).toBe(false);
+    expect(edgesOf({ offset: 0.6, viewport: 400, content: 900 }).start).toBe(false);
   });
 });
 
 describe('scrollStep', () => {
-  it('moves most of a screenful, leaving an overlap', () => {
+  it('moves most of a railful, leaving an overlap', () => {
     expect(scrollStep(400)).toBe(320);
   });
 

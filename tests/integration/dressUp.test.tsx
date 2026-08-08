@@ -254,13 +254,29 @@ describe('the interface itself', () => {
   it('reaches every control by keyboard', async () => {
     const { user } = mount();
 
-    // The stage comes before the panel, so the zoom slider is reached first and
-    // the trays follow it.
+    // The columns run stage, pieces, trays from left to right, and the keyboard
+    // walks them in that order: the zoom slider under the doll, then the pieces
+    // of the open tray, then the trays themselves out at the edge.
     await user.tab();
 
     expect(document.activeElement).toBe(screen.getByRole('slider', { name: ptBR['zoom.label'] }));
 
     await user.tab();
+
+    expect(document.activeElement).toBe(partButtons()[0]);
+  });
+
+  it('reaches the trays out at the edge, after the pieces', async () => {
+    const { user } = mount();
+
+    const [stage, pieces] = [...screen.getByRole('main').children];
+    const inside = (): boolean =>
+      [stage, pieces].some((column) => column?.contains(document.activeElement) === true);
+
+    // Every control of the stage and of the piece column comes first, however
+    // many pieces the open tray happens to hold. Bounded so a tab order that
+    // never leaves them fails here rather than hanging.
+    for (let step = 0; step < 20 && (step === 0 || inside()); step += 1) await user.tab();
 
     expect(document.activeElement).toBe(trayButton('tray.scene'));
   });

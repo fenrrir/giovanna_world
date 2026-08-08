@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { App } from '../../src/App';
@@ -6,15 +6,15 @@ import { I18nProvider, ptBR } from '../../src/i18n';
 import { LookProvider } from '../../src/state/LookProvider';
 
 /**
- * jsdom lays nothing out, so a row is always zero wide and a chevron would
- * never have anywhere to point. These give the tray bar a width and a longer
+ * jsdom lays nothing out, so a rail is always zero tall and a chevron would
+ * never have anywhere to point. These give every rail a height and a longer
  * content, which is the whole condition the chevrons depend on.
  */
-const measureRow = (scrollLeft: number, clientWidth = 400, scrollWidth = 900): void => {
+const measureRail = (scrollTop: number, clientHeight = 400, scrollHeight = 900): void => {
   for (const [property, value] of [
-    ['scrollLeft', scrollLeft],
-    ['clientWidth', clientWidth],
-    ['scrollWidth', scrollWidth],
+    ['scrollTop', scrollTop],
+    ['clientHeight', clientHeight],
+    ['scrollHeight', scrollHeight],
   ] as const) {
     Object.defineProperty(HTMLUListElement.prototype, property, {
       configurable: true,
@@ -32,62 +32,77 @@ const mount = () =>
     </I18nProvider>,
   );
 
+/**
+ * The tray rail, reached through a tray button rather than by position. Every
+ * column is a rail now, so an index into the lists would name whichever one
+ * happens to come first in the document.
+ */
+const trayRail = (): HTMLElement =>
+  screen
+    .getByRole('button', { name: ptBR['tray.open'].replace('{tray}', ptBR['tray.hair']) })
+    .closest('ul')!;
+
+/** The rail together with the chevrons that drive it. */
+const trayScroller = (): HTMLElement => trayRail().parentElement!;
+
 const chevron = (name: 'scroll.back' | 'scroll.forward'): HTMLElement =>
-  screen.getByRole('button', { name: ptBR[name] });
+  within(trayScroller()).getByRole('button', { name: ptBR[name] });
 
-const trayRow = (): HTMLElement => screen.getAllByRole('list')[0]!;
+const noChevron = (name: 'scroll.back' | 'scroll.forward'): void => {
+  expect(within(trayScroller()).queryByRole('button', { name: ptBR[name] })).toBeNull();
+};
 
-describe('the tray bar when it does not fit', () => {
+describe('a rail that does not fit', () => {
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  it('offers only the way forward at the start of the row', () => {
-    measureRow(0);
+  it('offers only the way down at the top of the rail', () => {
+    measureRail(0);
     mount();
 
     expect(chevron('scroll.forward')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: ptBR['scroll.back'] })).toBeNull();
+    noChevron('scroll.back');
   });
 
-  it('offers both ways once the row has been moved', () => {
-    measureRow(250);
+  it('offers both ways once the rail has been moved', () => {
+    measureRail(250);
     mount();
 
     expect(chevron('scroll.back')).toBeInTheDocument();
     expect(chevron('scroll.forward')).toBeInTheDocument();
   });
 
-  it('offers only the way back at the end of the row', () => {
-    measureRow(500);
+  it('offers only the way up at the bottom of the rail', () => {
+    measureRail(500);
     mount();
 
     expect(chevron('scroll.back')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: ptBR['scroll.forward'] })).toBeNull();
+    noChevron('scroll.forward');
   });
 
-  it('moves the row forward by most of a screenful when tapped', () => {
-    measureRow(0);
+  it('moves the rail down by most of a screenful when tapped', () => {
+    measureRail(0);
     const scrollBy = vi.spyOn(Element.prototype, 'scrollBy');
     mount();
 
     fireEvent.pointerDown(chevron('scroll.forward'));
 
-    expect(scrollBy).toHaveBeenCalledWith({ left: 320, behavior: 'smooth' });
+    expect(scrollBy).toHaveBeenCalledWith({ top: 320, behavior: 'smooth' });
   });
 
-  it('moves the row back the other way', () => {
-    measureRow(500);
+  it('moves the rail back up the other way', () => {
+    measureRail(500);
     const scrollBy = vi.spyOn(Element.prototype, 'scrollBy');
     mount();
 
     fireEvent.pointerDown(chevron('scroll.back'));
 
-    expect(scrollBy).toHaveBeenCalledWith({ left: -320, behavior: 'smooth' });
+    expect(scrollBy).toHaveBeenCalledWith({ top: -320, behavior: 'smooth' });
   });
 
   it('answers the keyboard as well as a finger', () => {
-    measureRow(0);
+    measureRail(0);
     const scrollBy = vi.spyOn(Element.prototype, 'scrollBy');
     mount();
 
@@ -95,21 +110,21 @@ describe('the tray bar when it does not fit', () => {
     // from the click a real tap also fires.
     fireEvent.click(chevron('scroll.forward'), { detail: 0 });
 
-    expect(scrollBy).toHaveBeenCalledWith({ left: 320, behavior: 'smooth' });
+    expect(scrollBy).toHaveBeenCalledWith({ top: 320, behavior: 'smooth' });
   });
 
   it('answers the keyboard on the way back too', () => {
-    measureRow(500);
+    measureRail(500);
     const scrollBy = vi.spyOn(Element.prototype, 'scrollBy');
     mount();
 
     fireEvent.click(chevron('scroll.back'), { detail: 0 });
 
-    expect(scrollBy).toHaveBeenCalledWith({ left: -320, behavior: 'smooth' });
+    expect(scrollBy).toHaveBeenCalledWith({ top: -320, behavior: 'smooth' });
   });
 
   it('does not act twice when a tap fires both events', () => {
-    measureRow(0);
+    measureRail(0);
     const scrollBy = vi.spyOn(Element.prototype, 'scrollBy');
     mount();
 
@@ -120,35 +135,35 @@ describe('the tray bar when it does not fit', () => {
     expect(scrollBy).toHaveBeenCalledTimes(1);
   });
 
-  it('re-reads the row as it is scrolled', () => {
-    measureRow(0);
+  it('re-reads the rail as it is scrolled', () => {
+    measureRail(0);
     mount();
 
-    expect(screen.queryByRole('button', { name: ptBR['scroll.back'] })).toBeNull();
+    noChevron('scroll.back');
 
-    measureRow(250);
-    fireEvent.scroll(trayRow());
+    measureRail(250);
+    fireEvent.scroll(trayRail());
 
     expect(chevron('scroll.back')).toBeInTheDocument();
   });
 
   it('adds no word to the interface', () => {
-    measureRow(250);
+    measureRail(250);
     const { container } = mount();
 
     expect(container.textContent.trim()).toBe('');
   });
 });
 
-describe('the tray bar when everything fits', () => {
+describe('a rail with everything on it', () => {
   beforeEach(() => {
-    measureRow(0, 900, 900);
+    measureRail(0, 900, 900);
   });
 
   it('shows no chevron, because there is nowhere to go', () => {
     mount();
 
-    expect(screen.queryByRole('button', { name: ptBR['scroll.back'] })).toBeNull();
-    expect(screen.queryByRole('button', { name: ptBR['scroll.forward'] })).toBeNull();
+    noChevron('scroll.back');
+    noChevron('scroll.forward');
   });
 });

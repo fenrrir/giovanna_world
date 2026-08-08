@@ -1,7 +1,6 @@
 import { useCallback, useRef, useState, type JSX } from 'react';
 
 import { RENDER_ORDER, type Slot } from './model/slots';
-import { ColorTray } from './ui/ColorTray';
 import { DraggableDoll } from './ui/DraggableDoll';
 import { PartTray } from './ui/PartTray';
 import { ZoomSlider } from './ui/ZoomSlider';
@@ -16,9 +15,15 @@ import styles from './App.module.css';
 /**
  * The dress-up surface.
  *
- * Everything the child needs is on one screen: the doll, the four trays, the
- * pieces in the open tray and the colours. Opening a tray swaps the middle row
- * in place — no modal, no back button (SPEC section 4).
+ * Everything the child needs is on one screen: the doll on her stage, the trays
+ * down the right-hand edge, the pieces in the open tray beside them, and the
+ * axes of a piece she shapes beside those. Opening a tray swaps a column in
+ * place — no modal, no back button (SPEC section 4).
+ *
+ * The stage is the only column with a size of its own; every rail is as narrow
+ * as its own content. A column that is not rendered therefore costs nothing at
+ * all, which is what lets the scene take back the width of the axes panel the
+ * moment she stops shaping something.
  */
 export const App = (): JSX.Element => {
   const [active, setActive] = useState<ActiveTray>('hair');
@@ -63,22 +68,21 @@ export const App = (): JSX.Element => {
         <ZoomSlider zoom={zoom} onChange={setZoom} />
       </section>
 
-      <section className={styles.panel}>
-        <div className={styles.top}>
-          <SlotBar active={active} onSelect={setActive} />
-          <RandomButton />
-        </div>
-        <div className={styles.parts}>
-          {/* Keyed by tray: opening one mounts it afresh, which is how the
-              axes panel tells her own tap from a roll of the dice. */}
-          {tray ? (
-            <PartTray key={active} tray={tray} isInsideDropZone={isInsideDropZone} />
-          ) : (
-            <SavedTray />
-          )}
-        </div>
-        {tray && <ColorTray tray={tray} />}
-      </section>
+      {/* Keyed by tray: opening one mounts it afresh, which is how the axes
+          panel tells her own tap from a roll of the dice. It puts its own two
+          columns straight into this grid. */}
+      {tray ? (
+        <PartTray key={active} tray={tray} isInsideDropZone={isInsideDropZone} />
+      ) : (
+        <SavedTray />
+      )}
+
+      {/* Last, and outermost: the die sits under the trays because it replaces
+          the whole outfit rather than the piece any one tray holds. */}
+      <nav className={styles.trays}>
+        <SlotBar active={active} onSelect={setActive} />
+        <RandomButton />
+      </nav>
     </main>
   );
 };
