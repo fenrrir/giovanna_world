@@ -3,6 +3,12 @@ import type { EquippedPart, Look } from '../model/types';
 /** The active look, written with a 300 ms debounce (SPEC section 14). */
 export const CURRENT_LOOK_KEY = 'look:current';
 
+/** The looks she chose to keep (SPEC section 14). */
+export const SAVED_LOOKS_KEY = 'look:saved';
+
+/** How many the album holds before the oldest falls off the end (SPEC section 14). */
+export const MAX_SAVED_LOOKS = 12;
+
 const SCHEMA_VERSION = 1;
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -67,4 +73,50 @@ export const saveLook = (look: Look, storage: Storage | null = browserStorage())
   } catch {
     // A full or unavailable store must never surface as an error on screen.
   }
+};
+
+/**
+ * The album, with the unreadable entries dropped rather than the whole of it.
+ *
+ * One look stored by a version that no longer parses costs her that look, not
+ * the other eleven — which is the difference between a lost outfit and a lost
+ * album (SPEC section 14).
+ */
+export const loadSavedLooks = (storage: Storage | null = browserStorage()): Look[] => {
+  const raw = storage?.getItem(SAVED_LOOKS_KEY) ?? null;
+
+  if (raw === null) return [];
+
+  try {
+    const parsed: unknown = JSON.parse(raw);
+
+    return Array.isArray(parsed) ? parsed.filter(isLook).slice(0, MAX_SAVED_LOOKS) : [];
+  } catch {
+    return [];
+  }
+};
+
+export const saveSavedLooks = (
+  looks: readonly Look[],
+  storage: Storage | null = browserStorage(),
+): void => {
+  try {
+    storage?.setItem(SAVED_LOOKS_KEY, JSON.stringify(looks.slice(0, MAX_SAVED_LOOKS)));
+  } catch {
+    // A full or unavailable store must never surface as an error on screen.
+  }
+};
+
+/**
+ * The album with this look kept, newest first.
+ *
+ * Keeping the same look twice does nothing but move it to the front: a child
+ * pressing the button again is not asking for a duplicate, and twelve slots are
+ * too few to spend on one. Past twelve the oldest falls off the end, which is
+ * why there is no way to delete one — the album empties itself.
+ */
+export const withSavedLook = (saved: readonly Look[], look: Look): Look[] => {
+  const same = JSON.stringify(look);
+
+  return [look, ...saved.filter((kept) => JSON.stringify(kept) !== same)].slice(0, MAX_SAVED_LOOKS);
 };

@@ -257,9 +257,28 @@ Not built, deliberately. Each is real scope, recorded so nothing is lost — but
 The slot taxonomy and z-order already cover the Phase 2 slots (SPEC §7), so adding them later is
 registering parts, not reshaping the model.
 
-**Before building the gallery, settle this:** a list of saved looks wants to be a second surface,
-and SPEC §4 allows exactly one level of navigation with no modal. It has to fit on the same
-screen or the rule has to change deliberately, not by accident.
+**The gallery's design decision is settled, and the scrolling tray bar is what settled it.** A
+list of saved looks wanted to be a second surface; it does not have to be one. The album is simply
+another tray. Tap it and the piece row shows her saved looks instead of pieces; tap one and she
+wears it. Same mechanism as everything else, exactly one level, no modal — the rule did not have
+to move.
+
+The storage half is done: `look:saved`, twelve slots, newest first, in `lib/storage.ts` with
+`withSavedLook` pure beside it. Two behaviours worth knowing, both tested:
+
+- Keeping the same look twice only moves it to the front. Twelve slots are too few to spend two on
+  one outfit, and a child pressing the button again is not asking for a duplicate.
+- A stored entry that no longer parses costs her that entry, not the album. `loadLook` returns null
+  for the whole of `look:current` when it is unreadable; an album must not lose eleven good outfits
+  over one bad one.
+
+Past twelve the oldest falls off the end, which is deliberately why there is no delete: the album
+empties itself, and a delete gesture is one more thing to explain to someone who cannot read.
+
+**Still to build:** the tray itself — a `saved` tray whose items are looks rather than parts, and
+the gesture that keeps one. `TrayItem` assumes a part today, so that is the join to look at. The
+keep gesture should be a thumbnail inside that tray, not a button elsewhere; it is not the save
+button SPEC §4 forbids, which is about the current look needing to be saved at all.
 
 ## MVP acceptance checklist
 
