@@ -11,8 +11,9 @@ The session entry point. Read this before anything else, act on **Next up**, upd
 
 ## Next up
 
-**Phase 2 has started.** Randomise is done. The next item on the list below is drag and drop
-(SPEC §13), which the long-press work already laid pointer groundwork for.
+**Phase 2 in progress.** Randomise and drag-and-drop are done. Next on the list below: the five
+Phase 2 slots (`socks`, `outer`, `accessoryFace`, `accessoryHead`, `handheld`), which need
+artwork, or the saved-looks gallery, which needs a design decision first — see the note there.
 
 The iPad validation is still owed: four of the nine acceptance criteria in SPEC §17 are verified,
 and of the five still open, four need the device and the last needs the child.
@@ -100,9 +101,17 @@ piece looks right. Read these before drawing a new part:
 
 ## Phase 2
 
-**Done:** randomise. A long press on the die replaces the whole outfit — SPEC §4 requires a hold
-rather than a tap for the one control that throws away what the child made. `useLongPress` is
-reusable and is the pointer groundwork drag and drop will build on.
+**Randomise.** A long press on the die replaces the whole outfit — SPEC §4 requires a hold rather
+than a tap for the one control that throws away what the child made.
+
+**Drag and drop.** A piece can be dragged from the tray onto the doll, or still just tapped. The
+pointer is captured on the way down so the piece keeps following the finger off the button, and
+the drop target is the whole stage rather than the piece's own region — a six-year-old aiming a
+sleeve at a shoulder would miss every time. A piece released short of the stage fades back inside
+the 120 ms the spec allows.
+
+The piece is applied on release, not on press. Applying on press would have made the drag
+decorative: the piece would already be on the doll before the child had moved it anywhere.
 
 ### Still deferred
 
@@ -110,7 +119,6 @@ Not built, deliberately. Each is real scope, recorded so nothing is lost — but
 
 | Item                                                                 | Where the spec puts it |
 | -------------------------------------------------------------------- | ---------------------- |
-| Drag and drop from tray to doll (`setPointerCapture`)                | SPEC §13, Phase 2      |
 | `look:saved` — gallery of up to 12 saved looks                       | SPEC §14, Phase 2      |
 | Optional WebAudio click with a persisted mute toggle                 | SPEC §13, Phase 2      |
 | Slots `socks`, `outer`, `accessoryFace`, `accessoryHead`, `handheld` | SPEC §7, Phase 2       |
@@ -120,6 +128,10 @@ Not built, deliberately. Each is real scope, recorded so nothing is lost — but
 
 The slot taxonomy and z-order already cover the Phase 2 slots (SPEC §7), so adding them later is
 registering parts, not reshaping the model.
+
+**Before building the gallery, settle this:** a list of saved looks wants to be a second surface,
+and SPEC §4 allows exactly one level of navigation with no modal. It has to fit on the same
+screen or the rule has to change deliberately, not by accident.
 
 ## MVP acceptance checklist
 

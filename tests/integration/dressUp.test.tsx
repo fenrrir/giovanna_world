@@ -244,7 +244,7 @@ describe('the interface itself', () => {
     expect(document.activeElement).toBe(trayButton('tray.hair'));
   });
 
-  it('acts on a keyboard activation as well as a tap', async () => {
+  it('chooses a piece from the keyboard as well as by tap', async () => {
     const { user } = mount();
 
     await user.click(trayButton('tray.top'));
@@ -253,6 +253,28 @@ describe('the interface itself', () => {
     await user.keyboard('{Enter}');
 
     expect(paintedSlots()).toContain('top');
+  });
+
+  it('opens a tray from the keyboard too', async () => {
+    const { user } = mount();
+
+    trayButton('tray.shoes').focus();
+    await user.keyboard('{Enter}');
+
+    expect(trayButton('tray.shoes')).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('recolours from the keyboard too', async () => {
+    const { user } = mount();
+
+    await user.click(trayButton('tray.top'));
+    await user.click(partButtons()[0]!);
+
+    const swatches = screen.getAllByRole('button', { name: ptBR['color.choose'] });
+    swatches[3]!.focus();
+    await user.keyboard('{Enter}');
+
+    expect(swatches[3]).toHaveAttribute('aria-pressed', 'true');
   });
 
   it('keeps the doll and the trays on one screen, with no dialog', () => {

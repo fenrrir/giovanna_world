@@ -1,14 +1,17 @@
 import type { JSX } from 'react';
 
-import { useTranslation } from '../i18n';
 import { PALETTES } from '../model/palettes';
-import { Thumb } from '../render/Thumb';
 import { useLook } from '../state/lookContext';
-import { TapTarget } from './TapTarget';
+import { DraggablePart } from './DraggablePart';
 import { equippedIn, trayItems, type TrayDefinition } from './trays';
+import type { DragPoint } from './useDrag';
 import styles from './controls.module.css';
 
-type PartTrayProps = { tray: TrayDefinition };
+type PartTrayProps = {
+  tray: TrayDefinition;
+  /** Where the doll is. Injected because only the layout knows the rectangle. */
+  isInsideDropZone: (point: DragPoint) => boolean;
+};
 
 /**
  * The pieces available in the open tray.
@@ -16,8 +19,7 @@ type PartTrayProps = { tray: TrayDefinition };
  * Choosing one keeps whatever colour that slot already had, so swapping a top
  * does not silently reset the child's colour choice.
  */
-export const PartTray = ({ tray }: PartTrayProps): JSX.Element => {
-  const { t } = useTranslation();
+export const PartTray = ({ tray, isInsideDropZone }: PartTrayProps): JSX.Element => {
   const { look, dispatch } = useLook();
   const worn = equippedIn(look, tray);
   const currentColor = look.equipped[tray.slot]?.color ?? PALETTES[tray.palette][0];
@@ -26,21 +28,16 @@ export const PartTray = ({ tray }: PartTrayProps): JSX.Element => {
     <ul className={styles.row}>
       {trayItems(tray).map((item) => (
         <li key={item.id}>
-          <TapTarget
-            label={t('part.choose', { tray: t(tray.label) })}
-            selected={item.id === worn}
-            onSelect={() => {
+          <DraggablePart
+            tray={tray}
+            item={item}
+            color={currentColor}
+            worn={item.id === worn}
+            onChoose={() => {
               dispatch(item.apply(currentColor));
             }}
-          >
-            <Thumb
-              className={styles.thumb}
-              render={item.render}
-              color={currentColor}
-              focus={tray.focus}
-              label={t(tray.label)}
-            />
-          </TapTarget>
+            isInsideDropZone={isInsideDropZone}
+          />
         </li>
       ))}
     </ul>

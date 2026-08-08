@@ -57,3 +57,29 @@
   border-color: #e24b4a;
   background: #f7d9d8;
 }
+
+/*
+ * The dragged piece follows the finger. It sits above everything and takes no
+ * pointer events of its own, or it would steal the pointer it is following.
+ */
+.ghost {
+  position: fixed;
+  z-index: 10;
+  width: 68px;
+  height: 68px;
+  margin: -34px 0 0 -34px;
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+/* SPEC section 4: nothing runs longer than 120 ms. */
+.returning {
+  transition: opacity 120ms ease;
+  opacity: 0.4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .returning {
+    transition: none;
+  }
+}

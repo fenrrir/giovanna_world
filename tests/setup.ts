@@ -38,8 +38,26 @@ Object.defineProperty(globalThis, 'localStorage', {
   value: memoryStorage(),
 });
 
+/**
+ * jsdom implements no pointer capture. The app uses it so a dragged piece keeps
+ * following the finger once it leaves the button it started on (SPEC §13), so
+ * the tests need the API to exist — tracking which element holds the capture is
+ * the browser's job, not something worth reimplementing here.
+ */
+const captured = new Set<number>();
+
+// Arrows, so nothing here depends on the element it is called on.
+Element.prototype.setPointerCapture = (pointerId: number): void => {
+  captured.add(pointerId);
+};
+Element.prototype.releasePointerCapture = (pointerId: number): void => {
+  captured.delete(pointerId);
+};
+Element.prototype.hasPointerCapture = (pointerId: number): boolean => captured.has(pointerId);
+
 beforeEach(() => {
   localStorage.clear();
+  captured.clear();
 });
 
 afterEach(() => {
