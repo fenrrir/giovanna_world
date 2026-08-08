@@ -21,6 +21,7 @@ export const ptBR = {
   'part.choose': 'Vestir esta peça de {tray}',
   'color.choose': 'Pintar de outra cor',
   'skin.choose': 'Mudar o tom de pele',
+  'look.randomise': 'Segurar para sortear uma roupa nova',
 
   'dev.sheet.title': 'Folha de contato',
   'dev.sheet.slot': 'Peça',

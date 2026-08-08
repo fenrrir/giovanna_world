@@ -7,6 +7,7 @@ import { Doll } from './render/Doll';
 import { useLook } from './state/lookContext';
 import { ColorTray } from './ui/ColorTray';
 import { PartTray } from './ui/PartTray';
+import { RandomButton } from './ui/RandomButton';
 import { SlotBar } from './ui/SlotBar';
 import { trayById } from './ui/trays';
 import styles from './App.module.css';
@@ -37,7 +38,10 @@ export const App = (): JSX.Element => {
       </section>
 
       <section className={styles.panel}>
-        <SlotBar active={active} onSelect={setActive} />
+        <div className={styles.top}>
+          <SlotBar active={active} onSelect={setActive} />
+          <RandomButton />
+        </div>
         <div className={styles.parts}>
           <PartTray tray={tray} />
         </div>

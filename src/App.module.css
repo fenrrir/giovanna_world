@@ -49,3 +49,15 @@
     grid-template-rows: minmax(0, 1fr) auto;
   }
 }
+
+/*
+ * The tray chooser and the randomise button share the top row. Randomise sits
+ * apart from the trays because it is not a choice of piece — it replaces the
+ * whole outfit.
+ */
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}

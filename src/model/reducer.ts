@@ -2,7 +2,7 @@ import type { Slot } from './slots';
 import type { HairStyle, Look, Part } from './types';
 
 export type LookAction =
-  | { type: 'hydrate'; look: Look }
+  | { type: 'replaceLook'; look: Look }
   | { type: 'setSkin'; color: string }
   | { type: 'applyPart'; part: Part; color: string }
   | { type: 'applyHair'; hair: HairStyle; color: string }
@@ -32,7 +32,7 @@ const recolour = (look: Look, slots: readonly Slot[], color: string): Look => {
  */
 export const lookReducer = (state: Look, action: LookAction): Look => {
   switch (action.type) {
-    case 'hydrate':
+    case 'replaceLook':
       return action.look;
 
     case 'setSkin':

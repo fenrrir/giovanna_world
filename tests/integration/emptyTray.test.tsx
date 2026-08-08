@@ -38,6 +38,24 @@ describe('the contact sheet', () => {
   });
 });
 
+describe('the randomiser', () => {
+  beforeEach(() => {
+    vi.resetModules();
+  });
+
+  it('skips a tray with nothing in it instead of producing a broken look', async () => {
+    const { randomLook } = await import('../../src/ui/randomize');
+
+    const look = randomLook(() => 0);
+
+    expect(look.equipped.hairBack).toBeUndefined();
+    expect(look.equipped.hairFront).toBeUndefined();
+    expect(look.equipped.top).toBeDefined();
+    expect(look.equipped.shoes).toBeDefined();
+    expect(look.schemaVersion).toBe(1);
+  });
+});
+
 describe('the tray bar', () => {
   beforeEach(() => {
     vi.resetModules();

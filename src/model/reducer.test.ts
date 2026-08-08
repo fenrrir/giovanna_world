@@ -15,11 +15,13 @@ const frozen = (look: Look): Look =>
   Object.freeze({ ...look, equipped: Object.freeze({ ...look.equipped }) });
 
 describe('lookReducer', () => {
-  describe('hydrate', () => {
+  describe('replaceLook', () => {
     it('replaces the whole look', () => {
       const stored: Look = { schemaVersion: 1, skin: '#8A5A38', equipped: {} };
 
-      expect(lookReducer(DEFAULT_LOOK, { type: 'hydrate', look: stored })).toStrictEqual(stored);
+      expect(lookReducer(DEFAULT_LOOK, { type: 'replaceLook', look: stored })).toStrictEqual(
+        stored,
+      );
     });
   });
 
@@ -112,7 +114,7 @@ describe('lookReducer', () => {
     it('recolours a half-hydrated hairstyle without inventing the missing half', () => {
       // Storage can hand back a look with only one hair slot populated.
       const partial = lookReducer(DEFAULT_LOOK, {
-        type: 'hydrate',
+        type: 'replaceLook',
         look: {
           schemaVersion: 1,
           skin: '#F7DCC3',
@@ -147,7 +149,7 @@ describe('lookReducer', () => {
       ['setSkin', { type: 'setSkin', color: '#C68A5E' }],
       ['applyPart', { type: 'applyPart', part: top, color: '#1D9E75' }],
       ['applyHair', { type: 'applyHair', hair, color: '#6B3A1F' }],
-      ['hydrate', { type: 'hydrate', look: DEFAULT_LOOK }],
+      ['replaceLook', { type: 'replaceLook', look: DEFAULT_LOOK }],
     ] as const)('never mutates the state it is given for %s', (_name, action) => {
       const state = frozen(DEFAULT_LOOK);
 

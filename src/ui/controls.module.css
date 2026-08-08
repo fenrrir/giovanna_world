@@ -47,3 +47,13 @@
   height: 48px;
   border-radius: 50%;
 }
+
+/*
+ * The long-press control fills while held. That is the only feedback the child
+ * gets that the hold is registering, so it is a colour change rather than an
+ * animation — nothing here may run longer than 120 ms (SPEC section 4).
+ */
+.held {
+  border-color: #e24b4a;
+  background: #f7d9d8;
+}

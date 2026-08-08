@@ -11,20 +11,19 @@ The session entry point. Read this before anything else, act on **Next up**, upd
 
 ## Next up
 
-**Phase 1 is complete.** All twelve wearable parts are drawn, registered and passing the
-contract suite; the engine, interface, PWA and deployment were already in place.
+**Phase 2 has started.** Randomise is done. The next item on the list below is drag and drop
+(SPEC §13), which the long-press work already laid pointer groundwork for.
 
-What is left is not code. Four of the nine acceptance criteria in SPEC §17 are verified; of the
-five still open, four need the iPad and the last one needs the child. Run through the checklist
-at the bottom of this file, then decide whether to start Phase 2 from the deferred list.
+The iPad validation is still owed: four of the nine acceptance criteria in SPEC §17 are verified,
+and of the five still open, four need the device and the last needs the child.
 
 ## Status
 
 Plan: [docs/plans/2026-08-08-paper-doll-mvp.md](docs/plans/2026-08-08-paper-doll-mvp.md)
 
 Phase 1 is complete: foundation, engine, interface, PWA, deployment and all twelve wearable
-parts. The app is live at **https://fenrrir.github.io/giovanna_world/** with 540 tests and
-100% coverage.
+parts. The app is live at **https://fenrrir.github.io/giovanna_world/** with 565 tests and
+100% line, statement and function coverage.
 
 | #   | Task                                                                    | Status |
 | --- | ----------------------------------------------------------------------- | ------ |
@@ -99,7 +98,13 @@ piece looks right. Read these before drawing a new part:
 - **Mirror by writing both sides out.** Parameterising the mirror with sign arithmetic produced
   geometry that silently collapsed, leaving the doll sleeveless while every assertion passed.
 
-## Deferred by YAGNI
+## Phase 2
+
+**Done:** randomise. A long press on the die replaces the whole outfit — SPEC §4 requires a hold
+rather than a tap for the one control that throws away what the child made. `useLongPress` is
+reusable and is the pointer groundwork drag and drop will build on.
+
+### Still deferred
 
 Not built, deliberately. Each is real scope, recorded so nothing is lost — but no stub exists in the source.
 
@@ -107,7 +112,6 @@ Not built, deliberately. Each is real scope, recorded so nothing is lost — but
 | -------------------------------------------------------------------- | ---------------------- |
 | Drag and drop from tray to doll (`setPointerCapture`)                | SPEC §13, Phase 2      |
 | `look:saved` — gallery of up to 12 saved looks                       | SPEC §14, Phase 2      |
-| `randomize` reducer action and its long-press button                 | SPEC §4 / §15, Phase 2 |
 | Optional WebAudio click with a persisted mute toggle                 | SPEC §13, Phase 2      |
 | Slots `socks`, `outer`, `accessoryFace`, `accessoryHead`, `handheld` | SPEC §7, Phase 2       |
 | Background scenes                                                    | SPEC §15, Phase 3      |
