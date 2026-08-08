@@ -17,6 +17,18 @@ and cheeks — and the **parametric hair generator** are done. Next on the list 
 remaining Phase 2 slots (`socks`, `outer`, `handheld`), which need artwork, or the saved-looks
 gallery, which needs a design decision first — see the note there.
 
+**The second parametric slot is under way: `outer`, a jacket.** Its axes and geometry are done,
+tested and registered, so the contract holds it to the same six criteria as every drawn part. What
+is _not_ done is the wiring: it has no tray, so the child cannot reach it yet, and the panel that
+would let her shape it is still `HairParamsPanel`, hair-only. That is the next task, and it is
+where the abstraction the generator was built to reveal has to be found.
+
+What the second slot has shown so far: the two params modules came out the same shape without
+sharing a line, and the only genuinely common thing is repairing whatever `localStorage` hands
+back — four lines either side. Not yet worth a type. The pieces that do want generalising are the
+ones PROGRESS predicted: `TrayItem.shaped`, `trayItems`' hair-shaped `custom` argument, and the
+panel.
+
 The generator is the mould for the second parametric slot, and the second slot is what will reveal
 the right abstraction. Deliberately nothing generic was built for it: `hair.custom` is hair and
 nothing else. When the time comes, the pieces that will want generalising are `TrayItem.shaped`

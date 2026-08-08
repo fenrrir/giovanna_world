@@ -33,6 +33,9 @@ const SLOT_ANCHORS: Partial<Record<Slot, { minY: number; maxY: number }>> = {
   hairFront: { minY: ANCHORS.skullTop.y, maxY: ANCHORS.eyeLine.y },
   body: { minY: ANCHORS.skullTop.y, maxY: ANCHORS.sole.y },
   top: { minY: ANCHORS.shoulderLeft.y, maxY: ANCHORS.waist.y },
+  // A jacket hangs from the shoulder and has to reach the waist even when the
+  // child has wound it all the way short.
+  outer: { minY: ANCHORS.shoulderLeft.y, maxY: ANCHORS.waist.y },
   bottom: { minY: ANCHORS.waist.y, maxY: ANCHORS.hip.y },
   shoes: { minY: ANCHORS.shoeLeft.y1, maxY: ANCHORS.sole.y },
   // A head accessory fails by floating beside the head, so what it must do is

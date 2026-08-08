@@ -2,6 +2,7 @@ import type { PartLookup } from '../model/sanitize';
 import type { Slot } from '../model/slots';
 import type { HairStyle, Part } from '../model/types';
 import { CUSTOM_HAIR_ID, customHair } from './hair/custom';
+import { customOuter } from './outer/custom';
 import { BOW } from './accessoryHead/bow';
 import { ROUND_BLUSH } from './blush/round';
 import { SOFT_ARCH } from './brows/softArch';
@@ -43,6 +44,12 @@ export const HAIR_STYLES: readonly HairStyle[] = [BOB_FRINGE, LONG_WAVY, TWIN_BU
  * chooses among the drawn hairstyles rather than inventing axes.
  */
 const CUSTOM_HAIR = customHair();
+/*
+ * Registered at its default axes so the contract holds it to the same six
+ * criteria as every drawn part. The tray that lets her shape it comes next; a
+ * part that no tray offers is still a part the suite must be able to check.
+ */
+const CUSTOM_OUTER = customOuter();
 
 const TOPS: readonly Part[] = [T_SHIRT, POLKA_DOT_DRESS, STRIPED_SWEATSHIRT, TANK_TOP];
 const BOTTOMS: readonly Part[] = [SKIRT, JEANS, SHORTS];
@@ -68,7 +75,7 @@ export const PARTS_BY_SLOT: Readonly<Record<Slot, readonly Part[]>> = {
   bottom: BOTTOMS,
   shoes: SHOES,
   socks: [],
-  outer: [],
+  outer: [CUSTOM_OUTER],
   accessoryFace: [],
   accessoryHead: HEAD_ACCESSORIES,
   handheld: [],
