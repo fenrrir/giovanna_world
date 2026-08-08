@@ -37,7 +37,7 @@ describe('zooming in on the doll', () => {
 
     fireEvent.change(slider(), { target: { value: String(MAX_ZOOM) } });
 
-    expect(dollViewBox()).toBe('234 0 212 540');
+    expect(dollViewBox()).toBe('234 185.83 212 168.35');
   });
 
   it('goes back out again, so a child cannot get stuck zoomed in', () => {
