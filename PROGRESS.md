@@ -258,8 +258,8 @@ would have put the extremes in front of a pair of eyes.
 
 ## Phase 3
 
-**Background scenes are started.** `scene` is a slot at z -10, behind everything, with one meadow in
-it. It is a tray like any other, so choosing and recolouring came free.
+**Background scenes.** `scene` is a slot at z -10, behind everything, with a meadow and a bedroom in
+it. A further scene is one file and one registry line. It is a tray like any other, so choosing and recolouring came free.
 
 It is the first part that is neither worn nor the doll, and that showed up in the contract. The
 lateral margin is a rule about things worn on a doll; a backdrop that stopped at her shoulders would
@@ -296,7 +296,8 @@ migration would have to guess which of two dolls a sky belonged to. She loses on
 - Tapping a doll sets `dressing`. The mark on the active one has to be visible without being text.
 - `scene` stops being read from `Look.equipped`; the scene tray writes `Stage.scene`.
 
-Still open after that: PNG export.
+**PNG export is out of the plan**, by decision rather than deferral — it is not waiting for a
+session, it is not wanted. What closes Phase 3 is the second character's shell.
 
 ### Still deferred
 
@@ -308,7 +309,6 @@ Not built, deliberately. Each is real scope, recorded so nothing is lost — but
 | Optional WebAudio click with a persisted mute toggle | SPEC §13, Phase 2      |
 | Slots `socks`, `outer`, `accessoryFace`, `handheld`  | SPEC §7, Phase 2       |
 | Background scenes                                    | SPEC §15, Phase 3      |
-| PNG export                                           | SPEC §15, Phase 3      |
 | A second character in the same scene                 | SPEC §15, Phase 3      |
 
 The slot taxonomy and z-order already cover the Phase 2 slots (SPEC §7), so adding them later is

@@ -407,7 +407,9 @@ A part only enters the `registry` if:
 
 **Phase 2.** Drag and drop; `socks`, `outer`, `accessoryHead`, `accessoryFace`, `handheld`; a gallery of saved looks; a randomise button; optional sound.
 
-**Phase 3.** Background scenes; PNG export (serialise the SVG → `Blob` → `drawImage` onto a `<canvas>` → `toDataURL`); a second character in the same scene.
+**Phase 3.** Background scenes; a second character in the same scene.
+
+_PNG export was dropped from this phase by decision, not deferred._
 
 ## 16. How to ask Claude Code for a new part
 
