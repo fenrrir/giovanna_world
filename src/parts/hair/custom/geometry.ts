@@ -33,6 +33,17 @@ const FRONT_GAIN = 8;
 const LENGTH_GAIN = 40;
 /** How deep the hem scallops at full wave. */
 const WAVE_DEPTH = 26;
+/**
+ * How far the sides bow in and out at full wave.
+ *
+ * The hem alone is not enough: at anything but the longest setting it falls
+ * behind the torso and the arms, so scalloping it moves a slider and changes
+ * nothing the child can see. The sides of the face are visible at every
+ * setting, which is where the axis has to do its work.
+ */
+const WAVE_RIPPLE = 14;
+/** How far the end of each strand beside the face curls under at full wave. */
+const WAVE_CURL = 16;
 /** The band of hair that frames the face, temple to face edge. */
 const TEMPLE = 18;
 /** How far below the chin the front layer runs down the sides of the face. */
@@ -57,6 +68,7 @@ type Frame = {
   wh: number;
   dip: number;
   corner: number;
+  ripple: number;
 };
 
 const frameOf = ({ length, volume, wave }: HairParams, a: HairAnchors): Frame => {
@@ -78,6 +90,7 @@ const frameOf = ({ length, volume, wave }: HairParams, a: HairAnchors): Frame =>
     wh,
     dip: round(wave * WAVE_DEPTH),
     corner: round(wh * 0.3),
+    ripple: round(wave * WAVE_RIPPLE),
   };
 };
 
@@ -103,16 +116,18 @@ const hem = ({ cx, hemY, wh, dip, corner }: Frame): string =>
  */
 export const hairBackPath = (params: HairParams, a: HairAnchors = ANCHORS): string => {
   const frame = frameOf(params, a);
-  const { cx, crown, temple, hemY, w, wh, corner } = frame;
+  const { cx, crown, temple, hemY, w, wh, corner, ripple } = frame;
   const drop = round((hemY - temple) * 0.4);
 
+  // The sides bow out low and in high, so the length reads as waved rather
+  // than as a straight taper. Mirrored by hand, never by sign arithmetic.
   return [
     move(cx - w, temple),
     curve(cx - w, crown + 20, cx - w * 0.62, crown, cx, crown),
     curve(cx + w * 0.62, crown, cx + w, crown + 20, cx + w, temple),
-    curve(cx + w, temple + drop, cx + wh, hemY - drop, cx + wh, hemY - corner),
+    curve(cx + w - ripple, temple + drop, cx + wh + ripple, hemY - drop, cx + wh, hemY - corner),
     hem(frame),
-    curve(cx - wh, hemY - drop, cx - w, temple + drop, cx - w, temple),
+    curve(cx - wh - ripple, hemY - drop, cx - w + ripple, temple + drop, cx - w, temple),
     'Z',
   ].join(' ');
 };
@@ -148,6 +163,14 @@ export const hairFrontPath = (params: HairParams, a: HairAnchors = ANCHORS): str
   const h = sideY - crown;
   const wf = a.headCenter.r + round(params.volume * FRONT_GAIN);
   const wi = wf - TEMPLE - round(params.volume * 4);
+  /*
+   * The strands framing the face are the only hair visible at every length —
+   * below the shoulders the torso and the arms cover the back mass — so this
+   * is where the wave axis has to show, whatever else it also does.
+   */
+  const ripple = round(params.wave * WAVE_RIPPLE);
+  // The ends curl under. Written out on both sides, never mirrored by sign.
+  const curl = round(params.wave * WAVE_CURL);
   const { right, left, across } = fringeEdge(params.fringe, {
     cx,
     wi,
@@ -159,9 +182,9 @@ export const hairFrontPath = (params: HairParams, a: HairAnchors = ANCHORS): str
   return [
     move(cx - wf, sideY),
     curve(
-      cx - wf - 4,
+      cx - wf - 4 - ripple,
       crown + h * 0.7,
-      cx - wf + 2,
+      cx - wf + 2 + ripple,
       crown + h * 0.26,
       cx - wf * 0.86,
       crown + h * 0.15,
@@ -175,7 +198,14 @@ export const hairFrontPath = (params: HairParams, a: HairAnchors = ANCHORS): str
       cx + wf * 0.86,
       crown + h * 0.15,
     ),
-    curve(cx + wf - 2, crown + h * 0.26, cx + wf + 4, crown + h * 0.7, cx + wf, sideY),
+    curve(
+      cx + wf - 2 - ripple,
+      crown + h * 0.26,
+      cx + wf + 4 + ripple,
+      crown + h * 0.7,
+      cx + wf,
+      sideY,
+    ),
     /*
      * The inner edge comes back down to the same height as the outer one, so
      * each side ends as a strand of its own width with a flat foot. Running it
@@ -184,10 +214,15 @@ export const hairFrontPath = (params: HairParams, a: HairAnchors = ANCHORS): str
      * shut one of the two feet the strands come out different shapes — the
      * mirror has to be written out on both sides (CLAUDE.md).
      */
-    line(cx + wi, sideY),
+    curl === 0
+      ? line(cx + wi, sideY)
+      : curve(cx + wf - 2, sideY + curl, cx + wi + 2, sideY + curl, cx + wi, sideY),
     curve(cx + wi + 2, right + h * 0.35, cx + wi + 4, right + h * 0.12, cx + wi, right),
     across,
     curve(cx - wi - 4, left + h * 0.12, cx - wi - 2, left + h * 0.35, cx - wi, sideY),
+    curl === 0
+      ? line(cx - wf, sideY)
+      : curve(cx - wi - 2, sideY + curl, cx - wf + 2, sideY + curl, cx - wf, sideY),
     'Z',
   ].join(' ');
 };

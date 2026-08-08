@@ -153,6 +153,19 @@ describe('the axes do what they say', () => {
     expect(wavy[3]).toBeGreaterThan(straight[3]);
   });
 
+  /*
+   * The hem is not enough on its own. Below the shoulders the torso and the
+   * arms cover the back mass, so at anything but the longest setting a wave
+   * confined to the hem moves the slider and changes nothing the child sees.
+   * The strands framing the face are visible at every length.
+   */
+  it.each([0, 0.5, 1])('waves the strands beside the face at length %p', (length) => {
+    const straight = hairFrontPath(at({ length, wave: 0 }));
+    const wavy = hairFrontPath(at({ length, wave: 1 }));
+
+    expect(wavy).not.toBe(straight);
+  });
+
   it.each(FRINGES)('gives the %s fringe a shape of its own', (fringe) => {
     const others = FRINGES.filter((other) => other !== fringe).map((other) =>
       hairFrontPath(at({ fringe: other })),
