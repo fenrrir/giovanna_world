@@ -11,9 +11,10 @@ The session entry point. Read this before anything else, act on **Next up**, upd
 
 ## Next up
 
-**Phase 2 in progress.** Randomise, drag-and-drop and taking a piece off are done. Next on the list below: the five
-Phase 2 slots (`socks`, `outer`, `accessoryFace`, `accessoryHead`, `handheld`), which need
-artwork, or the saved-looks gallery, which needs a design decision first — see the note there.
+**Phase 2 in progress.** Randomise, drag-and-drop, taking a piece off, the zoom slider and the
+first Phase 2 slot (`accessoryHead`, one bow) are done. Next on the list below: the four remaining
+Phase 2 slots (`socks`, `outer`, `accessoryFace`, `handheld`), which need artwork, or the
+saved-looks gallery, which needs a design decision first — see the note there.
 
 The iPad validation is still owed: four of the nine acceptance criteria in SPEC §17 are verified,
 and of the five still open, four need the device and the last needs the child.
@@ -123,21 +124,36 @@ hairstyles are horseshoes, and the middle of their box is the face — but it is
 the iPad with a real finger, on the thinner pieces especially.
 
 Two known limits, recorded rather than hidden. Removal is drag-only, so there is no keyboard path
-to it, unlike every other control. And the randomiser always fills all four trays, so it can never
-produce a doll that is deliberately barefoot.
+to it, unlike every other control. And the randomiser always fills every tray, so it can never
+produce a doll that is deliberately barefoot — now that accessories are trays too, every random
+look also arrives wearing a bow.
+
+**Zooming.** A slider under the doll crops the canvas toward the doll's own width. The lateral
+margin the art contract insists on (SPEC §8) is what made the drawing small on a tall stage; the
+zoom takes that margin back without touching the artwork. Full height is kept at every setting, so
+the doll is never cropped, and the closest setting is exactly the doll's width rather than a number
+chosen to feel right.
+
+It is deliberately not saved. `Look` is fixed at schemaVersion 1 by SPEC §7 and zoom is not part of
+an outfit, so it resets on reload rather than earning a second storage key.
+
+**`accessoryHead` — the first Phase 2 slot.** Adding it cost one line in the registry, one entry in
+the tray table and one anchor band in the contract suite. Worth knowing for the four still to come:
+the tray table is keyed by tray, so a new tray is a compile error until it is defined, and the
+contract suite picks the artwork up with no test written for it.
 
 ### Still deferred
 
 Not built, deliberately. Each is real scope, recorded so nothing is lost — but no stub exists in the source.
 
-| Item                                                                 | Where the spec puts it |
-| -------------------------------------------------------------------- | ---------------------- |
-| `look:saved` — gallery of up to 12 saved looks                       | SPEC §14, Phase 2      |
-| Optional WebAudio click with a persisted mute toggle                 | SPEC §13, Phase 2      |
-| Slots `socks`, `outer`, `accessoryFace`, `accessoryHead`, `handheld` | SPEC §7, Phase 2       |
-| Background scenes                                                    | SPEC §15, Phase 3      |
-| PNG export                                                           | SPEC §15, Phase 3      |
-| A second character in the same scene                                 | SPEC §15, Phase 3      |
+| Item                                                 | Where the spec puts it |
+| ---------------------------------------------------- | ---------------------- |
+| `look:saved` — gallery of up to 12 saved looks       | SPEC §14, Phase 2      |
+| Optional WebAudio click with a persisted mute toggle | SPEC §13, Phase 2      |
+| Slots `socks`, `outer`, `accessoryFace`, `handheld`  | SPEC §7, Phase 2       |
+| Background scenes                                    | SPEC §15, Phase 3      |
+| PNG export                                           | SPEC §15, Phase 3      |
+| A second character in the same scene                 | SPEC §15, Phase 3      |
 
 The slot taxonomy and z-order already cover the Phase 2 slots (SPEC §7), so adding them later is
 registering parts, not reshaping the model.
