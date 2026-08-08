@@ -11,10 +11,11 @@ The session entry point. Read this before anything else, act on **Next up**, upd
 
 ## Next up
 
-**Phase 2 in progress.** Randomise, drag-and-drop, taking a piece off, the zoom slider and the
-first Phase 2 slot (`accessoryHead`, one bow) are done. Next on the list below: the four remaining
-Phase 2 slots (`socks`, `outer`, `accessoryFace`, `handheld`), which need artwork, or the
-saved-looks gallery, which needs a design decision first — see the note there.
+**Phase 2 in progress.** Randomise, drag-and-drop, taking a piece off, the zoom slider, the
+scrolling tray bar, the free colour picker, `accessoryHead` (one bow) and the face — eyebrows,
+mouth and cheeks — are done. Next on the list below: the three remaining Phase 2 slots (`socks`,
+`outer`, `handheld`), which need artwork, or the saved-looks gallery, which needs a design
+decision first — see the note there.
 
 The iPad validation is still owed: four of the nine acceptance criteria in SPEC §17 are verified,
 and of the five still open, four need the device and the last needs the child.
@@ -141,6 +142,30 @@ an outfit, so it resets on reload rather than earning a second storage key.
 the tray table and one anchor band in the contract suite. Worth knowing for the four still to come:
 the tray table is keyed by tray, so a new tray is a compile error until it is defined, and the
 contract suite picks the artwork up with no test written for it.
+
+**The face.** Eyebrows, mouth and cheeks are parts in their own slots, in the gap the spec left
+above the body: over the skin so they show, under the fringe so a hairstyle covers the brows. They
+sit in a fourth palette, `makeup`, and `FIXED_COLORS` now holds only what the child never picks.
+
+They are _painted_, not worn — `PAINTED_SLOTS` in the slot model names the idea, and the drag that
+undresses, the sanitiser and the default look all read it. A doll with no mouth reads as broken
+rather than as undressed, so a stored look missing one gets it back silently instead of the schema
+being bumped and her outfit discarded.
+
+**Randomise builds on the current look**, not on the default, and replaces only the outfit trays.
+Skin, face and accessories are hers. Rebuilding from the default while skipping those trays would
+have reset them without ever looking like a bug — the thing to check when adding a tray is which
+side of that line it falls on.
+
+**The tray bar scrolls sideways** rather than wrapping, with chevrons at the ends. What exposed the
+bug that made it necessary was the randomise button being clipped: a grid item will not shrink below
+its content without `min-width: 0`, so the bar grew past the panel _and_ never overflowed inside
+itself, which is the condition the chevrons look for.
+
+**Colours are a free picker now**, not six swatches — the platform's own, for the skin and for the
+open tray. The palettes stay as what a new piece arrives wearing and what the randomiser draws from.
+The cost, accepted deliberately: on iOS that picker is a modal sheet with words in it, and it is the
+only text in the game.
 
 ### Still deferred
 
