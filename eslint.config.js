@@ -40,6 +40,9 @@ export default tseslint.config(
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/consistent-type-imports': 'error',
       '@typescript-eslint/switch-exhaustiveness-check': 'error',
+      // SPEC section 7 states the domain shapes as `type` aliases. Keep the codebase
+      // consistent with the contract rather than flipping them to interfaces.
+      '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
 
       // SPEC section 2: the app makes no network call at runtime.
       'no-restricted-globals': [

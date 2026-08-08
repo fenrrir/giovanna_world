@@ -59,8 +59,21 @@ One part per session. A batch generated in one go comes out inconsistent between
 
 ## Engineering rules
 
-- **Conventional Commits, written in English.** Enforced by commitlint on `commit-msg`.
-  Types: `feat fix docs style refactor perf test build ci chore revert`.
+- **Commits go through the commit skill.** Do not hand-write a `git commit -m` for substantive
+  work — invoke the commit skill so the message is derived from the actual diff.
+- **Conventional Commits, subject _and_ body written in English.** Enforced by commitlint on
+  `commit-msg`. Types: `feat fix docs style refactor perf test build ci chore revert`.
+  The body explains _why_, not what the diff already shows.
+- **Name the model that actually wrote the commit.** The co-author trailer must be the real
+  model for that session, never a default or placeholder:
+
+  ```
+  Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+  ```
+
+  If a session runs on a different model, change the name to that model. An inaccurate trailer
+  makes the history lie about its own provenance.
+
 - **All code symbols, comments and documentation in English.** The single exception is
   `src/i18n/locales/ptBR.ts`, whose _values_ are Brazilian Portuguese.
 - **Every on-screen string goes through `src/i18n`.** Default and only locale: `pt-BR`.
