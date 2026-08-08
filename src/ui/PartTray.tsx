@@ -3,8 +3,8 @@ import type { JSX } from 'react';
 import { PALETTES } from '../model/palettes';
 import { useLook } from '../state/lookContext';
 import { DraggablePart } from './DraggablePart';
-import { HairParamsPanel } from './HairParamsPanel';
-import { customHairParams, equippedIn, trayItems, type TrayDefinition } from './trays';
+import { ParamsPanel } from './ParamsPanel';
+import { equippedIn, trayItems, trayParams, type TrayDefinition } from './trays';
 import type { DragPoint } from './useDrag';
 import styles from './controls.module.css';
 
@@ -24,7 +24,8 @@ export const PartTray = ({ tray, isInsideDropZone }: PartTrayProps): JSX.Element
   const { look, dispatch } = useLook();
   const worn = equippedIn(look, tray);
   const currentColor = look.equipped[tray.slot]?.color ?? PALETTES[tray.palette][0];
-  const items = trayItems(tray, customHairParams(look));
+  const items = trayItems(tray, look);
+  const family = tray.shaped;
 
   return (
     <>
@@ -51,8 +52,12 @@ export const PartTray = ({ tray, isInsideDropZone }: PartTrayProps): JSX.Element
        * one worn. Picking any other piece puts them away, which is what keeps
        * the game at one level of navigation with nothing to go back from.
        */}
-      {items.some((item) => item.shaped && item.id === worn) && (
-        <HairParamsPanel color={currentColor} />
+      {family && worn === family.id && (
+        <ParamsPanel
+          family={family}
+          params={family.read(trayParams(look, tray))}
+          color={currentColor}
+        />
       )}
     </>
   );

@@ -4,7 +4,7 @@ import type { EquippedPart, HairStyle, Look, Part, PartParams } from './types';
 export type LookAction =
   | { type: 'replaceLook'; look: Look }
   | { type: 'setSkin'; color: string }
-  | { type: 'applyPart'; part: Part; color: string }
+  | { type: 'applyPart'; part: Part; color: string; params?: PartParams }
   | { type: 'applyHair'; hair: HairStyle; color: string; params?: PartParams }
   | { type: 'setSlotColor'; slot: Slot; color: string }
   | { type: 'removeSlot'; slot: Slot };
@@ -13,6 +13,19 @@ export type LookAction =
 const HAIR_SLOTS: readonly Slot[] = ['hairBack', 'hairFront'];
 
 const isHairSlot = (slot: Slot): boolean => HAIR_SLOTS.includes(slot);
+
+/**
+ * One equipped entry, carrying the axes it was built from only when it has any.
+ *
+ * `params` is absent for every ready-made piece, and writing it as `undefined`
+ * would put the key in the stored JSON — so a look saved before generated
+ * pieces existed would stop round-tripping unchanged.
+ */
+const entryOf = (partId: string, color: string, params?: PartParams): EquippedPart => ({
+  partId,
+  color,
+  ...(params ? { params } : {}),
+});
 
 /** The look with those slots empty. Rebuilt rather than deleted from. */
 const without = (look: Look, removed: readonly Slot[]): Look => {
@@ -67,18 +80,12 @@ export const lookReducer = (state: Look, action: LookAction): Look => {
         ...state,
         equipped: {
           ...state.equipped,
-          [action.part.slot]: { partId: action.part.id, color: action.color },
+          [action.part.slot]: entryOf(action.part.id, action.color, action.params),
         },
       };
 
     case 'applyHair': {
-      // The key is omitted rather than set to undefined: a ready-made hairstyle
-      // must store exactly what it stored before generated hair existed.
-      const entry: EquippedPart = {
-        partId: action.hair.id,
-        color: action.color,
-        ...(action.params ? { params: action.params } : {}),
-      };
+      const entry = entryOf(action.hair.id, action.color, action.params);
 
       return {
         ...state,

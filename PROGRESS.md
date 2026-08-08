@@ -17,17 +17,28 @@ and cheeks — and the **parametric hair generator** are done. Next on the list 
 remaining Phase 2 slots (`socks`, `outer`, `handheld`), which need artwork, or the saved-looks
 gallery, which needs a design decision first — see the note there.
 
-**The second parametric slot is under way: `outer`, a jacket.** Its axes and geometry are done,
-tested and registered, so the contract holds it to the same six criteria as every drawn part. What
-is _not_ done is the wiring: it has no tray, so the child cannot reach it yet, and the panel that
-would let her shape it is still `HairParamsPanel`, hair-only. That is the next task, and it is
-where the abstraction the generator was built to reveal has to be found.
+**Two parametric slots now: the hairstyle and the jacket.** The jacket is reachable — its own tray,
+its own axes, and the panel that shapes it is the same component the hairstyle uses.
 
-What the second slot has shown so far: the two params modules came out the same shape without
-sharing a line, and the only genuinely common thing is repairing whatever `localStorage` hands
-back — four lines either side. Not yet worth a type. The pieces that do want generalising are the
-ones PROGRESS predicted: `TrayItem.shaped`, `trayItems`' hair-shaped `custom` argument, and the
-panel.
+**What the second slot revealed.** Not a shared params type: the two modules came out the same
+shape without sharing a line, and the only genuinely common thing is repairing whatever storage
+handed back — four lines either side, not worth a type. What did want extracting is `ShapedFamily`
+in `src/ui/shaped.tsx`: a family named by its axis _names_, never by the shape of its params. The
+panel typed to `HairParams` could only ever have served hair; the jacket would have needed a second
+panel identical but for three words.
+
+The geometry builders were left alone on purpose, and that still looks right — nothing above them
+needs to know what an axis means in user units.
+
+Adding a third parametric slot is now: a params module, a geometry module, one `ShapedFamily`, one
+tray entry. The labels in a family are spelled out rather than built from the axis name, so a
+missing catalogue entry is a compile error instead of a key printed on screen.
+
+Two things that only bite in this slot: `outer` paints at z 60, over the body, so **no collar may
+rise above the jaw** or it covers her face — the hood is a roll lying back on the shoulders, and a
+test holds all three collars below the chin. And the outer tray is off the dice, because its only
+piece is one she shapes and the randomiser never lands on those; turn `randomised` on the day a
+ready-made jacket joins it.
 
 The generator is the mould for the second parametric slot, and the second slot is what will reveal
 the right abstraction. Deliberately nothing generic was built for it: `hair.custom` is hair and

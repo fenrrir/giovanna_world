@@ -5,9 +5,8 @@ import type { MessageKey } from '../i18n';
 import type { LookAction } from '../model/reducer';
 import { SELECTABLE_SLOTS, type Slot, type TraySlot } from '../model/slots';
 import type { HairStyle, Look, Palette, PartParams } from '../model/types';
-import { CUSTOM_HAIR_ID, customHair } from '../parts/hair/custom';
-import { toHairParams } from '../parts/hair/custom/params';
 import { HAIR_STYLES, PARTS_BY_SLOT } from '../parts/registry';
+import { SHAPED_HAIR, SHAPED_OUTER, shapedParams, type ShapedFamily } from './shaped';
 
 /**
  * What a tray is made of.
@@ -26,6 +25,8 @@ export type TrayDefinition = {
    * what the child chose; only the outfit is thrown away. */
   randomised: boolean;
   label: MessageKey;
+  /** The family of pieces this tray lets her shape, if it has one. */
+  shaped?: ShapedFamily;
 };
 
 /**
@@ -40,6 +41,7 @@ const BY_ID: Record<TraySlot, TrayDefinition> = {
     focus: THUMB_FOCUS.hair,
     label: 'tray.hair',
     randomised: true,
+    shaped: SHAPED_HAIR,
   },
   top: {
     id: 'top',
@@ -89,6 +91,20 @@ const BY_ID: Record<TraySlot, TrayDefinition> = {
     label: 'tray.blush',
     randomised: false,
   },
+  outer: {
+    id: 'outer',
+    slot: 'outer',
+    palette: 'fabric',
+    focus: THUMB_FOCUS.outer,
+    label: 'tray.outer',
+    /*
+     * Off the dice for now: the only jacket there is is one she shapes, and the
+     * randomiser never lands on those. Turn it on the day a ready-made jacket
+     * joins it.
+     */
+    randomised: false,
+    shaped: SHAPED_OUTER,
+  },
   accessoryHead: {
     id: 'accessoryHead',
     slot: 'accessoryHead',
@@ -137,7 +153,7 @@ export type TrayItem = {
   shaped?: boolean;
 };
 
-const hairItem = (hair: HairStyle, params?: PartParams): TrayItem => ({
+const hairItem = (hair: HairStyle): TrayItem => ({
   id: hair.id,
   // Both halves, so the thumbnail shows the hairstyle the child will get.
   render: (color) => (
@@ -146,19 +162,8 @@ const hairItem = (hair: HairStyle, params?: PartParams): TrayItem => ({
       {hair.front(color)}
     </>
   ),
-  apply: (color) => ({ type: 'applyHair', hair, color, ...(params ? { params } : {}) }),
+  apply: (color) => ({ type: 'applyHair', hair, color }),
 });
-
-/**
- * The drawn hairstyles, then the one she shapes herself.
- *
- * Last, and carrying her current axes rather than the defaults, so its
- * thumbnail shows the hair she already made instead of a stranger's.
- */
-const hairItems = (custom?: PartParams): TrayItem[] => [
-  ...HAIR_STYLES.map((hair) => hairItem(hair)),
-  { ...hairItem(customHair(custom), toHairParams(custom)), label: 'hair.custom', shaped: true },
-];
 
 const partItems = (slot: Slot): TrayItem[] =>
   PARTS_BY_SLOT[slot].map((part) => ({
@@ -167,12 +172,39 @@ const partItems = (slot: Slot): TrayItem[] =>
     apply: (color) => ({ type: 'applyPart', part, color }),
   }));
 
-export const trayItems = (tray: TrayDefinition, custom?: PartParams): TrayItem[] =>
-  tray.id === 'hair' ? hairItems(custom) : partItems(tray.slot);
+const readyMade = (tray: TrayDefinition): TrayItem[] =>
+  tray.id === 'hair' ? HAIR_STYLES.map(hairItem) : partItems(tray.slot);
 
-/** The axes of the generated hairstyle she is wearing, if she is wearing it. */
-export const customHairParams = (look: Look): PartParams | undefined =>
-  look.equipped.hairFront?.partId === CUSTOM_HAIR_ID ? look.equipped.hairFront.params : undefined;
+/** The axes of the shaped piece she is wearing in this tray, if she is. */
+export const trayParams = (look: Look | undefined, tray: TrayDefinition): PartParams | undefined =>
+  tray.shaped ? shapedParams(look, tray.slot, tray.shaped) : undefined;
+
+/**
+ * The ready-made pieces, then the one she shapes herself.
+ *
+ * Last, and carrying her current axes rather than the defaults, so its
+ * thumbnail shows the piece she already made instead of a stranger's. The
+ * registry holds the shaped piece as well, at its default axes, so that copy is
+ * dropped rather than offered twice.
+ */
+export const trayItems = (tray: TrayDefinition, look?: Look): TrayItem[] => {
+  const family = tray.shaped;
+
+  if (!family) return readyMade(tray);
+
+  const params = family.read(trayParams(look, tray));
+
+  return [
+    ...readyMade(tray).filter((item) => item.id !== family.id),
+    {
+      id: family.id,
+      label: family.label,
+      shaped: true,
+      render: family.render(params),
+      apply: (color) => family.apply(params, color),
+    },
+  ];
+};
 
 /** The item currently worn in this tray, if any. */
 export const equippedIn = (look: Look, tray: TrayDefinition): string | undefined =>
@@ -180,7 +212,7 @@ export const equippedIn = (look: Look, tray: TrayDefinition): string | undefined
 
 /** What a tray shows as its own icon: what is worn, else the first choice. */
 export const trayIcon = (look: Look, tray: TrayDefinition): TrayItem | undefined => {
-  const items = trayItems(tray, customHairParams(look));
+  const items = trayItems(tray, look);
   const worn = equippedIn(look, tray);
 
   return items.find((item) => item.id === worn) ?? items[0];

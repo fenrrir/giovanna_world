@@ -2,7 +2,7 @@ import type { PartLookup } from '../model/sanitize';
 import type { Slot } from '../model/slots';
 import type { HairStyle, Part } from '../model/types';
 import { CUSTOM_HAIR_ID, customHair } from './hair/custom';
-import { customOuter } from './outer/custom';
+import { CUSTOM_OUTER_ID, customOuter } from './outer/custom';
 import { BOW } from './accessoryHead/bow';
 import { ROUND_BLUSH } from './blush/round';
 import { SOFT_ARCH } from './brows/softArch';
@@ -116,10 +116,14 @@ const isHairSlot = (slot: Slot): slot is 'hairBack' | 'hairFront' =>
  * instance — the contract suite asserts `findPart(slot, id)` is that very
  * object, and a part rebuilt on every call would never satisfy it.
  */
-export const findPart: PartLookup = (slot, partId, params) =>
-  params && partId === CUSTOM_HAIR_ID && isHairSlot(slot)
-    ? hairPart(customHair(params), slot)
-    : INDEX[slot].get(partId);
+export const findPart: PartLookup = (slot, partId, params) => {
+  if (!params) return INDEX[slot].get(partId);
+
+  if (partId === CUSTOM_HAIR_ID && isHairSlot(slot)) return hairPart(customHair(params), slot);
+  if (partId === CUSTOM_OUTER_ID && slot === 'outer') return customOuter(params);
+
+  return INDEX[slot].get(partId);
+};
 
 export const findHairStyle = (id: string): HairStyle | undefined =>
   HAIR_STYLES.find((hair) => hair.id === id);

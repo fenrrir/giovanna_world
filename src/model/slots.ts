@@ -43,7 +43,7 @@ export const RENDER_ORDER: readonly Slot[] = (Object.keys(Z) as Slot[]).sort((a,
  * (SPEC section 7), so it is a tray identifier rather than a Slot.
  */
 export type TraySlot =
-  'hair' | 'brows' | 'lips' | 'blush' | 'top' | 'bottom' | 'shoes' | 'accessoryHead';
+  'hair' | 'brows' | 'lips' | 'blush' | 'top' | 'bottom' | 'shoes' | 'outer' | 'accessoryHead';
 
 /** In the order they read down the doll: hair, then the face, then the outfit. */
 export const SELECTABLE_SLOTS: readonly TraySlot[] = [
@@ -54,6 +54,7 @@ export const SELECTABLE_SLOTS: readonly TraySlot[] = [
   'top',
   'bottom',
   'shoes',
+  'outer',
   'accessoryHead',
 ];
 
