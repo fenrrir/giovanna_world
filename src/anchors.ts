@@ -60,4 +60,5 @@ export const THUMB_FOCUS = {
   top: { x: 254, y: 186, width: 172, height: 170 },
   bottom: { x: 262, y: 270, width: 156, height: 190 },
   shoes: { x: 286, y: 430, width: 108, height: 80 },
+  accessoryHead: { x: 358, y: 50, width: 96, height: 96 },
 } as const satisfies Record<string, Box>;

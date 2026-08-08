@@ -50,6 +50,13 @@ const BY_ID: Record<TraySlot, TrayDefinition> = {
     focus: THUMB_FOCUS.shoes,
     label: 'tray.shoes',
   },
+  accessoryHead: {
+    id: 'accessoryHead',
+    slot: 'accessoryHead',
+    palette: 'fabric',
+    focus: THUMB_FOCUS.accessoryHead,
+    label: 'tray.accessoryHead',
+  },
 };
 
 export const trayById = (id: TraySlot): TrayDefinition => BY_ID[id];

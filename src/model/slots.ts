@@ -36,6 +36,12 @@ export const RENDER_ORDER: readonly Slot[] = (Object.keys(Z) as Slot[]).sort((a,
  * What the child can choose. `hair` is a single choice writing into two slots
  * (SPEC section 7), so it is a tray identifier rather than a Slot.
  */
-export type TraySlot = 'hair' | 'top' | 'bottom' | 'shoes';
+export type TraySlot = 'hair' | 'top' | 'bottom' | 'shoes' | 'accessoryHead';
 
-export const SELECTABLE_SLOTS: readonly TraySlot[] = ['hair', 'top', 'bottom', 'shoes'];
+export const SELECTABLE_SLOTS: readonly TraySlot[] = [
+  'hair',
+  'top',
+  'bottom',
+  'shoes',
+  'accessoryHead',
+];

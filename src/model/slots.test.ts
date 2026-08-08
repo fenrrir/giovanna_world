@@ -45,8 +45,8 @@ describe('RENDER_ORDER', () => {
 });
 
 describe('SELECTABLE_SLOTS', () => {
-  it('offers the child exactly the four Phase 1 trays', () => {
-    expect(SELECTABLE_SLOTS).toStrictEqual(['hair', 'top', 'bottom', 'shoes']);
+  it('offers the child every tray, in the order they appear on screen', () => {
+    expect(SELECTABLE_SLOTS).toStrictEqual(['hair', 'top', 'bottom', 'shoes', 'accessoryHead']);
   });
 
   it('never offers the body, which is not a choice', () => {

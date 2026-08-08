@@ -34,6 +34,9 @@ const SLOT_ANCHORS: Partial<Record<Slot, { minY: number; maxY: number }>> = {
   top: { minY: ANCHORS.shoulderLeft.y, maxY: ANCHORS.waist.y },
   bottom: { minY: ANCHORS.waist.y, maxY: ANCHORS.hip.y },
   shoes: { minY: ANCHORS.shoeLeft.y1, maxY: ANCHORS.sole.y },
+  // A head accessory fails by floating beside the head, so what it must do is
+  // span the anchor it hangs from.
+  accessoryHead: { minY: ANCHORS.headAccessorySide.y, maxY: ANCHORS.headAccessorySide.y },
 };
 
 const renderPart = (part: Part, color: string): SVGSVGElement => {

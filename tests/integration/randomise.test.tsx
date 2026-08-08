@@ -6,6 +6,7 @@ import { I18nProvider, ptBR } from '../../src/i18n';
 import { CURRENT_LOOK_KEY } from '../../src/lib/storage';
 import type { Look } from '../../src/model/types';
 import { AUTOSAVE_DELAY_MS, LookProvider } from '../../src/state/LookProvider';
+import { TRAYS } from '../../src/ui/trays';
 import { LONG_PRESS_MS } from '../../src/ui/useLongPress';
 
 const mount = () => {
@@ -81,13 +82,12 @@ describe('randomising the outfit', () => {
 
     const saved = JSON.parse(localStorage.getItem(CURRENT_LOOK_KEY) ?? 'null') as Look | null;
 
-    expect(Object.keys(saved?.equipped ?? {}).sort()).toStrictEqual([
-      'bottom',
-      'hairBack',
-      'hairFront',
-      'shoes',
-      'top',
-    ]);
+    // Derived from the trays rather than listed, so a tray added later is
+    // covered by this test instead of quietly escaping it. hairBack joins them
+    // because the one hair tray writes into both hair slots.
+    const expected = ['hairBack', ...TRAYS.map((tray) => tray.slot)].sort();
+
+    expect(Object.keys(saved?.equipped ?? {}).sort()).toStrictEqual(expected);
   });
 
   it('puts the new outfit on the doll', () => {
