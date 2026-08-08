@@ -26,6 +26,9 @@ const dressed: Look = {
     ...DEFAULT_LOOK.equipped,
     lips: { partId: 'lips.smile', color: PALETTES.makeup[3] },
     accessoryHead: { partId: 'accessoryHead.bow', color: PALETTES.fabric[1] },
+    handheld: { partId: 'handheld.bag', color: PALETTES.fabric[3] },
+    outer: { partId: 'outer.custom', color: PALETTES.fabric[0] },
+    socks: { partId: 'socks.custom', color: PALETTES.fabric[2] },
   },
 };
 
@@ -114,10 +117,25 @@ describe('randomLook', () => {
     expect(look.equipped.blush).toStrictEqual(dressed.equipped.blush);
   });
 
-  it('leaves an accessory on rather than sweeping it off', () => {
-    const look = randomLook(sequence(0.999), dressed);
+  /*
+   * The dice give her a new outfit, so the old one comes off first. Left on,
+   * anything the dice do not own would stay through every roll: a jacket worn
+   * once was on for good, and dragging it off was the only way back.
+   */
+  it.each(['accessoryHead', 'handheld', 'outer', 'socks'] as const)(
+    'takes off the %s she was wearing, since the dice cannot replace it',
+    (slot) => {
+      expect(randomLook(sequence(0.999), dressed).equipped[slot]).toBeUndefined();
+    },
+  );
 
-    expect(look.equipped.accessoryHead).toStrictEqual(dressed.equipped.accessoryHead);
+  it('leaves nothing worn behind that it did not choose itself', () => {
+    const look = randomLook(sequence(0.5), dressed);
+    const worn = Object.keys(look.equipped).filter(
+      (slot) => !['brows', 'lips', 'blush'].includes(slot),
+    );
+
+    expect(worn.sort()).toStrictEqual(['bottom', 'hairBack', 'hairFront', 'shoes', 'top']);
   });
 
   it('replaces the outfit she was wearing', () => {

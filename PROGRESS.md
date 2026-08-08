@@ -186,8 +186,13 @@ undresses, the sanitiser and the default look all read it. A doll with no mouth 
 rather than as undressed, so a stored look missing one gets it back silently instead of the schema
 being bumped and her outfit discarded.
 
-**Randomise builds on the current look**, not on the default, and replaces only the outfit trays.
-Skin, face and accessories are hers. Rebuilding from the default while skipping those trays would
+**Randomise builds on the current look**, not on the default. It undresses her first and then fills
+the outfit trays: skin and face are hers and stay, everything worn comes off.
+
+The first version left the non-randomised trays alone instead of clearing them, which sounded like
+the same thing and was not. Nothing the dice do not own could ever come _off_ — a jacket worn once
+was on for good, through every roll, and dragging it off was the only way back. The rule that works
+is not "leave what the dice do not own", it is **painted stays, worn goes**. Rebuilding from the default while skipping those trays would
 have reset them without ever looking like a bug — the thing to check when adding a tray is which
 side of that line it falls on.
 
