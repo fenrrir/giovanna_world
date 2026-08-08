@@ -109,16 +109,11 @@ describe('with no store available', () => {
     }).not.toThrow();
   });
 
-  /** Safari with cookies blocked throws on the property access itself. */
-  const withBlockedLocalStorage = (run: () => void): void => {
+  /** Replaces the ambient store for the duration of `run`, then puts it back. */
+  const withLocalStorage = (descriptor: PropertyDescriptor, run: () => void): void => {
     const original = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
 
-    Object.defineProperty(globalThis, 'localStorage', {
-      configurable: true,
-      get() {
-        throw new DOMException('access denied', 'SecurityError');
-      },
-    });
+    Object.defineProperty(globalThis, 'localStorage', { configurable: true, ...descriptor });
 
     try {
       run();
@@ -127,6 +122,37 @@ describe('with no store available', () => {
       else Reflect.deleteProperty(globalThis, 'localStorage');
     }
   };
+
+  /** Safari with cookies blocked throws on the property access itself. */
+  const withBlockedLocalStorage = (run: () => void): void => {
+    withLocalStorage(
+      {
+        get() {
+          throw new DOMException('access denied', 'SecurityError');
+        },
+      },
+      run,
+    );
+  };
+
+  /** A host that is not a browser defines no store at all. */
+  const withoutLocalStorage = (run: () => void): void => {
+    withLocalStorage({ value: undefined, writable: true }, run);
+  };
+
+  it('reads nothing when the host defines no store', () => {
+    withoutLocalStorage(() => {
+      expect(loadLook()).toBeNull();
+    });
+  });
+
+  it('writes nothing when the host defines no store', () => {
+    withoutLocalStorage(() => {
+      expect(() => {
+        saveLook(A_LOOK);
+      }).not.toThrow();
+    });
+  });
 
   it('reads nothing when the browser denies access to the store', () => {
     withBlockedLocalStorage(() => {

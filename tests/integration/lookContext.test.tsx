@@ -194,7 +194,7 @@ describe('LookProvider', () => {
     expect(screen.getByRole('button')).toHaveAttribute('data-top', 'top.t-shirt');
   });
 
-  it('keeps working with no store at all, so a blocked browser still plays', () => {
+  it('writes to the browser store when none is injected', () => {
     render(
       <LookProvider lookup={lookup}>
         <Probe />
@@ -205,26 +205,36 @@ describe('LookProvider', () => {
 
     expect(probe).toHaveAttribute('data-skin', DEFAULT_LOOK.skin);
 
-    expect(() => {
-      act(() => {
-        probe.click();
-      });
-      act(() => {
-        vi.advanceTimersByTime(AUTOSAVE_DELAY_MS);
-      });
-    }).not.toThrow();
+    act(() => {
+      probe.click();
+    });
+    act(() => {
+      vi.advanceTimersByTime(AUTOSAVE_DELAY_MS);
+    });
 
-    expect(probe).toHaveAttribute('data-skin', '#C68A5E');
+    expect(localStorage.getItem(CURRENT_LOOK_KEY)).toContain('#C68A5E');
   });
 });
 
 describe('useLook', () => {
   it('refuses to run outside a provider, because there is no sane default state', () => {
-    // React logs the thrown error; silence it so the run stays readable.
-    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    /*
+     * React re-throws a render error through a synthetic event so devtools can
+     * see it, which jsdom then reports as an uncaught error. Silencing
+     * console.error alone leaves that second path printing a stack trace for a
+     * throw the test is deliberately causing.
+     */
+    const swallow = (event: ErrorEvent): void => {
+      event.preventDefault();
+    };
+    window.addEventListener('error', swallow);
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
-    expect(() => render(<Probe />)).toThrow(/LookProvider/);
-
-    error.mockRestore();
+    try {
+      expect(() => render(<Probe />)).toThrow(/LookProvider/);
+    } finally {
+      window.removeEventListener('error', swallow);
+      consoleError.mockRestore();
+    }
   });
 });
