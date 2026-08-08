@@ -1,0 +1,33 @@
+{
+  "name": "giovanna_world",
+  "version": "0.1.0",
+  "private": true,
+  "description": "An offline paper-doll dress-up PWA for a six-year-old, playable on an iPad.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fenrrir/giovanna_world.git"
+  },
+  "homepage": "https://fenrrir.github.io/giovanna_world/",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^6.0.5",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.1"
+  }
+}

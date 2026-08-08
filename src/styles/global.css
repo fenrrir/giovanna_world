@@ -1,0 +1,47 @@
+/*
+ * iOS hardening, verbatim from SPEC section 6.
+ *
+ * `touch-action: manipulation` removes the 300 ms delay and double-tap zoom.
+ * `-webkit-touch-callout: none` prevents the "copy image" menu when a finger is
+ * held on the doll.
+ */
+html,
+body {
+  overscroll-behavior: none;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  margin: 0;
+  height: 100%;
+}
+
+#root {
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+    env(safe-area-inset-left);
+  height: 100%;
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Quality floor from SPEC section 4: the keyboard focus ring must stay visible. */
+:focus-visible {
+  outline: 3px solid #378add;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
