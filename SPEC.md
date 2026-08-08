@@ -37,6 +37,14 @@ Out of scope for the MVP, but anticipated in the architecture: background scenes
 Rules that outweigh any aesthetic preference:
 
 - **Zero text in the interface.** Icons, silhouettes and colours. The child does not read. Slot labels are thumbnails of the part itself, not words.
+
+  One exception, granted deliberately and scoped to one surface: the panel of axes that shapes a
+  generated part (section 7a). A thumbnail can stand for a finished piece, but not for a continuous
+  axis — three unlabelled sliders in a column are indistinguishable to a non-reader, who could only
+  tell length from volume by dragging each in turn. The exception costs the game a screen of words
+  and buys the control the only meaning it can have. It holds nowhere else, and an integration test
+  pins both halves: words while she is shaping a part, none anywhere the panel is not.
+
 - **Touch targets ≥ 60×60 px** (CSS px), with at least 8 px of separation.
 - **One level of navigation.** Slots visible on the main screen; tapping a slot makes that slot's parts appear on the same screen. No stacked modals, no "back".
 - **No save button.** Autosave with a 300 ms debounce.
@@ -185,12 +193,18 @@ When applying a `HairStyle`, the reducer writes into both slots with the same co
 ### State
 
 ```ts
+export type PartParams = Readonly<Record<string, number | string>>;
+
 export type Look = {
   schemaVersion: 1;
   skin: string; // skin tone hex
-  equipped: Partial<Record<Slot, { partId: string; color: string }>>;
+  equipped: Partial<Record<Slot, { partId: string; color: string; params?: PartParams }>>;
 };
 ```
+
+`params` is absent for every ready-made part and carries the axes of a generated one (section 7a).
+It is additive, so a look stored before generated parts existed reads back unchanged and the
+version stays at 1 — a bump would have discarded the outfit the child is wearing.
 
 Render resolution rules:
 
@@ -199,6 +213,38 @@ Render resolution rules:
 3. Sort by `Z` and concatenate the fragments inside a single `<svg>`.
 
 The body (`body`) is not optional and has no part variants in the MVP — it varies only by `skin`. A facial expression is prepared as a future variant.
+
+## 7a. Generated parts
+
+A hand-authored part does not scale and it welds the artwork to the body: any change to the
+geometry forces every piece to be redrawn. A generated part is instead a **pure function from
+parameters to path data**, with every coordinate derived from `anchors.ts`.
+
+The pilot is `hair.custom`, the last entry of the hair tray. Choosing it dresses the doll and opens
+the axes that shape it; choosing any other hairstyle puts them away again, which is how the panel
+stays inside the one level of navigation of section 4.
+
+Rules, all of them load-bearing rather than stylistic:
+
+- **Continuous axes are normalised 0..1; discrete axes are a union of string literals.** The panel
+  never learns what a number means in user units, and the geometry stays free to reinterpret the
+  range without invalidating a stored look.
+- **Colour is not an axis.** It is passed to the component, which multiplies the catalogue without
+  duplicating a parameter.
+- **Builders are pure, deterministic and return a `d` string, never JSX.** No `Math.random`, no
+  `Date`, no external state. Geometry stays testable without a DOM.
+- **Anchors are injected, not imported by the builder.** That is what makes the anchor test
+  possible: shifting the body must shift the whole path by exactly the same amount.
+- **No body coordinate outside `anchors.ts`.** A builder may hold style constants — strand
+  thickness, a bézier factor — but only as relative offsets, never as absolute positions.
+- **Repair on read is total.** A stored parameter out of range or of the wrong type is clamped or
+  defaulted, never rejected: it costs the child a slider position, not her hairstyle (section 14).
+- One instance at its default axes is **registered like any other part**, so the section 12 contract
+  applies to it with no test written by hand. The parameter space needs its own sweep on top of
+  that, because the registry only ever sees the one default point.
+- A generated part stays **out of the randomiser**. Landing on one would open an editor with no
+  gesture from the child, and the dice have no axes to offer — it could only ever be drawn at its
+  defaults, which is a fixed piece wearing a disguise.
 
 ## 8. Canvas contract — anchors
 

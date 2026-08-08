@@ -35,6 +35,28 @@ Fixed, non-recolourable colours live in `src/model/palettes.ts` as `FIXED_COLORS
 eye `#3B2418`, eye highlight `#FBFBF9`, mouth `#C24A6B`, blush `#F0997B` at 45% opacity,
 white collar `#FBFBF9`.
 
+## Adding a generated part
+
+A part may also be a pure function `params → d` instead of hand-drawn artwork (SPEC §7a).
+`src/parts/hair/custom/` is the pilot and the mould: `params.ts` (axes + a total repair function),
+`geometry.ts` (the builders), `fringes.ts` (one discrete axis), `index.tsx` (the component).
+
+Beyond the art contract above, five rules that are load-bearing rather than stylistic:
+
+- **Emit only `M L C Z`, uppercase, and round every number.** The contract suite's absolute-path
+  regex has no `e`, so an unrounded coordinate that stringifies with an exponent fails; and
+  `is-svg-path` _throws_ on a `d` that ends in whitespace. Restricting to coordinate pairs is also
+  what lets a test read the path back without a full path machine.
+- **Control points count towards the bounds.** The suite measures the control-point hull, not the
+  true curve extremes, so a handle that escapes the viewBox fails even when the curve does not.
+- **Take the anchors as a parameter**, defaulted to `ANCHORS`. The anchor test shifts the body and
+  requires the whole path to shift by exactly the same amount; nothing else proves rule 1 was kept.
+- **Register one instance at its default axes.** The contract suite then covers it for free — but
+  it only ever sees that one point, so sweep the parameter space in a test of your own.
+- **Look at the extremes, not just the default.** `npx vitest run tests/tools` writes
+  `preview/hair-*.svg` across every axis. Three defects in the first version of the generator passed
+  1350 assertions and were obvious on sight.
+
 ## Adding a part
 
 1. Create the file under `src/parts/<slot>/<name>.tsx`.
@@ -57,7 +79,8 @@ and on macOS `qlmanage -t -s 680 -o preview preview/*.svg` turns those into imag
 **Check `preview/holes.svg` for gaps.** It is the same doll on a magenta backdrop: any magenta
 inside the silhouette is a place where one layer failed to meet the next. Skin showing between a
 shoe and its sole, background showing through the shoulder — both were found this way and neither
-was visible against the normal background.
+was visible against the normal background. `preview/hair-*-holes.svg` does the same across the
+axes of the generated hairstyle.
 
 Two rules that follow from those bugs, and are worth checking before drawing:
 
@@ -71,6 +94,9 @@ Two rules that follow from those bugs, and are worth checking before drawing:
 
 - **Zero visible text in the game.** Every control is a thumbnail or a colour swatch; its accessible
   name comes from `useTranslation()`, never from a visible label.
+  The single exception is `HairParamsPanel` — the axes of a generated part, where a thumbnail cannot
+  stand for a continuous slider (SPEC §4). It is scoped to that panel and an integration test pins
+  both halves; do not widen it. Its strings still go through `src/i18n` like everything else.
 - Touch targets ≥ 60×60 CSS px, ≥ 8 px apart.
 - One level of navigation. No modal, no back button.
 - No save button — autosave with a 300 ms debounce.

@@ -12,10 +12,15 @@ The session entry point. Read this before anything else, act on **Next up**, upd
 ## Next up
 
 **Phase 2 in progress.** Randomise, drag-and-drop, taking a piece off, the zoom slider, the
-scrolling tray bar, the free colour picker, `accessoryHead` (one bow) and the face — eyebrows,
-mouth and cheeks — are done. Next on the list below: the three remaining Phase 2 slots (`socks`,
-`outer`, `handheld`), which need artwork, or the saved-looks gallery, which needs a design
-decision first — see the note there.
+scrolling tray bar, the free colour picker, `accessoryHead` (one bow), the face — eyebrows, mouth
+and cheeks — and the **parametric hair generator** are done. Next on the list below: the three
+remaining Phase 2 slots (`socks`, `outer`, `handheld`), which need artwork, or the saved-looks
+gallery, which needs a design decision first — see the note there.
+
+The generator is the mould for the second parametric slot, and the second slot is what will reveal
+the right abstraction. Deliberately nothing generic was built for it: `hair.custom` is hair and
+nothing else. When the time comes, the pieces that will want generalising are `TrayItem.shaped`
+and `HairParamsPanel`, not the builders.
 
 The iPad validation is still owed: four of the nine acceptance criteria in SPEC §17 are verified,
 and of the five still open, four need the device and the last needs the child.
@@ -25,8 +30,8 @@ and of the five still open, four need the device and the last needs the child.
 Plan: [docs/plans/2026-08-08-paper-doll-mvp.md](docs/plans/2026-08-08-paper-doll-mvp.md)
 
 Phase 1 is complete: foundation, engine, interface, PWA, deployment and all twelve wearable
-parts. The app is live at **https://fenrrir.github.io/giovanna_world/** with 565 tests and
-100% line, statement and function coverage.
+parts. The app is live at **https://fenrrir.github.io/giovanna_world/** with 1740 tests and
+100% line and function coverage.
 
 | #   | Task                                                                    | Status |
 | --- | ----------------------------------------------------------------------- | ------ |
@@ -166,6 +171,46 @@ itself, which is the condition the chevrons look for.
 open tray. The palettes stay as what a new piece arrives wearing and what the randomiser draws from.
 The cost, accepted deliberately: on iOS that picker is a modal sheet with words in it, and it is the
 only text in the game.
+
+**The parametric hair generator.** The last entry of the hair tray is not a hairstyle but a family:
+pure builders turn four axes — length, volume, wave, fringe — into path data, with every coordinate
+derived from `anchors.ts`. Choosing it dresses the doll and opens the sliders that shape it. The
+full contract is SPEC §7a; what is worth carrying forward:
+
+- **The axes ride in `Look`**, as an optional `params` on the equipped entry, and reach the artwork
+  through `PartLookup` — the one seam both `sanitizeLook` and `resolveLayers` already funnel
+  everything through. `Part.render` is untouched, so no other layer learned that parametric pieces
+  exist, and `sanitize.ts` needed no change at all: it already copies each entry wholesale.
+- **`schemaVersion` stays 1.** The field is purely additive, so a look stored before the generator
+  existed reads back unchanged. A bump would have thrown away the outfit she is wearing.
+- **`findPart` builds from params only when params arrive.** A paramless lookup falls through to
+  the index, because the contract suite asserts `findPart(slot, id)` is the very object
+  `PARTS_BY_SLOT` holds, and a part rebuilt per call could never satisfy that.
+- **The panel has no open state.** It is on screen exactly while the generated hairstyle is worn.
+  That is not a shortcut — it is what keeps a second surface inside SPEC §4's one level of
+  navigation, with no modal and nothing to go back from.
+- **It is the only place in the game with words**, by decision (SPEC §4). Three unlabelled sliders
+  are indistinguishable to a non-reader. A test pins the exception at exactly its granted size.
+- **The dice do not touch it.** `randomLook` draws from `trayItems`, so without the `shaped` flag a
+  roll would open an editor she never asked for — and having no axes to offer, it could only ever
+  draw the piece at its defaults.
+- **The hair tray can no longer be empty.** The generated hairstyle needs no artwork, so it exists
+  with the registry stripped bare. Two tests that used hair as the example of an empty tray now use
+  `accessoryHead`.
+
+What the drawing taught, on top of the Phase 1 list — all three passed 1350 assertions and were
+obvious the moment the doll was rendered:
+
+- **A face opening must stay open at the jaw.** Running the inner edge back to the outer one closed
+  the shape across the chin and both cheeks vanished under the hair.
+- **One `Z` can only shut one foot.** With two side strands, closing the path once left them
+  different shapes. Mirroring has to be written out, again.
+- **An axis has to taper as it grows.** Held at full width all the way down, long hair at full
+  volume stopped reading as hair and became a slab with the doll sitting inside it.
+
+`tests/tools/renderAxes.test.tsx` writes `preview/hair-*.svg` across every axis. The tray and
+`/dev/sheet` only ever show the single point of the parameter space she is wearing; nothing else
+would have put the extremes in front of a pair of eyes.
 
 ### Still deferred
 
