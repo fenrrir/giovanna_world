@@ -71,6 +71,7 @@ describe('SELECTABLE_SLOTS', () => {
       'shoes',
       'outer',
       'accessoryHead',
+      'handheld',
     ]);
   });
 

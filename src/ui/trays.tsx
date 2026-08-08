@@ -116,6 +116,15 @@ const BY_ID: Record<TraySlot, TrayDefinition> = {
     randomised: false,
     shaped: SHAPED_OUTER,
   },
+  handheld: {
+    id: 'handheld',
+    slot: 'handheld',
+    palette: 'fabric',
+    focus: THUMB_FOCUS.handheld,
+    label: 'tray.handheld',
+    /* An accessory rather than an outfit, so the dice leave it as she left it. */
+    randomised: false,
+  },
   accessoryHead: {
     id: 'accessoryHead',
     slot: 'accessoryHead',

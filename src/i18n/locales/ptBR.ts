@@ -22,6 +22,7 @@ export const ptBR = {
   'tray.socks': 'Meias',
   'tray.outer': 'Casaco',
   'tray.accessoryHead': 'Enfeite de cabelo',
+  'tray.handheld': 'Na mão',
   'zoom.label': 'Aproximar a boneca',
 
   'tray.open': 'Abrir as opções de {tray}',

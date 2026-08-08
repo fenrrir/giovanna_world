@@ -63,6 +63,7 @@ export const THUMB_FOCUS = {
   accessoryHead: { x: 358, y: 50, width: 96, height: 96 },
   outer: { x: 250, y: 186, width: 180, height: 180 },
   socks: { x: 288, y: 384, width: 104, height: 118 },
+  handheld: { x: 352, y: 314, width: 96, height: 96 },
   brows: { x: 292, y: 70, width: 96, height: 96 },
   lips: { x: 292, y: 122, width: 96, height: 96 },
   blush: { x: 292, y: 106, width: 96, height: 96 },

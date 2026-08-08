@@ -44,6 +44,9 @@ const SLOT_ANCHORS: Partial<Record<Slot, { minY: number; maxY: number }>> = {
   // A head accessory fails by floating beside the head, so what it must do is
   // span the anchor it hangs from.
   accessoryHead: { minY: ANCHORS.headAccessorySide.y, maxY: ANCHORS.headAccessorySide.y },
+  // Something held fails by floating beside the hand, so what it must do is
+  // span the hand it hangs from.
+  handheld: { minY: ANCHORS.handRight.y, maxY: ANCHORS.handRight.y },
 };
 
 /**

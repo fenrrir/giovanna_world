@@ -52,7 +52,8 @@ export type TraySlot =
   | 'socks'
   | 'shoes'
   | 'outer'
-  | 'accessoryHead';
+  | 'accessoryHead'
+  | 'handheld';
 
 /** In the order they read down the doll: hair, then the face, then the outfit. */
 export const SELECTABLE_SLOTS: readonly TraySlot[] = [
@@ -66,6 +67,7 @@ export const SELECTABLE_SLOTS: readonly TraySlot[] = [
   'shoes',
   'outer',
   'accessoryHead',
+  'handheld',
 ];
 
 /**
