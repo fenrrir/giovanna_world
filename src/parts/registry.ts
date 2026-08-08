@@ -3,6 +3,7 @@ import type { Slot } from '../model/slots';
 import type { HairStyle, Part } from '../model/types';
 import { BODY } from './body';
 import { BOB_FRINGE } from './hair/bobFringe';
+import { SKIRT } from './bottom/skirt';
 import { T_SHIRT } from './top/tShirt';
 
 /**
@@ -19,7 +20,7 @@ export { BODY };
 export const HAIR_STYLES: readonly HairStyle[] = [BOB_FRINGE];
 
 const TOPS: readonly Part[] = [T_SHIRT];
-const BOTTOMS: readonly Part[] = [];
+const BOTTOMS: readonly Part[] = [SKIRT];
 const SHOES: readonly Part[] = [];
 
 /**
