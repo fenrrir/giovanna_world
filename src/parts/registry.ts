@@ -11,6 +11,7 @@ import { SKIRT } from './bottom/skirt';
 import { POLKA_DOT_DRESS } from './top/polkaDotDress';
 import { STRIPED_SWEATSHIRT } from './top/stripedSweatshirt';
 import { TANK_TOP } from './top/tankTop';
+import { MARY_JANES } from './shoes/maryJanes';
 import { SNEAKERS } from './shoes/sneakers';
 import { T_SHIRT } from './top/tShirt';
 
@@ -29,7 +30,7 @@ export const HAIR_STYLES: readonly HairStyle[] = [BOB_FRINGE, LONG_WAVY, TWIN_BU
 
 const TOPS: readonly Part[] = [T_SHIRT, POLKA_DOT_DRESS, STRIPED_SWEATSHIRT, TANK_TOP];
 const BOTTOMS: readonly Part[] = [SKIRT, JEANS, SHORTS];
-const SHOES: readonly Part[] = [SNEAKERS];
+const SHOES: readonly Part[] = [SNEAKERS, MARY_JANES];
 
 /**
  * Slots with no Phase 1 artwork are present but empty. The taxonomy already
