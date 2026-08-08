@@ -10,11 +10,11 @@ All artwork is original SVG generated in this repository — see [SPEC.md](SPEC.
 
 ## Documents
 
-| File | What it is |
-|---|---|
-| [SPEC.md](SPEC.md) | The full contract — canvas anchors, slot taxonomy, palettes, acceptance criteria. |
-| [CLAUDE.md](CLAUDE.md) | The condensed art and engineering contract, loaded every session. |
-| [PROGRESS.md](PROGRESS.md) | Current status, next action and the remaining part backlog. |
+| File                       | What it is                                                                        |
+| -------------------------- | --------------------------------------------------------------------------------- |
+| [SPEC.md](SPEC.md)         | The full contract — canvas anchors, slot taxonomy, palettes, acceptance criteria. |
+| [CLAUDE.md](CLAUDE.md)     | The condensed art and engineering contract, loaded every session.                 |
+| [PROGRESS.md](PROGRESS.md) | Current status, next action and the remaining part backlog.                       |
 
 ## Getting started
 
@@ -31,18 +31,18 @@ fabric colour, with an anchor overlay — is at http://localhost:5173/#/dev/shee
 
 ## Scripts
 
-| Script | What it does |
-|---|---|
-| `npm run dev` | Vite dev server. |
-| `npm run build` | Typecheck and build to `dist/`. |
-| `npm run preview` | Serve the production build locally, service worker included. |
-| `npm run typecheck` | `tsc` with no emit. |
-| `npm run lint` | ESLint over the whole project. |
-| `npm run format` | Prettier, writing in place. |
-| `npm run test` | Vitest, single run. |
-| `npm run test:watch` | Vitest in watch mode. |
-| `npm run test:coverage` | Vitest with the 95% coverage gate. |
-| `npm run verify` | The full pipeline: format check, lint, typecheck, coverage, build. |
+| Script                  | What it does                                                       |
+| ----------------------- | ------------------------------------------------------------------ |
+| `npm run dev`           | Vite dev server.                                                   |
+| `npm run build`         | Typecheck and build to `dist/`.                                    |
+| `npm run preview`       | Serve the production build locally, service worker included.       |
+| `npm run typecheck`     | `tsc` with no emit.                                                |
+| `npm run lint`          | ESLint over the whole project.                                     |
+| `npm run format`        | Prettier, writing in place.                                        |
+| `npm run test`          | Vitest, single run.                                                |
+| `npm run test:watch`    | Vitest in watch mode.                                              |
+| `npm run test:coverage` | Vitest with the 95% coverage gate.                                 |
+| `npm run verify`        | The full pipeline: format check, lint, typecheck, coverage, build. |
 
 `npm run verify` is exactly what the pre-commit hook and CI run.
 

@@ -62,11 +62,11 @@ One part per session. A batch generated in one go comes out inconsistent between
 - **Conventional Commits, written in English.** Enforced by commitlint on `commit-msg`.
   Types: `feat fix docs style refactor perf test build ci chore revert`.
 - **All code symbols, comments and documentation in English.** The single exception is
-  `src/i18n/locales/ptBR.ts`, whose *values* are Brazilian Portuguese.
+  `src/i18n/locales/ptBR.ts`, whose _values_ are Brazilian Portuguese.
 - **Every on-screen string goes through `src/i18n`.** Default and only locale: `pt-BR`.
   Adding a user-visible string means adding a key to the catalogue, never a literal in a component.
 - **TDD.** Write the failing test, watch it fail, implement the minimum, watch it pass, commit.
-- **Unit *and* integration tests are mandatory.** Unit tests are co-located (`src/lib/color.test.ts`);
+- **Unit _and_ integration tests are mandatory.** Unit tests are co-located (`src/lib/color.test.ts`);
   integration and contract tests live in `tests/`.
 - **95% coverage gate** on lines, branches, functions and statements, enforced in the pre-commit
   hook and in CI. `src/main.tsx` is the only production file excluded — it is `createRoot(...).render(...)`

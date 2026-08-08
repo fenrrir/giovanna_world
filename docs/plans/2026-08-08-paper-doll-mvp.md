@@ -15,6 +15,7 @@
 `/Users/rodrigo/Projects/giovanna_world` currently contains a single file: `SPEC.md` (in Portuguese). There is no git repository, no `package.json`, no source.
 
 Toolchain on this machine, verified:
+
 - Node v26.7.0 / npm 11.19.0. **pnpm and yarn are not installed** — every command in this plan uses `npm`.
 - **`gh` CLI 2.97.0, installed at `/opt/homebrew/bin/gh` and authenticated** as `fenrrir` (git protocol `ssh`; token scopes `admin:public_key`, `gist`, `read:org`, `repo`). Repository setup, Pages activation and CI observation are therefore scripted through `gh`, not done in the web UI.
 - The GitHub repository **`fenrrir/giovanna_world` already exists, is public and is empty** (no default branch yet) — so no `gh repo create`, just a first push to `main`.
@@ -30,6 +31,7 @@ Scope decision (confirmed with the user): this plan delivers the **full foundati
 Every task's requirements implicitly include this section.
 
 **From the user's rules:**
+
 - Complete pre-commit pipeline: format → lint → typecheck → tests with coverage → build. Nothing is committed that fails any stage.
 - Unit **and** integration tests are mandatory for every behavioural change. Tests are written before the implementation (TDD).
 - Pre-commit enforces **95%** coverage on lines, branches, functions and statements, globally over `src/`.
@@ -40,6 +42,7 @@ Every task's requirements implicitly include this section.
 - Any on-screen message goes through the i18n module; the default (and only) locale is **pt-BR**.
 
 **From `SPEC.md` (verbatim values):**
+
 - `viewBox="0 0 680 540"` — contractual, no part may change it. Doll occupies x 234–446.
 - Slot z-order: `hairBack` 0, `body` 10, `socks` 20, `shoes` 30, `bottom` 40, `top` 50, `outer` 60, `hairFront` 70, `accessoryFace` 75, `accessoryHead` 80, `handheld` 90.
 - Tone derivation: fold `shade(c, 0.78)`, highlight `shade(c, 1.10)`. Never hardcode a variation of a recolourable colour.
@@ -125,10 +128,12 @@ Unit tests are co-located (`src/lib/color.test.ts`); integration and contract te
 ## Task 1: Repository bootstrap and English documentation
 
 **Files:**
+
 - Create: `.gitignore`, `.editorconfig`, `.nvmrc`, `README.md`, `CLAUDE.md`, `PROGRESS.md`, `assets/CREDITS.md`, `docs/plans/2026-08-08-paper-doll-mvp.md`
 - Modify: `SPEC.md` (full translation to English)
 
 **Interfaces:**
+
 - Produces: `CLAUDE.md` as the per-session contract every later task must obey; `PROGRESS.md` as the resume point for future sessions.
 
 - [ ] **Step 1: Initialise the repository**
@@ -147,6 +152,7 @@ Confirm the wiring before going further:
 ```bash
 gh repo view --json name,visibility,isEmpty
 ```
+
 Expected: `{"isEmpty":true,"name":"giovanna_world","visibility":"PUBLIC"}`.
 
 - [ ] **Step 2: Write `.gitignore`, `.editorconfig`, `.nvmrc`**
@@ -166,7 +172,8 @@ It must contain, in English and compactly: the art contract from the SPEC annex 
 - [ ] **Step 5: Write `PROGRESS.md`**
 
 Structure:
-1. **How to resume** — read `CLAUDE.md`, then this file's *Next up*, then run `npm run verify`.
+
+1. **How to resume** — read `CLAUDE.md`, then this file's _Next up_, then run `npm run verify`.
 2. **Status** — a table of the tasks in this plan with `done / in progress / pending`, all `pending` at this step except Task 1.
 3. **Next up** — the single next action.
 4. **Phase 1 part backlog** — 8 remaining parts to reach the SPEC's twelve (2 more hair, 2 more top, 2 more bottom, 2 more shoes), each with the ready-to-paste prompt from SPEC §16.
@@ -196,9 +203,11 @@ git commit -m "docs: translate spec to english and add project contract docs"
 ## Task 2: Vite + React 18 + TypeScript strict scaffold
 
 **Files:**
+
 - Create: `package.json`, `tsconfig.json`, `tsconfig.node.json`, `vite.config.ts`, `index.html`, `src/main.tsx`, `src/App.tsx`, `src/App.module.css`, `src/styles/global.css`, `src/vite-env.d.ts`
 
 **Interfaces:**
+
 - Produces: `npm run dev`, `npm run build`, `npm run preview`, `npm run typecheck`; a mounted `<App />`.
 
 - [ ] **Step 1: Install runtime and build dependencies**
@@ -234,10 +243,10 @@ export default defineConfig(({ command }) => ({
 `<html lang="pt-BR">`. In `<head>`, exactly:
 
 ```html
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="/giovanna_world/icon-180.png">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link rel="apple-touch-icon" href="/giovanna_world/icon-180.png" />
 ```
 
 Body: `<div id="root"></div>` + `<script type="module" src="/src/main.tsx"></script>`.
@@ -247,9 +256,17 @@ Body: `<div id="root"></div>` + `<script type="module" src="/src/main.tsx"></scr
 The `html, body` block (`overscroll-behavior: none`, `touch-action: manipulation`, `-webkit-user-select: none`, `user-select: none`, `-webkit-touch-callout: none`, `margin: 0`, `height: 100%`) and the `#root` safe-area padding block, exactly as specified. Then add the quality floor:
 
 ```css
-:focus-visible { outline: 3px solid #378ADD; outline-offset: 2px; }
+:focus-visible {
+  outline: 3px solid #378add;
+  outline-offset: 2px;
+}
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 ```
 
@@ -266,6 +283,7 @@ The `html, body` block (`overscroll-behavior: none`, `touch-action: manipulation
 ```bash
 npm run typecheck && npm run build
 ```
+
 Expected: `tsc` silent, Vite writes `dist/` with asset URLs prefixed `/giovanna_world/`.
 
 - [ ] **Step 9: Commit**
@@ -282,10 +300,12 @@ git commit -m "build: scaffold vite react typescript project"
 This is the task that makes every later task enforceable. It ends with a pre-commit hook that runs the complete pipeline and a `commit-msg` hook that rejects non-conventional messages.
 
 **Files:**
+
 - Create: `.prettierrc.json`, `.prettierignore`, `eslint.config.js`, `vitest.config.ts`, `tests/setup.ts`, `commitlint.config.js`, `.husky/pre-commit`, `.husky/commit-msg`, `src/App.test.tsx`
 - Modify: `package.json`
 
 **Interfaces:**
+
 - Produces: `npm run lint`, `npm run format`, `npm run format:check`, `npm run test`, `npm run test:coverage`, `npm run verify`; the 95% coverage threshold every later task must keep green.
 
 - [ ] **Step 1: Install the tooling**
@@ -412,7 +432,23 @@ npx --no -- commitlint --edit "$1"
 export default {
   extends: ['@commitlint/config-conventional'],
   rules: {
-    'type-enum': [2, 'always', ['feat','fix','docs','style','refactor','perf','test','build','ci','chore','revert']],
+    'type-enum': [
+      2,
+      'always',
+      [
+        'feat',
+        'fix',
+        'docs',
+        'style',
+        'refactor',
+        'perf',
+        'test',
+        'build',
+        'ci',
+        'chore',
+        'revert',
+      ],
+    ],
     'subject-case': [2, 'always', 'lower-case'],
     'header-max-length': [2, 'always', 72],
     'body-max-line-length': [2, 'always', 100],
@@ -425,11 +461,13 @@ export default {
 ```bash
 npm run verify
 ```
+
 Expected: all five stages pass, coverage summary shows 100% over the two covered files.
 
 ```bash
 git add -A && git commit -m "broken message"
 ```
+
 Expected: **rejected** by commitlint with `subject may not be empty` / `type may not be empty`.
 
 - [ ] **Step 10: Commit with a valid message**
@@ -437,6 +475,7 @@ Expected: **rejected** by commitlint with `subject may not be empty` / `type may
 ```bash
 git commit -m "build: add lint, format, test and pre-commit quality gates"
 ```
+
 Expected: pre-commit runs all four stages, commit succeeds.
 
 ---
@@ -444,10 +483,12 @@ Expected: pre-commit runs all four stages, commit succeeds.
 ## Task 4: Domain model — slots, types, palettes, anchors
 
 **Files:**
+
 - Create: `src/model/slots.ts`, `src/model/types.ts`, `src/model/palettes.ts`, `src/anchors.ts`
 - Test: `src/model/slots.test.ts`, `src/model/palettes.test.ts`, `src/anchors.test.ts`
 
 **Interfaces:**
+
 - Produces: `Slot`, `TraySlot`, `Z`, `RENDER_ORDER`, `SELECTABLE_SLOTS`, `Palette`, `Part`, `HairStyle`, `Look`, `EquippedPart`, `PALETTES`, `FIXED_COLORS`, `BLUSH_OPACITY`, `Box`, `VIEW_BOX`, `VIEW_BOX_ATTR`, `ANCHORS`. Every later task consumes these names.
 
 - [ ] **Step 1: Write the failing tests**
@@ -461,20 +502,37 @@ Expected: pre-commit runs all four stages, commit succeeds.
 ```bash
 npx vitest run src/model src/anchors.test.ts
 ```
+
 Expected: FAIL — modules not found.
 
 - [ ] **Step 3: Implement `src/model/slots.ts`**
 
 ```ts
 export type Slot =
-  | 'hairBack' | 'body' | 'socks' | 'shoes' | 'bottom'
-  | 'top' | 'outer' | 'hairFront' | 'accessoryFace'
-  | 'accessoryHead' | 'handheld';
+  | 'hairBack'
+  | 'body'
+  | 'socks'
+  | 'shoes'
+  | 'bottom'
+  | 'top'
+  | 'outer'
+  | 'hairFront'
+  | 'accessoryFace'
+  | 'accessoryHead'
+  | 'handheld';
 
 export const Z: Record<Slot, number> = {
-  hairBack: 0, body: 10, socks: 20, shoes: 30, bottom: 40,
-  top: 50, outer: 60, hairFront: 70, accessoryFace: 75,
-  accessoryHead: 80, handheld: 90,
+  hairBack: 0,
+  body: 10,
+  socks: 20,
+  shoes: 30,
+  bottom: 40,
+  top: 50,
+  outer: 60,
+  hairFront: 70,
+  accessoryFace: 75,
+  accessoryHead: 80,
+  handheld: 90,
 };
 
 /** Slots in paint order, back to front. Derived from Z so the two can never drift. */
@@ -531,8 +589,11 @@ export type Look = {
 ```ts
 /** Colours that are never recoloured by the child (SPEC section 9). */
 export const FIXED_COLORS = {
-  eye: '#3B2418', eyeHighlight: '#FBFBF9', mouth: '#C24A6B',
-  blush: '#F0997B', collarWhite: '#FBFBF9',
+  eye: '#3B2418',
+  eyeHighlight: '#FBFBF9',
+  mouth: '#C24A6B',
+  blush: '#F0997B',
+  collarWhite: '#FBFBF9',
 } as const;
 export const BLUSH_OPACITY = 0.45;
 ```
@@ -551,10 +612,12 @@ git add -A && git commit -m "feat(model): add slot taxonomy, part types and canv
 ## Task 5: `lib/color.ts` — the `shade` helper
 
 **Files:**
+
 - Create: `src/lib/color.ts`
 - Test: `src/lib/color.test.ts`
 
 **Interfaces:**
+
 - Produces: `shade(hex: string, factor: number): string`, `FOLD = 0.78`, `HIGHLIGHT = 1.1`. Every art part and `Thumb` consumes these.
 
 - [ ] **Step 1: Write the failing test**
@@ -641,17 +704,23 @@ git add -A && git commit -m "feat(lib): add shade colour derivation helper"
 Patterns are generated by function, never written circle by circle (SPEC §9), so swapping dots for stripes is swapping a function call.
 
 **Files:**
+
 - Create: `src/lib/patterns.ts`
 - Test: `src/lib/patterns.test.tsx`
 
 **Interfaces:**
+
 - Produces:
+
 ```ts
 import type { Box } from '../anchors'; // geometry types live with the anchors, not here
-export const dots = (box: Box, color: string, options?: { radius?: number; spacing?: number }) => ReactNode;
-export const stripes = (box: Box, color: string, options?: { width?: number; spacing?: number }) => ReactNode;
+export const dots = (box: Box, color: string, options?: { radius?: number; spacing?: number }) =>
+  ReactNode;
+export const stripes = (box: Box, color: string, options?: { width?: number; spacing?: number }) =>
+  ReactNode;
 export const checks = (box: Box, color: string, options?: { size?: number }) => ReactNode;
 ```
+
 Each returns a `<g>` of flat-filled primitives clipped to the box by construction (no `<clipPath>` — shapes are only emitted where they fit).
 
 - [ ] **Step 1: Write the failing tests**
@@ -668,11 +737,14 @@ Render each generator inside an `<svg>` with `render()` from RTL and a fixed box
 ## Task 7: `lib/debounce.ts` and `lib/storage.ts`
 
 **Files:**
+
 - Create: `src/lib/debounce.ts`, `src/lib/storage.ts`, `src/model/defaults.ts`
 - Test: `src/lib/debounce.test.ts`, `src/lib/storage.test.ts`
 
 **Interfaces:**
+
 - Produces:
+
 ```ts
 export type Debounced<A extends unknown[]> = ((...args: A) => void) & { cancel: () => void; flush: () => void };
 export const debounce = <A extends unknown[]>(fn: (...args: A) => void, ms: number): Debounced<A>;
@@ -683,6 +755,7 @@ export const saveLook: (look: Look, storage?: Storage) => void;
 
 export const DEFAULT_LOOK: Look;  // schemaVersion 1, skin PALETTES.skin[0], equipped {}
 ```
+
 `storage.ts` deliberately knows nothing about the registry — reconciling against available parts is `model/sanitize.ts`'s job (Task 8). Passing `Storage` as an optional parameter keeps it injectable for tests (DIP) while defaulting to `localStorage`.
 
 - [ ] **Step 1: Write the failing tests**
@@ -700,11 +773,14 @@ export const DEFAULT_LOOK: Look;  // schemaVersion 1, skin PALETTES.skin[0], equ
 ## Task 8: `model/sanitize.ts` and `model/reducer.ts`
 
 **Files:**
+
 - Create: `src/model/sanitize.ts`, `src/model/reducer.ts`
 - Test: `src/model/sanitize.test.ts`, `src/model/reducer.test.ts`
 
 **Interfaces:**
+
 - Produces:
+
 ```ts
 export type PartLookup = (slot: Slot, partId: string) => Part | undefined;
 export const sanitizeLook: (look: Look, lookup: PartLookup) => Look;
@@ -717,12 +793,14 @@ export type LookAction =
   | { type: 'setSlotColor'; slot: Slot; color: string };
 export const lookReducer: (state: Look, action: LookAction) => Look;
 ```
+
 `sanitizeLook` takes the lookup as a parameter rather than importing the registry — the model layer stays independent of the art layer (Dependency Inversion).
 
 - [ ] **Step 1: Write the failing tests**
 
 `sanitize.test.ts`: an equipped part missing from the lookup is dropped silently, the other slots survive, the returned object is a new reference, and a look with only known parts is returned structurally equal.
 `reducer.test.ts`:
+
 - `setSkin` changes `skin` and touches nothing else.
 - `applyPart` writes `{ partId, color }` into `action.part.slot`.
 - `applyPart` on a slot that already had a part **replaces** it.
@@ -741,17 +819,25 @@ export const lookReducer: (state: Look, action: LookAction) => Look;
 ## Task 9: `render/resolve.ts`, `Doll.tsx`, `Thumb.tsx`
 
 **Files:**
+
 - Create: `src/render/resolve.ts`, `src/render/Doll.tsx`, `src/render/Thumb.tsx`
 - Test: `src/render/resolve.test.ts`, `src/render/Doll.test.tsx`, `src/render/Thumb.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `Look`, `Slot`, `Z`, `RENDER_ORDER`, `PartLookup`, `VIEW_BOX_ATTR`, `ANCHORS`, the body part from Task 10 via injection.
 - Produces:
+
 ```ts
 export type ResolvedLayer = { slot: Slot; part: Part; color: string };
 export const resolveLayers: (look: Look, lookup: PartLookup, body: Part) => ResolvedLayer[];
 
-export const Doll: (props: { look: Look; lookup: PartLookup; body: Part; className?: string }) => JSX.Element;
+export const Doll: (props: {
+  look: Look;
+  lookup: PartLookup;
+  body: Part;
+  className?: string;
+}) => JSX.Element;
 
 /**
  * Thumb takes a render function rather than a Part, so it can show a HairStyle
@@ -789,6 +875,7 @@ Order of operations, matching SPEC §7: collect equipped entries resolvable thro
   {layers.map(({ slot, part, color }) => <g key={slot}>{part.render(color)}</g>)}
 </svg>
 ```
+
 The `aria-label` comes from i18n (Task 11 wires it; until then accept a `label` prop). No transition longer than 120 ms anywhere.
 
 - [ ] **Step 5: Implement `Thumb.tsx`**
@@ -807,7 +894,7 @@ export const THUMB_FOCUS: Record<TraySlot, Box>;
 
 - [ ] **Step 7: Run tests, then commit** — `feat(render): add layer resolution and doll svg renderer`
 
-*(Tasks 9 and 10 are mutually dependent on a body part existing; implement `resolve.ts` against a stub `Part` in its own tests, then wire the real body in Task 10.)*
+_(Tasks 9 and 10 are mutually dependent on a body part existing; implement `resolve.ts` against a stub `Part` in its own tests, then wire the real body in Task 10.)_
 
 ---
 
@@ -816,16 +903,19 @@ export const THUMB_FOCUS: Record<TraySlot, Box>;
 This is the highest-leverage task in the plan: it turns the SPEC's per-part definition of done into a test that runs automatically against every part ever added, and it is what makes the 95% global coverage target reachable for art files.
 
 **Files:**
+
 - Create: `src/parts/body.tsx`, `src/parts/registry.ts`, `tests/contract/svgGeometry.ts`, `tests/contract/registry.test.tsx`
 - Test: `tests/contract/svgGeometry.test.ts`, `src/parts/registry.test.ts`
 
 **Interfaces:**
+
 - Produces:
+
 ```ts
-export const BODY: Part;                                   // slot 'body', palette 'skin', no hides
+export const BODY: Part; // slot 'body', palette 'skin', no hides
 export const PARTS_BY_SLOT: Readonly<Record<Slot, readonly Part[]>>;
 export const HAIR_STYLES: readonly HairStyle[];
-export const findPart: PartLookup;                          // (slot, partId) => Part | undefined
+export const findPart: PartLookup; // (slot, partId) => Part | undefined
 export const findHairStyle: (id: string) => HairStyle | undefined;
 ```
 
@@ -844,6 +934,7 @@ export const boundsOf: (root: SVGSVGElement) => Bounds | null;
 /** Every fill/stroke colour literal found under `root`, lower-cased. */
 export const colorsOf: (root: SVGSVGElement) => string[];
 ```
+
 `boundsOf` handles `path` (via `svg-path-bounds`), `rect`, `circle`, `ellipse`, `line`, `polygon`, `polyline`, and applies any ancestor `transform="translate(...) scale(...)"`. jsdom does not implement `getBBox`, which is exactly why this helper exists — state that in a comment.
 Its unit test covers each primitive type plus the empty-root case.
 
@@ -851,12 +942,12 @@ Its unit test covers each primitive type plus the empty-root case.
 
 For each `part` in every slot, and for each colour in `PALETTES[part.palette]`:
 
-1. **Inside the viewBox.** `boundsOf` is within `0 ≤ x ≤ 680`, `0 ≤ y ≤ 540`, no negative coordinate. *(SPEC §12.1)*
-2. **Anchored.** The part's bounds overlap the anchor rectangle declared for its slot in a `SLOT_ANCHOR_EXPECTATION` map in the test file (e.g. `top` must cover the shoulder line y 216 and the waist y 280; `shoes` must reach the sole y 494; hair must touch the skull top y 68). *(SPEC §12.2)*
-3. **Recolourable.** Rendering with colour A and colour B produces different markup, and **every** `fill`/`stroke` literal that does not change between the two renders is a member of `FIXED_COLORS`. This is the mechanical form of "derives every tone through `shade`". *(SPEC §12.3, §12.4)*
-4. **No forbidden features.** `querySelectorAll('linearGradient, radialGradient, filter, image, pattern, mask')` is empty, and no `style`/`filter` attribute contains `drop-shadow` or `blur`. *(SPEC §12.4)*
+1. **Inside the viewBox.** `boundsOf` is within `0 ≤ x ≤ 680`, `0 ≤ y ≤ 540`, no negative coordinate. _(SPEC §12.1)_
+2. **Anchored.** The part's bounds overlap the anchor rectangle declared for its slot in a `SLOT_ANCHOR_EXPECTATION` map in the test file (e.g. `top` must cover the shoulder line y 216 and the waist y 280; `shoes` must reach the sole y 494; hair must touch the skull top y 68). _(SPEC §12.2)_
+3. **Recolourable.** Rendering with colour A and colour B produces different markup, and **every** `fill`/`stroke` literal that does not change between the two renders is a member of `FIXED_COLORS`. This is the mechanical form of "derives every tone through `shade`". _(SPEC §12.3, §12.4)_
+4. **No forbidden features.** `querySelectorAll('linearGradient, radialGradient, filter, image, pattern, mask')` is empty, and no `style`/`filter` attribute contains `drop-shadow` or `blur`. _(SPEC §12.4)_
 5. **Absolute path data only.** Every `d` attribute matches `/^[MLHVCSQTAZ0-9\s.,-]+$/` — no lowercase relative commands. This keeps `boundsOf` sound and is documented in `CLAUDE.md`.
-6. **`hides` is honest.** If present, it never contains the part's own slot and never contains `body`. *(SPEC §12.6)*
+6. **`hides` is honest.** If present, it never contains the part's own slot and never contains `body`. _(SPEC §12.6)_
 
 Plus registry-wide invariants: part ids are unique and prefixed with their slot (`top.` for `top`); every `HairStyle` id is unique; `PARTS_BY_SLOT` has an entry for every `Slot`.
 
@@ -887,18 +978,19 @@ git add -A && git commit -m "feat(parts): add base body and registry contract te
 SPEC §16 is explicit: request one part at a time; a batch generated in one go comes out inconsistent. Each of these four tasks is identical in shape, so the pattern is described once.
 
 **Per-task shape:**
+
 1. Create the part file under the slot directory.
 2. Register it in `src/parts/registry.ts` (one line).
 3. Run `npx vitest run tests/contract` — the suite from Task 10 now covers the new part automatically. No new test file is needed unless the part has behaviour beyond rendering (e.g. `hides`), in which case add a focused assertion.
-4. Open `npm run dev` → `http://localhost:5173/#/dev/sheet` and confirm the part in all 4 skin tones and 6 fabric colours *(available from Task 18; before that, verify through the contract suite alone and revisit)*.
+4. Open `npm run dev` → `http://localhost:5173/#/dev/sheet` and confirm the part in all 4 skin tones and 6 fabric colours _(available from Task 18; before that, verify through the contract suite alone and revisit)_.
 5. Commit with `feat(parts): add <name> <slot>`.
 
-| Task | File | Part | Notes |
-|---|---|---|---|
-| 11 | `src/parts/hair/bobFringe.tsx` | `HairStyle` id `hair.bob-fringe` | Exports `back` and `front`; the back mass sits behind the head circle, the fringe crosses the skull top (340,68) and stops above the eye line y 136. Strand highlights: one or two paths at `shade(c, 1.28)` with `opacity: 0.55` (SPEC §9). |
-| 12 | `src/parts/top/tShirt.tsx` | `Part` id `top.t-shirt`, palette `fabric`, no `hides` | Covers shoulders (282,216)/(398,216) down to the waist y 280; short sleeves ending mid-upper-arm. Bodice one tone up (`HIGHLIGHT`), hem one tone down (`FOLD`). White collar in `FIXED_COLORS.collarWhite`. |
-| 13 | `src/parts/bottom/skirt.tsx` | `Part` id `bottom.skirt`, palette `fabric`, no `hides` | Waistband on the waist line y 280 (x 284–396, height 18); hem at the reference y 398, flaring within x 234–446. Pleats via `stripes()` from `lib/patterns.ts` at `FOLD` — never hand-written. |
-| 14 | `src/parts/shoes/sneakers.tsx` | `Part` id `shoes.sneakers`, palette `fabric`, no `hides` | Left x 296–344 and right x 336–384, both y 464–494, soles flush with y 494. Sole in `shade(c, FOLD)`, laces in `FIXED_COLORS.collarWhite`. |
+| Task | File                           | Part                                                     | Notes                                                                                                                                                                                                                                        |
+| ---- | ------------------------------ | -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 11   | `src/parts/hair/bobFringe.tsx` | `HairStyle` id `hair.bob-fringe`                         | Exports `back` and `front`; the back mass sits behind the head circle, the fringe crosses the skull top (340,68) and stops above the eye line y 136. Strand highlights: one or two paths at `shade(c, 1.28)` with `opacity: 0.55` (SPEC §9). |
+| 12   | `src/parts/top/tShirt.tsx`     | `Part` id `top.t-shirt`, palette `fabric`, no `hides`    | Covers shoulders (282,216)/(398,216) down to the waist y 280; short sleeves ending mid-upper-arm. Bodice one tone up (`HIGHLIGHT`), hem one tone down (`FOLD`). White collar in `FIXED_COLORS.collarWhite`.                                  |
+| 13   | `src/parts/bottom/skirt.tsx`   | `Part` id `bottom.skirt`, palette `fabric`, no `hides`   | Waistband on the waist line y 280 (x 284–396, height 18); hem at the reference y 398, flaring within x 234–446. Pleats via `stripes()` from `lib/patterns.ts` at `FOLD` — never hand-written.                                                |
+| 14   | `src/parts/shoes/sneakers.tsx` | `Part` id `shoes.sneakers`, palette `fabric`, no `hides` | Left x 296–344 and right x 336–384, both y 464–494, soles flush with y 494. Sole in `shade(c, FOLD)`, laces in `FIXED_COLORS.collarWhite`.                                                                                                   |
 
 **Deliberately not built here:** a dress with `hides: ['bottom']`. The hides mechanism is fully covered by `resolve.test.ts` with a stub part, and SPEC §15 puts twelve parts in Phase 1 — the dress is the first entry in the `PROGRESS.md` backlog so it lands with a full session of attention.
 
@@ -907,18 +999,32 @@ SPEC §16 is explicit: request one part at a time; a batch generated in one go c
 ## Task 15: i18n module (pt-BR)
 
 **Files:**
+
 - Create: `src/i18n/locales/ptBR.ts`, `src/i18n/types.ts`, `src/i18n/translator.ts`, `src/i18n/I18nContext.tsx`, `src/i18n/index.ts`
 - Test: `src/i18n/translator.test.ts`, `tests/integration/i18n.test.tsx`
 
 **Interfaces:**
+
 - Produces:
+
 ```ts
 export const DEFAULT_LOCALE = 'pt-BR';
 export type MessageKey = keyof typeof ptBR;
-export const translate: (catalogue: Record<string, string>, key: string, params?: Record<string, string | number>) => string;
-export const I18nProvider: (props: { children: ReactNode; catalogue?: Record<MessageKey, string> }) => JSX.Element;
-export const useTranslation: () => { t: (key: MessageKey, params?: Record<string, string | number>) => string; locale: string };
+export const translate: (
+  catalogue: Record<string, string>,
+  key: string,
+  params?: Record<string, string | number>,
+) => string;
+export const I18nProvider: (props: {
+  children: ReactNode;
+  catalogue?: Record<MessageKey, string>;
+}) => JSX.Element;
+export const useTranslation: () => {
+  t: (key: MessageKey, params?: Record<string, string | number>) => string;
+  locale: string;
+};
 ```
+
 A ~60-line typed module, zero dependencies — chosen over `react-i18next` because the SPEC mandates a tiny fully-offline bundle and the child's UI carries no visible text.
 
 - [ ] **Step 1: Write the failing tests**
@@ -962,16 +1068,19 @@ export const ptBR = {
 ## Task 16: `state/LookContext.tsx` — reducer, hydration and debounced autosave
 
 **Files:**
+
 - Create: `src/state/LookContext.tsx`
 - Test: `tests/integration/lookContext.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `lookReducer`, `sanitizeLook`, `loadLook`, `saveLook`, `debounce`, `DEFAULT_LOOK`, `findPart`.
 - Produces: `LookProvider`, `useLook(): { look: Look; dispatch: Dispatch<LookAction> }`.
 
 - [ ] **Step 1: Write the failing integration tests**
 
 With `vi.useFakeTimers()` and a fake `Storage` injected through a provider prop:
+
 - On mount with empty storage, `look` equals `DEFAULT_LOOK`.
 - On mount with a stored look referencing a part that no longer exists, that slot is dropped and the rest survives (`sanitizeLook` is applied on hydration).
 - On mount with corrupt JSON, `look` equals `DEFAULT_LOOK` and **nothing is rendered as an error**.
@@ -989,11 +1098,13 @@ With `vi.useFakeTimers()` and a fake `Storage` injected through a provider prop:
 ## Task 17: The child's UI — `SlotBar`, `PartTray`, `ColorTray`, `App` layout
 
 **Files:**
+
 - Create: `src/ui/SlotBar.tsx`, `src/ui/PartTray.tsx`, `src/ui/ColorTray.tsx` and a `.module.css` beside each
 - Modify: `src/App.tsx`, `src/App.module.css`, `src/main.tsx` (wrap in `I18nProvider` + `LookProvider`)
 - Test: `tests/integration/dressUp.test.tsx`, plus a focused test per component
 
 **Interfaces:**
+
 - Produces: `SlotBar({ active, onSelect })`, `PartTray({ slot })`, `ColorTray({ slot })`.
 
 **Design rules to honour literally:** zero visible text — every control is a `<button>` whose content is a `<Thumb>` or a colour swatch and whose accessible name comes from `useTranslation()`. Minimum `60px × 60px` with `gap: 8px` (assert this in CSS and note it in the test as a comment; CSS is not asserted by jsdom). Pointer Events only — handlers are `onPointerDown`, never `onTouchStart`. One navigation level: `SlotBar`, `PartTray` and `ColorTray` are all on screen simultaneously; tapping a slot swaps the tray contents in place, no modal, no back button.
@@ -1001,6 +1112,7 @@ With `vi.useFakeTimers()` and a fake `Storage` injected through a provider prop:
 - [ ] **Step 1: Write the failing integration test — the whole child journey**
 
 `tests/integration/dressUp.test.tsx`, using `userEvent` with `pointerEventsCheck` enabled:
+
 1. Render the app. The doll `<svg>` is present with `viewBox="0 0 680 540"` and shows only the body.
 2. Tap the hair slot → the hair tray lists `HAIR_STYLES`; tap the bob → both hair layers appear in the doll.
 3. Tap a fabric colour in the `ColorTray` → the hair recolours; **both** hair slots share the new colour.
@@ -1022,13 +1134,16 @@ With `vi.useFakeTimers()` and a fake `Storage` injected through a provider prop:
 ## Task 18: `/dev/sheet` — the contact sheet quality tool
 
 **Files:**
+
 - Create: `src/dev/Sheet.tsx`, `src/dev/Sheet.module.css`, `src/dev/AnchorOverlay.tsx`
 - Test: `tests/integration/devSheet.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `PARTS_BY_SLOT`, `HAIR_STYLES`, `BODY`, `PALETTES`, `ANCHORS`, `Doll`, `useTranslation`.
 
 Requirements from SPEC §11, all three mandatory:
+
 - A slot selector and a skin-tone selector.
 - Every part of the chosen slot rendered **over the same body, side by side, at the same scale**.
 - One extra row showing the same part in all six `fabric` colours, to prove tone derivation works light and dark.
@@ -1049,6 +1164,7 @@ Reached via `window.location.hash = '#/dev/sheet'`; renders one doll per part of
 ## Task 19: PWA — offline precache, manifest and iOS icons
 
 **Files:**
+
 - Create: `public/app-icon.svg`, `pwa-assets.config.ts`
 - Modify: `vite.config.ts`, `index.html`
 - Test: `tests/integration/pwaManifest.test.ts`
@@ -1068,6 +1184,7 @@ A single flat-filled SVG (the doll's head silhouette on a `#7F77DD` field), obey
 ```bash
 npx pwa-assets-generator --preset minimal-2023 public/app-icon.svg
 ```
+
 Expected output in `public/`: `apple-touch-icon-180x180.png`, `pwa-192x192.png`, `pwa-512x512.png`, `maskable-icon-512x512.png`. Update the `apple-touch-icon` href in `index.html` to match the generated filename, prefixed with `/giovanna_world/`.
 
 - [ ] **Step 4: Configure `VitePWA` in `vite.config.ts`**
@@ -1083,7 +1200,8 @@ Expected output in `public/`: `apple-touch-icon-180x180.png`, `pwa-192x192.png`,
 ```bash
 npm run build && npm run preview
 ```
-Load the preview URL, then in DevTools → Application confirm the service worker is activated and the manifest parses; tick *Offline* and reload — the app must still render.
+
+Load the preview URL, then in DevTools → Application confirm the service worker is activated and the manifest parses; tick _Offline_ and reload — the app must still render.
 
 - [ ] **Step 7: Commit** — `feat(pwa): add offline precache, manifest and ios install metadata`
 
@@ -1092,6 +1210,7 @@ Load the preview URL, then in DevTools → Application confirm the service worke
 ## Task 20: CI and GitHub Pages deployment
 
 **Files:**
+
 - Create: `.github/workflows/ci.yml`
 
 - [ ] **Step 1: Write the workflow**
@@ -1165,6 +1284,7 @@ Verify:
 ```bash
 gh api repos/fenrrir/giovanna_world/pages --jq '.build_type, .html_url'
 ```
+
 Expected: `workflow` and `https://fenrrir.github.io/giovanna_world/`.
 
 If the API returns 403 (token missing the required permission), fall back to the UI once: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
@@ -1181,6 +1301,7 @@ git push -u origin main
 ```bash
 gh run watch --exit-status
 ```
+
 Expected: `quality` passes all five gates, then `deploy` succeeds.
 
 ```bash
@@ -1193,6 +1314,7 @@ Confirm the published site is live and serving the correct base path:
 ```bash
 gh api repos/fenrrir/giovanna_world/pages --jq '.status, .html_url'
 ```
+
 Expected: `built` and `https://fenrrir.github.io/giovanna_world/`. Open that URL and confirm the doll renders and asset requests resolve under `/giovanna_world/assets/`.
 
 ---
@@ -1200,9 +1322,10 @@ Expected: `built` and `https://fenrrir.github.io/giovanna_world/`. Open that URL
 ## Task 21: Close the loop — progress record and acceptance review
 
 **Files:**
+
 - Modify: `PROGRESS.md`, `CLAUDE.md`, `README.md`
 
-- [ ] **Step 1: Mark Tasks 1–20 done in `PROGRESS.md`** and set *Next up* to the first backlog part (`bottom.polka-dot-dress`, the one with `hides: ['bottom']`).
+- [ ] **Step 1: Mark Tasks 1–20 done in `PROGRESS.md`** and set _Next up_ to the first backlog part (`bottom.polka-dot-dress`, the one with `hides: ['bottom']`).
 - [ ] **Step 2: Fill the part backlog** with the eight remaining Phase 1 parts, each as a paste-ready SPEC §16 prompt naming the slot, the one-sentence visual description and the relevant anchors.
 - [ ] **Step 3: Walk the SPEC §17 acceptance checklist** and tick only what is genuinely verified, recording the untested boxes (the ones needing the physical iPad) as explicitly pending with the exact steps to check them.
 - [ ] **Step 4: Add a `CLAUDE.md` "Adding a part" section** — create the file, add one line to `registry.ts`, run `npx vitest run tests/contract`, check `/#/dev/sheet`, commit as `feat(parts): add <name> <slot>`.
@@ -1219,6 +1342,7 @@ npm run verify
 ## Verification
 
 **Automated, on every commit and in CI** (`npm run verify`):
+
 1. `prettier --check .` — formatting.
 2. `eslint .` — SOLID/clean-code rules, no `any`, no `fetch`, complexity ≤ 10, files ≤ 250 lines, a11y rules.
 3. `tsc -b --noEmit` — strict types.
@@ -1233,9 +1357,10 @@ gh run watch --exit-status
 ```
 
 **Manual, once, at the end:**
+
 - `npm run dev` → `http://localhost:5173/` — dress the doll by touch on a trackpad; reload and confirm the look survives.
 - `http://localhost:5173/#/dev/sheet` — every part in 4 skin tones and 6 fabric colours, anchor overlay on: no floating hair, no sleeve missing the shoulder, no hem crossing the knee.
-- `npm run build && npm run preview` → DevTools *Offline* → reload still renders (SPEC §17: works in aeroplane mode).
+- `npm run build && npm run preview` → DevTools _Offline_ → reload still renders (SPEC §17: works in aeroplane mode).
 - Resize the browser 768 px → 1366 px: layout holds, every touch target still ≥ 60 px.
 - On the iPad, once: Safari → `https://fenrrir.github.io/giovanna_world/` → Share → Add to Home Screen. Open from the home screen: full screen, no address bar; long-press the doll shows no context menu; double-tap does not zoom; aeroplane mode still works.
 

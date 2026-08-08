@@ -47,15 +47,15 @@ Rules that outweigh any aesthetic preference:
 
 ## 5. Stack
 
-| Layer | Choice |
-|---|---|
-| Build | Vite |
-| UI | React 18 + TypeScript (strict) |
-| Styling | CSS modules or plain CSS. No UI framework. |
-| State | `useReducer` + Context. No Redux, no Zustand. |
-| Persistence | `localStorage` |
-| PWA | `vite-plugin-pwa` (Workbox), precache strategy over the whole bundle |
-| Tests | Vitest for the pure functions (colour, serialisation, hides). No E2E in the MVP. |
+| Layer       | Choice                                                                           |
+| ----------- | -------------------------------------------------------------------------------- |
+| Build       | Vite                                                                             |
+| UI          | React 18 + TypeScript (strict)                                                   |
+| Styling     | CSS modules or plain CSS. No UI framework.                                       |
+| State       | `useReducer` + Context. No Redux, no Zustand.                                    |
+| Persistence | `localStorage`                                                                   |
+| PWA         | `vite-plugin-pwa` (Workbox), precache strategy over the whole bundle             |
+| Tests       | Vitest for the pure functions (colour, serialisation, hides). No E2E in the MVP. |
 
 No Tailwind: the UI surface is small and the CSS here is almost entirely grid layout and large targets.
 
@@ -78,16 +78,17 @@ Configuring **Guided Access** is recommended (Settings → Accessibility → Gui
 `index.html`:
 
 ```html
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="/icon-180.png">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link rel="apple-touch-icon" href="/icon-180.png" />
 ```
 
 Global CSS:
 
 ```css
-html, body {
+html,
+body {
   overscroll-behavior: none;
   touch-action: manipulation;
   -webkit-user-select: none;
@@ -97,9 +98,8 @@ html, body {
   height: 100%;
 }
 #root {
-  padding:
-    env(safe-area-inset-top) env(safe-area-inset-right)
-    env(safe-area-inset-bottom) env(safe-area-inset-left);
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+    env(safe-area-inset-left);
 }
 ```
 
@@ -112,42 +112,58 @@ html, body {
 
 Every part belongs to a slot. The renderer sorts by `z`. Fixed values, with gaps between them for future insertions:
 
-| Slot | z | Note |
-|---|---|---|
-| `hairBack` | 0 | back layer of the hair |
-| `body` | 10 | body, legs, arms, head, face. Always present. |
-| `socks` | 20 | |
-| `shoes` | 30 | |
-| `bottom` | 40 | trousers, skirt, shorts |
-| `top` | 50 | t-shirt, dress, sweatshirt (includes sleeves) |
-| `outer` | 60 | coat, waistcoat |
-| `hairFront` | 70 | fringe and front strands |
-| `accessoryFace` | 75 | glasses |
-| `accessoryHead` | 80 | bow, tiara, hat |
-| `handheld` | 90 | object in the hand |
+| Slot            | z   | Note                                          |
+| --------------- | --- | --------------------------------------------- |
+| `hairBack`      | 0   | back layer of the hair                        |
+| `body`          | 10  | body, legs, arms, head, face. Always present. |
+| `socks`         | 20  |                                               |
+| `shoes`         | 30  |                                               |
+| `bottom`        | 40  | trousers, skirt, shorts                       |
+| `top`           | 50  | t-shirt, dress, sweatshirt (includes sleeves) |
+| `outer`         | 60  | coat, waistcoat                               |
+| `hairFront`     | 70  | fringe and front strands                      |
+| `accessoryFace` | 75  | glasses                                       |
+| `accessoryHead` | 80  | bow, tiara, hat                               |
+| `handheld`      | 90  | object in the hand                            |
 
 ### Types
 
 ```ts
 export type Slot =
-  | 'hairBack' | 'body' | 'socks' | 'shoes' | 'bottom'
-  | 'top' | 'outer' | 'hairFront' | 'accessoryFace'
-  | 'accessoryHead' | 'handheld';
+  | 'hairBack'
+  | 'body'
+  | 'socks'
+  | 'shoes'
+  | 'bottom'
+  | 'top'
+  | 'outer'
+  | 'hairFront'
+  | 'accessoryFace'
+  | 'accessoryHead'
+  | 'handheld';
 
 export const Z: Record<Slot, number> = {
-  hairBack: 0, body: 10, socks: 20, shoes: 30, bottom: 40,
-  top: 50, outer: 60, hairFront: 70, accessoryFace: 75,
-  accessoryHead: 80, handheld: 90,
+  hairBack: 0,
+  body: 10,
+  socks: 20,
+  shoes: 30,
+  bottom: 40,
+  top: 50,
+  outer: 60,
+  hairFront: 70,
+  accessoryFace: 75,
+  accessoryHead: 80,
+  handheld: 90,
 };
 
 export type Palette = 'skin' | 'hair' | 'fabric';
 
 export type Part = {
-  id: string;                    // 'top.polka-dot-dress'
+  id: string; // 'top.polka-dot-dress'
   slot: Slot;
   palette: Palette;
-  hides?: Slot[];                // dress: ['bottom']
-  render: (color: string) => ReactNode;   // SVG fragment, without an outer <svg>
+  hides?: Slot[]; // dress: ['bottom']
+  render: (color: string) => ReactNode; // SVG fragment, without an outer <svg>
 };
 ```
 
@@ -171,7 +187,7 @@ When applying a `HairStyle`, the reducer writes into both slots with the same co
 ```ts
 export type Look = {
   schemaVersion: 1;
-  skin: string;                                  // skin tone hex
+  skin: string; // skin tone hex
   equipped: Partial<Record<Slot, { partId: string; color: string }>>;
 };
 ```
@@ -193,31 +209,31 @@ Render: `<svg viewBox="0 0 680 540" width="100%" preserveAspectRatio="xMidYMid m
 
 Every new part is drawn against these coordinates:
 
-| Anchor | Coordinate |
-|---|---|
-| Top of the skull | (340, 68) |
-| Centre of the head | (340, 130), radius 62 |
-| Eye line | y = 136 (eyes at x = 318 and x = 362) |
-| Chin | (340, 192) |
-| Base of the neck / collar | y = 198, x 322–358 |
-| Centre of the left shoulder | (282, 216) |
-| Centre of the right shoulder | (398, 216) |
-| Left arm | x 266–294, y 212–338 |
-| Right arm | x 386–414, y 212–338 |
-| Left hand | (280, 344), radius 16 |
-| Right hand | (400, 344), radius 16 |
-| Torso | x 288–392, y 194–334, rx 30 |
-| Waistline | y = 280 (band: x 284–396, height 18) |
-| Hip / top of the legs | y = 330 |
-| Left leg | x 306–336 |
-| Right leg | x 344–374 |
-| Ankle | y = 440 |
-| Sole / base of the foot | y = 494 |
-| Left shoe | x 296–344, y 464–494 |
-| Right shoe | x 336–384, y 464–494 |
-| Skirt hem (reference) | y ≈ 398, width x 234–446 |
-| Side head-accessory mount | (406, 87) |
-| Centre head-accessory mount | (340, 66) |
+| Anchor                       | Coordinate                            |
+| ---------------------------- | ------------------------------------- |
+| Top of the skull             | (340, 68)                             |
+| Centre of the head           | (340, 130), radius 62                 |
+| Eye line                     | y = 136 (eyes at x = 318 and x = 362) |
+| Chin                         | (340, 192)                            |
+| Base of the neck / collar    | y = 198, x 322–358                    |
+| Centre of the left shoulder  | (282, 216)                            |
+| Centre of the right shoulder | (398, 216)                            |
+| Left arm                     | x 266–294, y 212–338                  |
+| Right arm                    | x 386–414, y 212–338                  |
+| Left hand                    | (280, 344), radius 16                 |
+| Right hand                   | (400, 344), radius 16                 |
+| Torso                        | x 288–392, y 194–334, rx 30           |
+| Waistline                    | y = 280 (band: x 284–396, height 18)  |
+| Hip / top of the legs        | y = 330                               |
+| Left leg                     | x 306–336                             |
+| Right leg                    | x 344–374                             |
+| Ankle                        | y = 440                               |
+| Sole / base of the foot      | y = 494                               |
+| Left shoe                    | x 296–344, y 464–494                  |
+| Right shoe                   | x 336–384, y 464–494                  |
+| Skirt hem (reference)        | y ≈ 398, width x 234–446              |
+| Side head-accessory mount    | (406, 87)                             |
+| Centre head-accessory mount  | (340, 66)                             |
 
 Parts that overflow the viewBox or disregard an anchor are rejected in review (see section 12).
 
@@ -227,8 +243,8 @@ Parts that overflow the viewBox or disregard an anchor are rejected in review (s
 
 ```ts
 export const PALETTES: Record<Palette, string[]> = {
-  skin:   ['#F7DCC3', '#F2C9A8', '#C68A5E', '#8A5A38'],
-  hair:   ['#6B3A1F', '#111111', '#C97B2E', '#8A3A2A', '#4A2C1A', '#D4537E'],
+  skin: ['#F7DCC3', '#F2C9A8', '#C68A5E', '#8A5A38'],
+  hair: ['#6B3A1F', '#111111', '#C97B2E', '#8A3A2A', '#4A2C1A', '#D4537E'],
   fabric: ['#7F77DD', '#1D9E75', '#D4537E', '#EF9F27', '#378ADD', '#E24B4A'],
 };
 ```
@@ -240,7 +256,9 @@ Fixed, non-recolourable colours: eye `#3B2418`, eye highlight `#FBFBF9`, mouth `
 A part receives **one** colour and derives the rest. Single helper in `lib/color.ts`:
 
 ```ts
-export const shade = (hex: string, f: number): string => { /* multiplies each channel by f */ };
+export const shade = (hex: string, f: number): string => {
+  /* multiplies each channel by f */
+};
 // fold/shadow: shade(c, 0.78)
 // highlight:   shade(c, 1.10)
 ```
@@ -306,6 +324,7 @@ A hidden route (outside the child's flow) that renders, for a chosen slot, **eve
 It is the project's quality-control instrument: an anchor error — a sleeve that does not meet the shoulder, hair floating above the skull, a skirt hem cutting through the knee — is invisible when looking at a single part and obvious on the contact sheet.
 
 Requirements:
+
 - A slot selector and a skin-tone selector.
 - An extra row showing the same part in the 6 `fabric` colours, to validate that tone derivation works both light and dark.
 - An optional anchor overlay (crosses at the points from section 8) with a toggle.

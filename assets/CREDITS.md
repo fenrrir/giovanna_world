@@ -8,6 +8,6 @@ CC0 or explicitly commercial-licensed source — Kenney.nl, OpenGameArt with a v
 itch.io with an explicit commercial licence — and it must be recorded here on the same commit that
 adds it.
 
-| Asset | Source | Licence | Added on |
-|---|---|---|---|
-| _(none)_ | | | |
+| Asset    | Source | Licence | Added on |
+| -------- | ------ | ------- | -------- |
+| _(none)_ |        |         |          |
