@@ -8,6 +8,7 @@ import { PALETTES } from '../../src/model/palettes';
 import type { Look } from '../../src/model/types';
 import { BODY, findPart } from '../../src/parts/registry';
 import { resolveLayers } from '../../src/render/resolve';
+import { TRAYS, trayItems } from '../../src/ui/trays';
 
 /**
  * Headless visual check.
@@ -18,7 +19,7 @@ import { resolveLayers } from '../../src/render/resolve';
  * suite does that. Output is gitignored.
  *
  * On macOS, turn the files into images with:
- *   qlmanage -t -s 680 -o preview preview/*.svg
+ *   qlmanage -t -s 1400 -o preview preview/*.svg
  */
 
 const OUT = 'preview';
@@ -54,6 +55,13 @@ const DRESSED: Look = {
   },
 };
 
+/**
+ * A contact sheet: every part of a tray over the same body, side by side, at
+ * the same scale — the arrangement that makes an anchor error obvious.
+ */
+/** File-safe name for a part id such as `top.polka-dot-dress`. */
+const slug = (id: string): string => id.replace(/[^a-z0-9]+/gi, '-');
+
 describe('preview', () => {
   it('writes the doll to preview/ for visual review', () => {
     mkdirSync(OUT, { recursive: true });
@@ -61,4 +69,28 @@ describe('preview', () => {
     writeFileSync(`${OUT}/dressed.svg`, page(draw(DRESSED)));
     writeFileSync(`${OUT}/holes.svg`, page(draw(DRESSED), HOLE_BACKDROP));
   });
+
+  /**
+   * One file per part, each on the standard canvas. A single wide sheet would
+   * match /dev/sheet more closely, but Quick Look renders a wide SVG
+   * unreliably, and a preview that cannot be trusted is worse than none.
+   */
+  it.each(TRAYS.map((tray) => [tray.id, tray] as const))(
+    'writes each %s part over the body',
+    (_id, tray) => {
+      mkdirSync(OUT, { recursive: true });
+
+      for (const item of trayItems(tray)) {
+        const cell = renderToStaticMarkup(
+          <g>
+            {BODY.render(PALETTES.skin[1])}
+            {item.render(PALETTES[tray.palette][0])}
+          </g>,
+        );
+
+        writeFileSync(`${OUT}/part-${slug(item.id)}.svg`, page(cell));
+        writeFileSync(`${OUT}/part-${slug(item.id)}-holes.svg`, page(cell, HOLE_BACKDROP));
+      }
+    },
+  );
 });
