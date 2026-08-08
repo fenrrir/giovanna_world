@@ -4,6 +4,7 @@ import type { HairStyle, Part } from '../model/types';
 import { BODY } from './body';
 import { BOB_FRINGE } from './hair/bobFringe';
 import { LONG_WAVY } from './hair/longWavy';
+import { TWIN_BUNS } from './hair/twinBuns';
 import { SKIRT } from './bottom/skirt';
 import { POLKA_DOT_DRESS } from './top/polkaDotDress';
 import { SNEAKERS } from './shoes/sneakers';
@@ -20,7 +21,7 @@ import { T_SHIRT } from './top/tShirt';
 export { BODY };
 
 /** Hairstyles are chosen as a pair and written into two slots by the reducer. */
-export const HAIR_STYLES: readonly HairStyle[] = [BOB_FRINGE, LONG_WAVY];
+export const HAIR_STYLES: readonly HairStyle[] = [BOB_FRINGE, LONG_WAVY, TWIN_BUNS];
 
 const TOPS: readonly Part[] = [T_SHIRT, POLKA_DOT_DRESS];
 const BOTTOMS: readonly Part[] = [SKIRT];
