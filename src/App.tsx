@@ -4,8 +4,10 @@ import { RENDER_ORDER, type Slot, type TraySlot } from './model/slots';
 import { ColorTray } from './ui/ColorTray';
 import { DraggableDoll } from './ui/DraggableDoll';
 import { PartTray } from './ui/PartTray';
+import { ZoomSlider } from './ui/ZoomSlider';
 import { RandomButton } from './ui/RandomButton';
 import { SlotBar } from './ui/SlotBar';
+import { DEFAULT_ZOOM, zoomedViewBox } from './lib/zoom';
 import { trayById } from './ui/trays';
 import type { DragPoint } from './ui/useDrag';
 import styles from './App.module.css';
@@ -21,6 +23,7 @@ export const App = (): JSX.Element => {
   const [active, setActive] = useState<TraySlot>('hair');
   const tray = trayById(active);
   const stage = useRef<HTMLElement>(null);
+  const [zoom, setZoom] = useState(DEFAULT_ZOOM);
 
   /**
    * SPEC section 13 asks for a generous drop target: the whole stage the doll
@@ -48,7 +51,13 @@ export const App = (): JSX.Element => {
   return (
     <main className={styles.app}>
       <section className={styles.stage} ref={stage}>
-        <DraggableDoll className={styles.doll} isInsideStage={isInsideDropZone} slotAt={slotAt} />
+        <DraggableDoll
+          className={styles.doll}
+          isInsideStage={isInsideDropZone}
+          slotAt={slotAt}
+          viewBox={zoomedViewBox(zoom)}
+        />
+        <ZoomSlider zoom={zoom} onChange={setZoom} />
       </section>
 
       <section className={styles.panel}>

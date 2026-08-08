@@ -83,3 +83,49 @@
     transition: none;
   }
 }
+
+/*
+ * The zoom slider. SPEC section 4 asks for 60 px of touch target, which for a
+ * slider means the whole strip, not just the thumb — a six-year-old drags at
+ * the height they happen to land on.
+ */
+.zoom {
+  width: min(100%, 320px);
+  height: 60px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.zoom::-webkit-slider-runnable-track {
+  height: 10px;
+  border-radius: 5px;
+  background: #d9d5f4;
+}
+
+.zoom::-moz-range-track {
+  height: 10px;
+  border-radius: 5px;
+  background: #d9d5f4;
+}
+
+.zoom::-webkit-slider-thumb {
+  width: 40px;
+  height: 40px;
+  margin-top: -15px;
+  border: none;
+  border-radius: 50%;
+  background: #7f77dd;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.zoom::-moz-range-thumb {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: #7f77dd;
+}

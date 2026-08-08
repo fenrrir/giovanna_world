@@ -11,6 +11,8 @@ type DollProps = {
   body: Part;
   /** Accessible name. The canvas carries no visible text. */
   label: string;
+  /** The visible region. Defaults to the whole contractual canvas. */
+  viewBox?: string | undefined;
   className?: string | undefined;
 };
 
@@ -18,9 +20,16 @@ type DollProps = {
  * The single canvas. Every part is a fragment inside this one <svg>, painted
  * in z order, on the contractual 680 by 540 viewBox (SPEC section 8).
  */
-export const Doll = ({ look, lookup, body, label, className }: DollProps): JSX.Element => (
+export const Doll = ({
+  look,
+  lookup,
+  body,
+  label,
+  className,
+  viewBox = VIEW_BOX_ATTR,
+}: DollProps): JSX.Element => (
   <svg
-    viewBox={VIEW_BOX_ATTR}
+    viewBox={viewBox}
     width="100%"
     preserveAspectRatio="xMidYMid meet"
     role="img"

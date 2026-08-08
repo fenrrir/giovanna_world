@@ -17,6 +17,7 @@ export const ptBR = {
   'tray.bottom': 'Saia e calça',
   'tray.shoes': 'Sapatos',
   'tray.accessoryHead': 'Enfeite de cabelo',
+  'zoom.label': 'Aproximar a boneca',
 
   'tray.open': 'Abrir as opções de {tray}',
   'part.choose': 'Vestir esta peça de {tray}',

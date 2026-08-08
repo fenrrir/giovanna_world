@@ -19,6 +19,8 @@ type DraggableDollProps = {
   className?: string | undefined;
   /** Where the doll's stage is. Only the layout knows the rectangle. */
   isInsideStage: (point: DragPoint) => boolean;
+  /** The visible region of the canvas, set by the zoom slider. */
+  viewBox?: string | undefined;
   /** Which layer is under a point. Injected because it is a hit test. */
   slotAt: (point: DragPoint) => Slot | null;
 };
@@ -38,6 +40,7 @@ export const DraggableDoll = ({
   className,
   isInsideStage,
   slotAt,
+  viewBox,
 }: DraggableDollProps): JSX.Element => {
   const { t } = useTranslation();
   const { look, dispatch } = useLook();
@@ -85,7 +88,7 @@ export const DraggableDoll = ({
       {...handlers}
       onPointerDown={onPointerDown}
     >
-      <Doll look={look} lookup={findPart} body={BODY} label={t('doll.label')} />
+      <Doll look={look} lookup={findPart} body={BODY} label={t('doll.label')} viewBox={viewBox} />
 
       {at && dragged && (
         <DragGhost

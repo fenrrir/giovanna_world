@@ -239,6 +239,12 @@ describe('the interface itself', () => {
   it('reaches every control by keyboard', async () => {
     const { user } = mount();
 
+    // The stage comes before the panel, so the zoom slider is reached first and
+    // the trays follow it.
+    await user.tab();
+
+    expect(document.activeElement).toBe(screen.getByRole('slider', { name: ptBR['zoom.label'] }));
+
     await user.tab();
 
     expect(document.activeElement).toBe(trayButton('tray.hair'));
