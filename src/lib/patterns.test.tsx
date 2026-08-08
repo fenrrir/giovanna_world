@@ -97,6 +97,49 @@ describe('stripes', () => {
 
     expect(svg.querySelectorAll('rect')).toHaveLength(0);
   });
+
+  describe('horizontal', () => {
+    const horizontal = { orientation: 'horizontal' } as const;
+
+    it('runs each stripe the full width of the box', () => {
+      const svg = renderFragment(stripes(BOX, COLOR, { ...horizontal, width: 8, spacing: 24 }));
+      const rects = [...svg.querySelectorAll('rect')];
+
+      expect(rects.length).toBeGreaterThan(0);
+
+      for (const rect of rects) {
+        const [x, y, width, height] = numbers(rect, 'x', 'y', 'width', 'height');
+
+        expect(x).toBe(BOX.x);
+        expect(width).toBe(BOX.width);
+        expect(height).toBe(8);
+        expect(y).toBeGreaterThanOrEqual(BOX.y);
+        expect(y! + height!).toBeLessThanOrEqual(BOX.y + BOX.height);
+      }
+    });
+
+    it('stacks along the height rather than the width', () => {
+      const svg = renderFragment(stripes(BOX, COLOR, { ...horizontal, width: 8, spacing: 24 }));
+      const ys = [...svg.querySelectorAll('rect')].map((rect) => Number(rect.getAttribute('y')));
+
+      expect(new Set(ys).size).toBe(ys.length);
+    });
+
+    it('centres the stack in the box', () => {
+      const svg = renderFragment(stripes(BOX, COLOR, { ...horizontal, width: 8, spacing: 25 }));
+      const ys = [...svg.querySelectorAll('rect')].map((rect) => Number(rect.getAttribute('y')));
+
+      expect((Math.min(...ys) + Math.max(...ys) + 8) / 2).toBeCloseTo(BOX.y + BOX.height / 2);
+    });
+
+    it('emits nothing when a stripe cannot fit inside the box', () => {
+      const svg = renderFragment(
+        stripes({ x: 0, y: 0, width: 40, height: 4 }, COLOR, { ...horizontal, width: 10 }),
+      );
+
+      expect(svg.querySelectorAll('rect')).toHaveLength(0);
+    });
+  });
 });
 
 describe('checks', () => {

@@ -12,7 +12,7 @@ import type { Box } from '../anchors';
  */
 
 type DotOptions = { radius?: number; spacing?: number };
-type StripeOptions = { width?: number; spacing?: number };
+type StripeOptions = { width?: number; spacing?: number; orientation?: 'vertical' | 'horizontal' };
 type CheckOptions = { size?: number };
 
 /**
@@ -57,7 +57,20 @@ export const dots = (box: Box, color: string, options: DotOptions = {}): ReactNo
 };
 
 export const stripes = (box: Box, color: string, options: StripeOptions = {}): ReactNode => {
-  const { width = 10, spacing = 26 } = options;
+  const { width = 10, spacing = 26, orientation = 'vertical' } = options;
+
+  if (orientation === 'horizontal') {
+    const rows = track(box.y, box.y + box.height, spacing, width);
+
+    return (
+      <g>
+        {rows.map((y) => (
+          <rect key={String(y)} x={box.x} y={y} width={box.width} height={width} fill={color} />
+        ))}
+      </g>
+    );
+  }
+
   const columns = track(box.x, box.x + box.width, spacing, width);
 
   return (
