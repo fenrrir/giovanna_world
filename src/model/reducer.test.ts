@@ -199,10 +199,11 @@ describe('lookReducer', () => {
       ['applyHair', { type: 'applyHair', hair, color: '#6B3A1F' }],
       ['replaceLook', { type: 'replaceLook', look: DEFAULT_LOOK }],
     ] as const)('never mutates the state it is given for %s', (_name, action) => {
+      const before = structuredClone(DEFAULT_LOOK);
       const state = frozen(DEFAULT_LOOK);
 
       expect(() => lookReducer(state, action)).not.toThrow();
-      expect(state.equipped).toStrictEqual({});
+      expect(state).toStrictEqual(before);
     });
 
     it('returns a new object for a change', () => {

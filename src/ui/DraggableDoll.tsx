@@ -7,7 +7,7 @@ import {
 } from 'react';
 
 import { useTranslation } from '../i18n';
-import type { Slot } from '../model/slots';
+import { isPainted, type Slot } from '../model/slots';
 import { BODY, findPart } from '../parts/registry';
 import { Doll } from '../render/Doll';
 import { useLook } from '../state/lookContext';
@@ -62,8 +62,9 @@ export const DraggableDoll = ({
   const onPointerDown = (event: ReactPointerEvent<HTMLElement>): void => {
     const slot = slotAt({ x: event.clientX, y: event.clientY });
 
-    // The body is not a garment, and an empty slot has nothing to pull off.
-    if (slot === null || slot === 'body' || !look.equipped[slot]) return;
+    // A painted slot is the doll rather than something worn on it, and an empty
+    // slot has nothing to pull off.
+    if (slot === null || isPainted(slot) || !look.equipped[slot]) return;
 
     setGrabbed(slot);
     handlers.onPointerDown(event);

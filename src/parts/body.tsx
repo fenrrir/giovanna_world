@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 
 import { ANCHORS } from '../anchors';
 import { shade } from '../lib/color';
-import { BLUSH_OPACITY, FIXED_COLORS } from '../model/palettes';
+import { FIXED_COLORS } from '../model/palettes';
 import type { Part } from '../model/types';
 
 /**
@@ -35,25 +35,13 @@ const rounded = (x1: number, x2: number, y1: number, y2: number, fill: string): 
   <rect x={x1} y={y1} width={x2 - x1} height={y2 - y1} rx={LIMB_RADIUS} fill={fill} />
 );
 
+/**
+ * The eyes, and only the eyes. Brows, mouth and cheeks are their own slots now,
+ * because the child picks their colour; what stays here is what she does not
+ * choose.
+ */
 const face = (): ReactNode => (
   <g>
-    <ellipse
-      cx={eyeLine.xLeft - 14}
-      cy={eyeLine.y + 18}
-      rx={14}
-      ry={9}
-      fill={FIXED_COLORS.blush}
-      opacity={BLUSH_OPACITY}
-    />
-    <ellipse
-      cx={eyeLine.xRight + 14}
-      cy={eyeLine.y + 18}
-      rx={14}
-      ry={9}
-      fill={FIXED_COLORS.blush}
-      opacity={BLUSH_OPACITY}
-    />
-
     <circle cx={eyeLine.xLeft} cy={eyeLine.y} r={EYE_RADIUS} fill={FIXED_COLORS.eye} />
     <circle cx={eyeLine.xRight} cy={eyeLine.y} r={EYE_RADIUS} fill={FIXED_COLORS.eye} />
     <circle
@@ -67,15 +55,6 @@ const face = (): ReactNode => (
       cy={eyeLine.y - HIGHLIGHT_OFFSET}
       r={HIGHLIGHT_RADIUS}
       fill={FIXED_COLORS.eyeHighlight}
-    />
-
-    <path
-      d={`M ${String(chin.x - 14)} ${String(chin.y - 28)}
-          Q ${String(chin.x)} ${String(chin.y - 14)} ${String(chin.x + 14)} ${String(chin.y - 28)}`}
-      fill="none"
-      stroke={FIXED_COLORS.mouth}
-      strokeWidth={5}
-      strokeLinecap="round"
     />
   </g>
 );

@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 
 import type { Slot } from './slots';
 
-export type Palette = 'skin' | 'hair' | 'fabric';
+export type Palette = 'skin' | 'hair' | 'fabric' | 'makeup';
 
 export type Part = {
   /** Namespaced identifier, e.g. 'top.polka-dot-dress'. */

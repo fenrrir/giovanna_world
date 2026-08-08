@@ -20,7 +20,8 @@ const DIE = { x: 8, y: 8, width: 40, height: 40 };
  * Dresses the doll at random, on a long press.
  *
  * It is the only control that throws away what the child made, so SPEC section 4
- * requires a hold rather than a tap. The button fills while held, which is the
+ * requires a hold rather than a tap. It replaces the outfit only: the skin tone,
+ * the face and any accessory are hers to keep. The button fills while held, which is the
  * whole feedback — a six-year-old needs to see that something is happening.
  *
  * The icon is a die drawn with the same dot generator the polka-dot dress uses.
@@ -28,10 +29,10 @@ const DIE = { x: 8, y: 8, width: 40, height: 40 };
  */
 export const RandomButton = ({ rng = Math.random }: RandomButtonProps): JSX.Element => {
   const { t } = useTranslation();
-  const { dispatch } = useLook();
+  const { look, dispatch } = useLook();
 
   const { held, handlers } = useLongPress(() => {
-    dispatch({ type: 'replaceLook', look: randomLook(rng) });
+    dispatch({ type: 'replaceLook', look: randomLook(rng, look) });
   });
 
   return (

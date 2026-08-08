@@ -39,6 +39,26 @@ const SLOT_ANCHORS: Partial<Record<Slot, { minY: number; maxY: number }>> = {
   accessoryHead: { minY: ANCHORS.headAccessorySide.y, maxY: ANCHORS.headAccessorySide.y },
 };
 
+/**
+ * Slots whose artwork must stay inside a region rather than reach across one.
+ *
+ * A brow, a mouth or a cheek goes wrong by sitting somewhere it does not belong
+ * — on the forehead, below the chin — which a span check cannot see. The region
+ * is the head itself, derived from its own anchor.
+ */
+const HEAD = {
+  minX: ANCHORS.headCenter.x - ANCHORS.headCenter.r,
+  maxX: ANCHORS.headCenter.x + ANCHORS.headCenter.r,
+  minY: ANCHORS.headCenter.y - ANCHORS.headCenter.r,
+  maxY: ANCHORS.headCenter.y + ANCHORS.headCenter.r,
+};
+
+const SLOT_REGIONS: Partial<Record<Slot, typeof HEAD>> = {
+  brows: HEAD,
+  lips: HEAD,
+  blush: HEAD,
+};
+
 const renderPart = (part: Part, color: string): SVGSVGElement => {
   const { container } = render(<svg>{part.render(color)}</svg>);
 
@@ -132,6 +152,19 @@ describe.each(everyPart())('%s', (id, part) => {
 
     expect(bounds.minY, `${id} starts below its anchor band`).toBeLessThanOrEqual(band.minY);
     expect(bounds.maxY, `${id} ends above its anchor band`).toBeGreaterThanOrEqual(band.maxY);
+  });
+
+  it('stays inside the region its slot belongs to', () => {
+    const region = SLOT_REGIONS[part.slot];
+
+    if (!region) return;
+
+    const bounds = boundsOf(renderPart(part, palette[0]))!;
+
+    expect(bounds.minX, `${id} reaches left of its region`).toBeGreaterThanOrEqual(region.minX);
+    expect(bounds.maxX, `${id} reaches right of its region`).toBeLessThanOrEqual(region.maxX);
+    expect(bounds.minY, `${id} reaches above its region`).toBeGreaterThanOrEqual(region.minY);
+    expect(bounds.maxY, `${id} reaches below its region`).toBeLessThanOrEqual(region.maxY);
   });
 
   it('stays within the doll bounds, leaving the lateral margin free', () => {

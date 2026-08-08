@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { App } from '../../src/App';
+import { PAINTED_SLOTS } from '../../src/model/slots';
 import { I18nProvider, ptBR } from '../../src/i18n';
 import { CURRENT_LOOK_KEY } from '../../src/lib/storage';
 import type { Look } from '../../src/model/types';
@@ -50,6 +51,10 @@ const paintedSlots = (): string[] =>
     (group) => group.getAttribute('data-slot') ?? '',
   );
 
+/** Only what she is wearing: the body and its painted-on face are always there. */
+const PAINTED: readonly string[] = PAINTED_SLOTS;
+const worn = (): string[] => paintedSlots().filter((slot) => !PAINTED.includes(slot));
+
 /** The tray buttons in the top bar, one per tray. */
 const trayButton = (tray: keyof typeof ptBR): HTMLElement =>
   screen.getByRole('button', {
@@ -78,7 +83,7 @@ describe('dressing the doll', () => {
     mount();
 
     expect(doll().getAttribute('viewBox')).toBe('0 0 680 540');
-    expect(paintedSlots()).toStrictEqual(['body']);
+    expect(worn()).toStrictEqual([]);
   });
 
   it('puts on a hairstyle, filling both hair slots from one tap', async () => {
@@ -87,7 +92,14 @@ describe('dressing the doll', () => {
     await user.click(trayButton('tray.hair'));
     await user.click(partButtons()[0]!);
 
-    expect(paintedSlots()).toStrictEqual(['hairBack', 'body', 'hairFront']);
+    expect(paintedSlots()).toStrictEqual([
+      'hairBack',
+      'body',
+      'blush',
+      'brows',
+      'lips',
+      'hairFront',
+    ]);
   });
 
   it('recolours the hairstyle, keeping both halves in step', async () => {
@@ -115,7 +127,7 @@ describe('dressing the doll', () => {
     await user.click(trayButton('tray.top'));
     await user.click(partButtons()[0]!);
 
-    expect(paintedSlots()).toStrictEqual(['body', 'top']);
+    expect(paintedSlots()).toStrictEqual(['body', 'blush', 'brows', 'lips', 'top']);
   });
 
   it('dresses the doll from every tray', async () => {
@@ -129,6 +141,9 @@ describe('dressing the doll', () => {
     expect(paintedSlots()).toStrictEqual([
       'hairBack',
       'body',
+      'blush',
+      'brows',
+      'lips',
       'shoes',
       'bottom',
       'top',

@@ -2,6 +2,7 @@ import { act, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { App } from '../../src/App';
+import { PAINTED_SLOTS } from '../../src/model/slots';
 import { I18nProvider, ptBR } from '../../src/i18n';
 import { LookProvider } from '../../src/state/LookProvider';
 import { DRAG_THRESHOLD_PX, RETURN_MS } from '../../src/ui/useDrag';
@@ -53,6 +54,10 @@ const paintedSlots = (): string[] =>
     (group) => group.getAttribute('data-slot') ?? '',
   );
 
+/** Only what she is wearing: the body and its painted-on face are always there. */
+const PAINTED: readonly string[] = PAINTED_SLOTS;
+const worn = (): string[] => paintedSlots().filter((slot) => !PAINTED.includes(slot));
+
 const pointer = (type: string, x: number, y: number): PointerEvent =>
   new PointerEvent(type, { bubbles: true, clientX: x, clientY: y, pointerId: 1, isPrimary: true });
 
@@ -92,7 +97,7 @@ describe('dragging a piece onto the doll', () => {
     mount();
     const part = firstPart();
 
-    expect(paintedSlots()).toStrictEqual(['body']);
+    expect(worn()).toStrictEqual([]);
 
     drag(part, [
       [700, 400],
@@ -128,7 +133,7 @@ describe('dragging a piece onto the doll', () => {
     ]);
     release(part, 650, 400);
 
-    expect(paintedSlots()).toStrictEqual(['body']);
+    expect(worn()).toStrictEqual([]);
   });
 
   it('sends the piece back to the tray after a miss', () => {

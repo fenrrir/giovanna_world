@@ -45,8 +45,9 @@ describe('the randomiser', () => {
 
   it('skips a tray with nothing in it instead of producing a broken look', async () => {
     const { randomLook } = await import('../../src/ui/randomize');
+    const { DEFAULT_LOOK } = await import('../../src/model/defaults');
 
-    const look = randomLook(() => 0);
+    const look = randomLook(() => 0, { ...DEFAULT_LOOK, equipped: {} });
 
     expect(look.equipped.hairBack).toBeUndefined();
     expect(look.equipped.hairFront).toBeUndefined();

@@ -61,4 +61,7 @@ export const THUMB_FOCUS = {
   bottom: { x: 262, y: 270, width: 156, height: 190 },
   shoes: { x: 286, y: 430, width: 108, height: 80 },
   accessoryHead: { x: 358, y: 50, width: 96, height: 96 },
+  brows: { x: 292, y: 70, width: 96, height: 96 },
+  lips: { x: 292, y: 122, width: 96, height: 96 },
+  blush: { x: 292, y: 106, width: 96, height: 96 },
 } as const satisfies Record<string, Box>;

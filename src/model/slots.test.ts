@@ -3,10 +3,13 @@ import { describe, expect, it } from 'vitest';
 import { RENDER_ORDER, SELECTABLE_SLOTS, Z } from './slots';
 
 describe('Z', () => {
-  it('holds exactly the eleven slots from the spec, with the spec values', () => {
+  it("holds every slot with its spec value, and the face in the body's gap", () => {
     expect(Z).toStrictEqual({
       hairBack: 0,
       body: 10,
+      blush: 12,
+      brows: 14,
+      lips: 16,
       socks: 20,
       shoes: 30,
       bottom: 40,
@@ -19,11 +22,22 @@ describe('Z', () => {
     });
   });
 
-  it('leaves room between layers for future insertions', () => {
-    const values = Object.values(Z).sort((a, b) => a - b);
-    const gaps = values.slice(1).map((value, index) => value - values[index]!);
+  it('gives every slot a distinct depth', () => {
+    const values = Object.values(Z);
 
-    expect(Math.min(...gaps)).toBeGreaterThanOrEqual(5);
+    expect(new Set(values).size).toBe(values.length);
+  });
+
+  /*
+   * What the gap above the body was left for. The face has to be over the skin
+   * and under the fringe: painted below the body it would vanish, painted above
+   * the fringe it would sit on top of the hair.
+   */
+  it('paints the face above the body and below the fringe', () => {
+    for (const slot of ['blush', 'brows', 'lips'] as const) {
+      expect(Z[slot]).toBeGreaterThan(Z.body);
+      expect(Z[slot]).toBeLessThan(Z.hairFront);
+    }
   });
 });
 
@@ -46,7 +60,16 @@ describe('RENDER_ORDER', () => {
 
 describe('SELECTABLE_SLOTS', () => {
   it('offers the child every tray, in the order they appear on screen', () => {
-    expect(SELECTABLE_SLOTS).toStrictEqual(['hair', 'top', 'bottom', 'shoes', 'accessoryHead']);
+    expect(SELECTABLE_SLOTS).toStrictEqual([
+      'hair',
+      'brows',
+      'lips',
+      'blush',
+      'top',
+      'bottom',
+      'shoes',
+      'accessoryHead',
+    ]);
   });
 
   it('never offers the body, which is not a choice', () => {

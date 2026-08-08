@@ -16,6 +16,9 @@ export const ptBR = {
   'tray.top': 'Blusa',
   'tray.bottom': 'Saia e calça',
   'tray.shoes': 'Sapatos',
+  'tray.brows': 'Sobrancelhas',
+  'tray.lips': 'Batom',
+  'tray.blush': 'Blush',
   'tray.accessoryHead': 'Enfeite de cabelo',
   'zoom.label': 'Aproximar a boneca',
 

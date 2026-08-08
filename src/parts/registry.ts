@@ -2,6 +2,9 @@ import type { PartLookup } from '../model/sanitize';
 import type { Slot } from '../model/slots';
 import type { HairStyle, Part } from '../model/types';
 import { BOW } from './accessoryHead/bow';
+import { ROUND_BLUSH } from './blush/round';
+import { SOFT_ARCH } from './brows/softArch';
+import { SMILE } from './lips/smile';
 import { BODY } from './body';
 import { BOB_FRINGE } from './hair/bobFringe';
 import { LONG_WAVY } from './hair/longWavy';
@@ -33,6 +36,9 @@ const TOPS: readonly Part[] = [T_SHIRT, POLKA_DOT_DRESS, STRIPED_SWEATSHIRT, TAN
 const BOTTOMS: readonly Part[] = [SKIRT, JEANS, SHORTS];
 const SHOES: readonly Part[] = [SNEAKERS, MARY_JANES];
 const HEAD_ACCESSORIES: readonly Part[] = [BOW];
+const BROWS: readonly Part[] = [SOFT_ARCH];
+const LIPS: readonly Part[] = [SMILE];
+const BLUSHES: readonly Part[] = [ROUND_BLUSH];
 
 /**
  * Slots with no Phase 1 artwork are present but empty. The taxonomy already
@@ -43,6 +49,9 @@ export const PARTS_BY_SLOT: Readonly<Record<Slot, readonly Part[]>> = {
   hairBack: HAIR_STYLES.map((hair) => hairPart(hair, 'hairBack')),
   hairFront: HAIR_STYLES.map((hair) => hairPart(hair, 'hairFront')),
   body: [BODY],
+  brows: BROWS,
+  lips: LIPS,
+  blush: BLUSHES,
   top: TOPS,
   bottom: BOTTOMS,
   shoes: SHOES,

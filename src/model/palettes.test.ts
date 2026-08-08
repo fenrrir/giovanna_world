@@ -44,14 +44,17 @@ describe('PALETTES', () => {
 });
 
 describe('FIXED_COLORS', () => {
-  it('holds the five non-recolourable colours from the spec', () => {
+  it('holds the colours the child never chooses', () => {
     expect(FIXED_COLORS).toStrictEqual({
       eye: '#3B2418',
       eyeHighlight: '#FBFBF9',
-      mouth: '#C24A6B',
-      blush: '#F0997B',
       collarWhite: '#FBFBF9',
     });
+  });
+
+  it('no longer fixes the mouth or the cheeks, which the child now picks', () => {
+    expect(FIXED_COLORS).not.toHaveProperty('mouth');
+    expect(FIXED_COLORS).not.toHaveProperty('blush');
   });
 
   it('renders blush through opacity rather than a new colour', () => {

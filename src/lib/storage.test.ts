@@ -183,11 +183,15 @@ describe('saveLook', () => {
 });
 
 describe('DEFAULT_LOOK', () => {
-  it('starts on the first skin tone with nothing equipped', () => {
+  it('starts on the first skin tone, wearing nothing but a face', () => {
     expect(DEFAULT_LOOK).toStrictEqual({
       schemaVersion: 1,
       skin: '#F7DCC3',
-      equipped: {},
+      equipped: {
+        brows: { partId: 'brows.soft-arch', color: '#6B3A1F' },
+        lips: { partId: 'lips.smile', color: '#C63F5A' },
+        blush: { partId: 'blush.round', color: '#E8899B' },
+      },
     });
   });
 });

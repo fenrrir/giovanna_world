@@ -2,6 +2,7 @@ import { act, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { App } from '../../src/App';
+import { PAINTED_SLOTS } from '../../src/model/slots';
 import { I18nProvider, ptBR } from '../../src/i18n';
 import { LookProvider } from '../../src/state/LookProvider';
 
@@ -52,6 +53,10 @@ const paintedSlots = (): string[] =>
   [...doll().querySelectorAll('g[data-slot]')].map(
     (group) => group.getAttribute('data-slot') ?? '',
   );
+
+/** Only what she is wearing: the body and its painted-on face are always there. */
+const PAINTED: readonly string[] = PAINTED_SLOTS;
+const worn = (): string[] => paintedSlots().filter((slot) => !PAINTED.includes(slot));
 
 const pointer = (type: string, x: number, y: number): PointerEvent =>
   new PointerEvent(type, { bubbles: true, clientX: x, clientY: y, pointerId: 1, isPrimary: true });
@@ -140,7 +145,7 @@ describe('taking a piece off', () => {
     pointAt('hairFront');
     dragOff([900, 400]);
 
-    expect(paintedSlots()).toStrictEqual(['body']);
+    expect(worn()).toStrictEqual([]);
   });
 
   it('keeps everything on when the doll is simply tapped', async () => {
@@ -168,7 +173,7 @@ describe('taking a piece off', () => {
     pointAt('hairBack');
     dragOff([900, 400]);
 
-    expect(paintedSlots()).toStrictEqual(['body']);
+    expect(worn()).toStrictEqual([]);
   });
 
   it('never lets the body be pulled off', async () => {

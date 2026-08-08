@@ -2,11 +2,13 @@ import { act, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { App } from '../../src/App';
+import { PAINTED_SLOTS } from '../../src/model/slots';
 import { I18nProvider, ptBR } from '../../src/i18n';
 import { CURRENT_LOOK_KEY } from '../../src/lib/storage';
 import type { Look } from '../../src/model/types';
 import { AUTOSAVE_DELAY_MS, LookProvider } from '../../src/state/LookProvider';
-import { TRAYS } from '../../src/ui/trays';
+import { DEFAULT_LOOK } from '../../src/model/defaults';
+import { RANDOM_TRAYS } from '../../src/ui/trays';
 import { LONG_PRESS_MS } from '../../src/ui/useLongPress';
 
 const mount = () => {
@@ -28,6 +30,10 @@ const paintedSlots = (): string[] =>
   [...doll().querySelectorAll('g[data-slot]')].map(
     (group) => group.getAttribute('data-slot') ?? '',
   );
+
+/** Only what she is wearing: the body and its painted-on face are always there. */
+const PAINTED: readonly string[] = PAINTED_SLOTS;
+const worn = (): string[] => paintedSlots().filter((slot) => !PAINTED.includes(slot));
 
 const press = (button: HTMLElement, ms: number): void => {
   act(() => {
@@ -63,7 +69,7 @@ describe('randomising the outfit', () => {
       vi.advanceTimersByTime(LONG_PRESS_MS * 2);
     });
 
-    expect(paintedSlots()).toStrictEqual(['body']);
+    expect(worn()).toStrictEqual([]);
   });
 
   /*
@@ -82,10 +88,17 @@ describe('randomising the outfit', () => {
 
     const saved = JSON.parse(localStorage.getItem(CURRENT_LOOK_KEY) ?? 'null') as Look | null;
 
-    // Derived from the trays rather than listed, so a tray added later is
-    // covered by this test instead of quietly escaping it. hairBack joins them
-    // because the one hair tray writes into both hair slots.
-    const expected = ['hairBack', ...TRAYS.map((tray) => tray.slot)].sort();
+    /*
+     * Derived rather than listed, so an outfit tray added later is covered by
+     * this test instead of quietly escaping it. hairBack joins them because the
+     * one hair tray writes into both hair slots, and the face joins them because
+     * it was already on the doll and the randomiser leaves it there.
+     */
+    const expected = [
+      'hairBack',
+      ...RANDOM_TRAYS.map((tray) => tray.slot),
+      ...Object.keys(DEFAULT_LOOK.equipped),
+    ].sort();
 
     expect(Object.keys(saved?.equipped ?? {}).sort()).toStrictEqual(expected);
   });
@@ -93,7 +106,7 @@ describe('randomising the outfit', () => {
   it('puts the new outfit on the doll', () => {
     const { button } = mount();
 
-    expect(paintedSlots()).toStrictEqual(['body']);
+    expect(worn()).toStrictEqual([]);
 
     press(button, LONG_PRESS_MS);
 
@@ -131,7 +144,7 @@ describe('randomising the outfit', () => {
       vi.advanceTimersByTime(LONG_PRESS_MS * 2);
     });
 
-    expect(paintedSlots()).toStrictEqual(['body']);
+    expect(worn()).toStrictEqual([]);
   });
 
   it('autosaves the outfit it produced', () => {

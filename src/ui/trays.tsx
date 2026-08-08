@@ -20,6 +20,9 @@ export type TrayDefinition = {
   slot: Slot;
   palette: Palette;
   focus: Box;
+  /** Whether the randomiser touches this tray. The face and accessories keep
+   * what the child chose; only the outfit is thrown away. */
+  randomised: boolean;
   label: MessageKey;
 };
 
@@ -34,14 +37,23 @@ const BY_ID: Record<TraySlot, TrayDefinition> = {
     palette: 'hair',
     focus: THUMB_FOCUS.hair,
     label: 'tray.hair',
+    randomised: true,
   },
-  top: { id: 'top', slot: 'top', palette: 'fabric', focus: THUMB_FOCUS.top, label: 'tray.top' },
+  top: {
+    id: 'top',
+    slot: 'top',
+    palette: 'fabric',
+    focus: THUMB_FOCUS.top,
+    label: 'tray.top',
+    randomised: true,
+  },
   bottom: {
     id: 'bottom',
     slot: 'bottom',
     palette: 'fabric',
     focus: THUMB_FOCUS.bottom,
     label: 'tray.bottom',
+    randomised: true,
   },
   shoes: {
     id: 'shoes',
@@ -49,6 +61,31 @@ const BY_ID: Record<TraySlot, TrayDefinition> = {
     palette: 'fabric',
     focus: THUMB_FOCUS.shoes,
     label: 'tray.shoes',
+    randomised: true,
+  },
+  brows: {
+    id: 'brows',
+    slot: 'brows',
+    palette: 'hair',
+    focus: THUMB_FOCUS.brows,
+    label: 'tray.brows',
+    randomised: false,
+  },
+  lips: {
+    id: 'lips',
+    slot: 'lips',
+    palette: 'makeup',
+    focus: THUMB_FOCUS.lips,
+    label: 'tray.lips',
+    randomised: false,
+  },
+  blush: {
+    id: 'blush',
+    slot: 'blush',
+    palette: 'makeup',
+    focus: THUMB_FOCUS.blush,
+    label: 'tray.blush',
+    randomised: false,
   },
   accessoryHead: {
     id: 'accessoryHead',
@@ -56,6 +93,7 @@ const BY_ID: Record<TraySlot, TrayDefinition> = {
     palette: 'fabric',
     focus: THUMB_FOCUS.accessoryHead,
     label: 'tray.accessoryHead',
+    randomised: false,
   },
 };
 
@@ -63,6 +101,9 @@ export const trayById = (id: TraySlot): TrayDefinition => BY_ID[id];
 
 /** On screen in the order the model declares, so the two cannot disagree. */
 export const TRAYS: readonly TrayDefinition[] = SELECTABLE_SLOTS.map(trayById);
+
+/** The trays the randomiser replaces: the outfit, not the doll's own face. */
+export const RANDOM_TRAYS: readonly TrayDefinition[] = TRAYS.filter((tray) => tray.randomised);
 
 /**
  * The tray a slot belongs to, for the times something starts from the doll
