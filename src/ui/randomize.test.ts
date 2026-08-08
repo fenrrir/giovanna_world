@@ -7,9 +7,12 @@ import type { Look } from '../model/types';
 import { randomLook } from './randomize';
 import { RANDOM_TRAYS, TRAYS, trayItems, type TrayDefinition, type TrayItem } from './trays';
 
-/** What the dice may land on: every piece except the ones she shapes herself. */
-const drawable = (tray: TrayDefinition): TrayItem[] =>
-  trayItems(tray).filter((item) => !item.shaped);
+/** What the dice may land on: every piece in the tray, shaped ones included. */
+const drawable = (tray: TrayDefinition): TrayItem[] => trayItems(tray);
+
+/** The trays that always come up dressed, as against the ones that may not. */
+const ALWAYS = RANDOM_TRAYS.filter((tray) => tray.randomised === 'always');
+const SOMETIMES = RANDOM_TRAYS.filter((tray) => tray.randomised === 'sometimes');
 
 /** Yields the given values in order, then repeats the last one. */
 const sequence = (...values: number[]): (() => number) => {
@@ -55,7 +58,9 @@ describe('randomLook', () => {
   it('picks the last of everything when the generator is just under 1', () => {
     const look = randomLook(sequence(0.999), DEFAULT_LOOK);
 
-    for (const tray of RANDOM_TRAYS) {
+    // A high roll also means the optional trays come up bare, so only the
+    // outfit is there to check.
+    for (const tray of ALWAYS) {
       expect(look.equipped[tray.slot]?.partId).toBe(drawable(tray).at(-1)?.id);
       expect(look.equipped[tray.slot]?.color).toBe(PALETTES[tray.palette].at(-1));
     }
@@ -64,7 +69,7 @@ describe('randomLook', () => {
   it('never picks past the end, even if the generator returns 1', () => {
     const look = randomLook(sequence(1), DEFAULT_LOOK);
 
-    for (const tray of RANDOM_TRAYS) {
+    for (const tray of ALWAYS) {
       expect(look.equipped[tray.slot]?.partId).toBe(drawable(tray).at(-1)?.id);
     }
   });
@@ -76,14 +81,24 @@ describe('randomLook', () => {
   });
 
   /*
-   * Choosing it opens the axes that shape it, so a roll of the dice landing on
-   * it would open an editor the child never asked for. It could only ever be
-   * drawn at its default axes anyway — a fixed piece wearing a disguise.
+   * The dice used to skip generated pieces: landing on one could only ever have
+   * drawn it at its default axes, a fixed piece wearing a disguise. Now the
+   * axes are rolled too, which is what makes one worth landing on — and what
+   * lets a jacket appear at all, since the only jacket there is is generated.
    */
-  it('never lands on the hairstyle she shapes herself', () => {
-    for (const rng of [sequence(0), sequence(0.5), sequence(0.999), sequence(1)]) {
-      expect(randomLook(rng, DEFAULT_LOOK).equipped.hairFront?.partId).not.toBe('hair.custom');
-    }
+  it('rolls the axes when it lands on a piece she would otherwise shape', () => {
+    const shaped = randomLook(sequence(0.999), DEFAULT_LOOK).equipped.hairFront;
+
+    expect(shaped?.partId).toBe('hair.custom');
+    expect(shaped?.params).toBeDefined();
+    expect(shaped?.params).not.toStrictEqual(DEFAULT_LOOK.equipped.hairFront?.params);
+  });
+
+  it('gives a generated piece a different shape on a different roll', () => {
+    const low = randomLook(sequence(0), DEFAULT_LOOK).equipped.hairFront?.params;
+    const high = randomLook(sequence(0.999), DEFAULT_LOOK).equipped.hairFront?.params;
+
+    expect(low).not.toStrictEqual(high);
   });
 
   it('produces a valid look, ready to be stored', () => {
@@ -123,19 +138,32 @@ describe('randomLook', () => {
    * once was on for good, and dragging it off was the only way back.
    */
   it.each(['accessoryHead', 'handheld', 'outer', 'socks'] as const)(
-    'takes off the %s she was wearing, since the dice cannot replace it',
+    'takes the %s she was wearing off before deciding again',
     (slot) => {
-      expect(randomLook(sequence(0.999), dressed).equipped[slot]).toBeUndefined();
+      const kept = dressed.equipped[slot];
+      const rolled = randomLook(sequence(0), dressed).equipped[slot];
+
+      expect(rolled).not.toStrictEqual(kept);
     },
   );
 
   it('leaves nothing worn behind that it did not choose itself', () => {
-    const look = randomLook(sequence(0.5), dressed);
+    // A high roll leaves every optional tray bare, so what remains is the
+    // outfit and nothing carried over.
+    const look = randomLook(sequence(0.999), dressed);
     const worn = Object.keys(look.equipped).filter(
       (slot) => !['brows', 'lips', 'blush'].includes(slot),
     );
 
     expect(worn.sort()).toStrictEqual(['bottom', 'hairBack', 'hairFront', 'shoes', 'top']);
+  });
+
+  /* What she asked for: a jacket and a bag that turn up sometimes, not always. */
+  it('dresses an optional tray on a low roll and leaves it bare on a high one', () => {
+    for (const tray of SOMETIMES) {
+      expect(randomLook(sequence(0), dressed).equipped[tray.slot]).toBeDefined();
+      expect(randomLook(sequence(0.999), dressed).equipped[tray.slot]).toBeUndefined();
+    }
   });
 
   it('replaces the outfit she was wearing', () => {
@@ -148,7 +176,13 @@ describe('randomLook', () => {
     expect(TRAYS.map((tray) => tray.id)).toStrictEqual([...SELECTABLE_SLOTS]);
   });
 
-  it('randomises the outfit trays and only those', () => {
-    expect(RANDOM_TRAYS.map((tray) => tray.id)).toStrictEqual(['hair', 'top', 'bottom', 'shoes']);
+  it('always dresses the outfit and only sometimes the rest', () => {
+    expect(ALWAYS.map((tray) => tray.id)).toStrictEqual(['hair', 'top', 'bottom', 'shoes']);
+    expect(SOMETIMES.map((tray) => tray.id)).toStrictEqual([
+      'socks',
+      'outer',
+      'accessoryHead',
+      'handheld',
+    ]);
   });
 });

@@ -60,10 +60,16 @@ describe('the randomiser', () => {
     const { randomLook } = await import('../../src/ui/randomize');
     const { DEFAULT_LOOK } = await import('../../src/model/defaults');
 
+    // A generator at 0 always dresses, so every tray with anything in it gets
+    // something and the empty one is the only slot left bare.
     const look = randomLook(() => 0, { ...DEFAULT_LOOK, equipped: {} });
 
-    expect(look.equipped.hairBack).toBeUndefined();
-    expect(look.equipped.hairFront).toBeUndefined();
+    /*
+     * accessoryHead is the tray this file empties, and the only one that can
+     * actually be empty: hair keeps the hairstyle she shapes whatever the
+     * registry holds, because that piece is generated rather than registered.
+     */
+    expect(look.equipped.accessoryHead).toBeUndefined();
     expect(look.equipped.top).toBeDefined();
     expect(look.equipped.shoes).toBeDefined();
     expect(look.schemaVersion).toBe(1);

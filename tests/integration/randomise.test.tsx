@@ -89,18 +89,27 @@ describe('randomising the outfit', () => {
     const saved = JSON.parse(localStorage.getItem(CURRENT_LOOK_KEY) ?? 'null') as Look | null;
 
     /*
-     * Derived rather than listed, so an outfit tray added later is covered by
-     * this test instead of quietly escaping it. hairBack joins them because the
-     * one hair tray writes into both hair slots, and the face joins them because
-     * it was already on the doll and the randomiser leaves it there.
+     * The outfit and the face, derived rather than listed so a tray added later
+     * is covered here instead of quietly escaping. hairBack joins them because
+     * the one hair tray writes into both hair slots; the face because it is
+     * painted on and the dice never touch it.
+     *
+     * The optional trays are a real coin flip, so they are asserted as "may or
+     * may not" rather than pinned — a fixed list would be flaky by construction.
      */
-    const expected = [
+    const always = [
       'hairBack',
-      ...RANDOM_TRAYS.map((tray) => tray.slot),
+      ...RANDOM_TRAYS.filter((tray) => tray.randomised === 'always').map((tray) => tray.slot),
       ...Object.keys(DEFAULT_LOOK.equipped),
     ].sort();
 
-    expect(Object.keys(saved?.equipped ?? {}).sort()).toStrictEqual(expected);
+    const optional = RANDOM_TRAYS.filter((tray) => tray.randomised === 'sometimes').map(
+      (tray) => tray.slot,
+    );
+
+    const worn = Object.keys(saved?.equipped ?? {});
+
+    expect(worn.filter((slot) => !optional.includes(slot as never)).sort()).toStrictEqual(always);
   });
 
   it('puts the new outfit on the doll', () => {

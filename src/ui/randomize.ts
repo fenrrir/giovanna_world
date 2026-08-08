@@ -1,8 +1,9 @@
 import { PALETTES } from '../model/palettes';
 import { lookReducer } from '../model/reducer';
 import { isPainted, type Slot } from '../model/slots';
-import type { EquippedPart, Look } from '../model/types';
-import { RANDOM_TRAYS, trayItems } from './trays';
+import type { EquippedPart, Look, PartParams } from '../model/types';
+import type { ShapedFamily } from './shaped';
+import { RANDOM_TRAYS, trayItems, type TrayDefinition } from './trays';
 
 /**
  * A new outfit over the doll the child already has: one piece per outfit tray,
@@ -30,10 +31,10 @@ const pick = <T>(items: readonly T[], rng: Rng): T | undefined =>
 /**
  * The doll with everything worn taken off, and nothing else touched.
  *
- * The dice give her a new outfit, so the old one has to come off first. Left
- * on, anything the dice do not own stays on through every roll — a jacket worn
- * once was on for good, and the only way back was to drag it off. Her skin and
- * her face are not worn; they are her, and they stay.
+ * The dice give her a new outfit, so the old one has to come off first. Her
+ * skin and her face are not worn; they are her, and they stay. Everything else
+ * comes off and is then dressed again — which is how a jacket comes up on one
+ * roll and not the next, rather than staying on for good once worn.
  */
 const undressed = (look: Look): Look => {
   const entries = Object.entries(look.equipped) as [Slot, EquippedPart][];
@@ -46,13 +47,51 @@ const undressed = (look: Look): Look => {
   return { ...look, equipped };
 };
 
-export const randomLook = (rng: Rng, current: Look): Look =>
-  RANDOM_TRAYS.reduce<Look>((look, tray) => {
-    const item = pick(
-      trayItems(tray).filter((candidate) => !candidate.shaped),
-      rng,
-    );
-    const color = pick(PALETTES[tray.palette], rng);
+/** How often a tray she may or may not be wearing comes up dressed. */
+const WEARS_IT = 0.5;
 
-    return item && color ? lookReducer(look, item.apply(color)) : look;
-  }, undressed(current));
+/** Two decimals is finer than the panel's own step, and keeps the JSON short. */
+const axis = (rng: Rng): number => Math.round(rng() * 100) / 100;
+
+/**
+ * A shape rolled from scratch.
+ *
+ * The dice used to skip generated pieces entirely, and the reason was sound at
+ * the time: landing on one could only ever have drawn it at its default axes,
+ * one fixed jacket wearing a disguise. Rolling the axes is what makes a
+ * generated piece worth landing on, and what lets a jacket exist in the dice at
+ * all now that the only jacket there is is one she shapes.
+ */
+const rollShape = (family: ShapedFamily, rng: Rng): PartParams => {
+  const rolled: Record<string, number | string> = {};
+
+  for (const { key } of family.axes) rolled[key] = axis(rng);
+
+  const option = pick(family.choice.options, rng);
+
+  if (option) rolled[family.choice.key] = option.value;
+
+  return family.read(rolled);
+};
+
+/** One tray dressed: a piece, a colour, and a shape if the piece has one. */
+const dress = (look: Look, tray: TrayDefinition, rng: Rng): Look => {
+  const item = pick(trayItems(tray), rng);
+  const color = pick(PALETTES[tray.palette], rng);
+
+  if (!item || !color) return look;
+
+  return lookReducer(
+    look,
+    item.shaped && tray.shaped
+      ? tray.shaped.apply(rollShape(tray.shaped, rng), color)
+      : item.apply(color),
+  );
+};
+
+export const randomLook = (rng: Rng, current: Look): Look =>
+  RANDOM_TRAYS.reduce<Look>(
+    (look, tray) =>
+      tray.randomised === 'sometimes' && rng() >= WEARS_IT ? look : dress(look, tray, rng),
+    undressed(current),
+  );

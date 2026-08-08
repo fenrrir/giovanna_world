@@ -186,8 +186,18 @@ undresses, the sanitiser and the default look all read it. A doll with no mouth 
 rather than as undressed, so a stored look missing one gets it back silently instead of the schema
 being bumped and her outfit discarded.
 
-**Randomise builds on the current look**, not on the default. It undresses her first and then fills
-the outfit trays: skin and face are hers and stay, everything worn comes off.
+**Randomise builds on the current look**, not on the default. It undresses her first, then dresses
+her again: skin and face are hers and stay, everything worn comes off and is decided afresh.
+
+A tray declares how the dice treat it — `always` for the outfit, `sometimes` for a jacket, socks, a
+bow, a bag, `never` for the face. `sometimes` is what makes an accessory able to come _off_: with
+only "replace" and "leave alone" there was no roll that removed one, so a jacket worn once stayed on
+for good.
+
+**The dice roll a generated piece's axes too.** They used to skip generated pieces, and the reason
+was sound then — landing on one could only have drawn it at its default axes, a fixed piece wearing
+a disguise. Rolling the axes is what makes one worth landing on, and it is the only way a jacket can
+appear at all, since the only jacket there is is generated.
 
 The first version left the non-randomised trays alone instead of clearing them, which sounded like
 the same thing and was not. Nothing the dice do not own could ever come _off_ — a jacket worn once

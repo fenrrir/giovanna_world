@@ -15,15 +15,23 @@ import { SHAPED_HAIR, SHAPED_OUTER, SHAPED_SOCKS, shapedParams, type ShapedFamil
  * one place that bridges the two, so the rest of the UI never has to know that
  * a hairstyle is secretly a pair of slots (SPEC section 7).
  */
+export type Roll = 'always' | 'sometimes' | 'never';
+
 export type TrayDefinition = {
   id: TraySlot;
   /** The slot whose equipped entry this tray reflects and recolours. */
   slot: Slot;
   palette: Palette;
   focus: Box;
-  /** Whether the randomiser touches this tray. The face and accessories keep
-   * what the child chose; only the outfit is thrown away. */
-  randomised: boolean;
+  /**
+   * How the dice treat this tray.
+   *
+   * `always` is the outfit, which is replaced whole. `sometimes` is what she
+   * may or may not be wearing — a jacket, a bag — so the dice decide whether it
+   * goes on at all, which is the only way one can also come off. `never` is the
+   * face: not worn, and not the dice's to touch.
+   */
+  randomised: Roll;
   label: MessageKey;
   /** The family of pieces this tray lets her shape, if it has one. */
   shaped?: ShapedFamily;
@@ -40,7 +48,7 @@ const BY_ID: Record<TraySlot, TrayDefinition> = {
     palette: 'hair',
     focus: THUMB_FOCUS.hair,
     label: 'tray.hair',
-    randomised: true,
+    randomised: 'always',
     shaped: SHAPED_HAIR,
   },
   top: {
@@ -49,7 +57,7 @@ const BY_ID: Record<TraySlot, TrayDefinition> = {
     palette: 'fabric',
     focus: THUMB_FOCUS.top,
     label: 'tray.top',
-    randomised: true,
+    randomised: 'always',
   },
   bottom: {
     id: 'bottom',
@@ -57,7 +65,7 @@ const BY_ID: Record<TraySlot, TrayDefinition> = {
     palette: 'fabric',
     focus: THUMB_FOCUS.bottom,
     label: 'tray.bottom',
-    randomised: true,
+    randomised: 'always',
   },
   shoes: {
     id: 'shoes',
@@ -65,7 +73,7 @@ const BY_ID: Record<TraySlot, TrayDefinition> = {
     palette: 'fabric',
     focus: THUMB_FOCUS.shoes,
     label: 'tray.shoes',
-    randomised: true,
+    randomised: 'always',
   },
   brows: {
     id: 'brows',
@@ -73,7 +81,7 @@ const BY_ID: Record<TraySlot, TrayDefinition> = {
     palette: 'hair',
     focus: THUMB_FOCUS.brows,
     label: 'tray.brows',
-    randomised: false,
+    randomised: 'never',
   },
   lips: {
     id: 'lips',
@@ -81,7 +89,7 @@ const BY_ID: Record<TraySlot, TrayDefinition> = {
     palette: 'makeup',
     focus: THUMB_FOCUS.lips,
     label: 'tray.lips',
-    randomised: false,
+    randomised: 'never',
   },
   blush: {
     id: 'blush',
@@ -89,7 +97,7 @@ const BY_ID: Record<TraySlot, TrayDefinition> = {
     palette: 'makeup',
     focus: THUMB_FOCUS.blush,
     label: 'tray.blush',
-    randomised: false,
+    randomised: 'never',
   },
   socks: {
     id: 'socks',
@@ -99,7 +107,7 @@ const BY_ID: Record<TraySlot, TrayDefinition> = {
     label: 'tray.socks',
     /* Off the dice for the same reason as the jacket: its only piece is one she
      * shapes, and the randomiser never lands on those. */
-    randomised: false,
+    randomised: 'sometimes',
     shaped: SHAPED_SOCKS,
   },
   outer: {
@@ -113,7 +121,7 @@ const BY_ID: Record<TraySlot, TrayDefinition> = {
      * randomiser never lands on those. Turn it on the day a ready-made jacket
      * joins it.
      */
-    randomised: false,
+    randomised: 'sometimes',
     shaped: SHAPED_OUTER,
   },
   handheld: {
@@ -123,7 +131,7 @@ const BY_ID: Record<TraySlot, TrayDefinition> = {
     focus: THUMB_FOCUS.handheld,
     label: 'tray.handheld',
     /* An accessory rather than an outfit, so the dice leave it as she left it. */
-    randomised: false,
+    randomised: 'sometimes',
   },
   accessoryHead: {
     id: 'accessoryHead',
@@ -131,7 +139,7 @@ const BY_ID: Record<TraySlot, TrayDefinition> = {
     palette: 'fabric',
     focus: THUMB_FOCUS.accessoryHead,
     label: 'tray.accessoryHead',
-    randomised: false,
+    randomised: 'sometimes',
   },
 };
 
@@ -140,8 +148,10 @@ export const trayById = (id: TraySlot): TrayDefinition => BY_ID[id];
 /** On screen in the order the model declares, so the two cannot disagree. */
 export const TRAYS: readonly TrayDefinition[] = SELECTABLE_SLOTS.map(trayById);
 
-/** The trays the randomiser replaces: the outfit, not the doll's own face. */
-export const RANDOM_TRAYS: readonly TrayDefinition[] = TRAYS.filter((tray) => tray.randomised);
+/** The trays the dice may touch: everything worn, never the face. */
+export const RANDOM_TRAYS: readonly TrayDefinition[] = TRAYS.filter(
+  (tray) => tray.randomised !== 'never',
+);
 
 /**
  * The tray a slot belongs to, for the times something starts from the doll

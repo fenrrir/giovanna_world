@@ -66,7 +66,9 @@ export const App = (): JSX.Element => {
           <RandomButton />
         </div>
         <div className={styles.parts}>
-          <PartTray tray={tray} isInsideDropZone={isInsideDropZone} />
+          {/* Keyed by tray: opening one mounts it afresh, which is how the
+              axes panel tells her own tap from a roll of the dice. */}
+          <PartTray key={active} tray={tray} isInsideDropZone={isInsideDropZone} />
         </div>
         <ColorTray tray={tray} />
       </section>
