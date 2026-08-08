@@ -3,6 +3,7 @@ import type { Slot } from '../model/slots';
 import type { HairStyle, Part } from '../model/types';
 import { CUSTOM_HAIR_ID, customHair } from './hair/custom';
 import { CUSTOM_OUTER_ID, customOuter } from './outer/custom';
+import { CUSTOM_SOCKS_ID, customSocks } from './socks/custom';
 import { BOW } from './accessoryHead/bow';
 import { ROUND_BLUSH } from './blush/round';
 import { SOFT_ARCH } from './brows/softArch';
@@ -50,6 +51,7 @@ const CUSTOM_HAIR = customHair();
  * part that no tray offers is still a part the suite must be able to check.
  */
 const CUSTOM_OUTER = customOuter();
+const CUSTOM_SOCKS = customSocks();
 
 const TOPS: readonly Part[] = [T_SHIRT, POLKA_DOT_DRESS, STRIPED_SWEATSHIRT, TANK_TOP];
 const BOTTOMS: readonly Part[] = [SKIRT, JEANS, SHORTS];
@@ -74,7 +76,7 @@ export const PARTS_BY_SLOT: Readonly<Record<Slot, readonly Part[]>> = {
   top: TOPS,
   bottom: BOTTOMS,
   shoes: SHOES,
-  socks: [],
+  socks: [CUSTOM_SOCKS],
   outer: [CUSTOM_OUTER],
   accessoryFace: [],
   accessoryHead: HEAD_ACCESSORIES,
@@ -121,6 +123,7 @@ export const findPart: PartLookup = (slot, partId, params) => {
 
   if (partId === CUSTOM_HAIR_ID && isHairSlot(slot)) return hairPart(customHair(params), slot);
   if (partId === CUSTOM_OUTER_ID && slot === 'outer') return customOuter(params);
+  if (partId === CUSTOM_SOCKS_ID && slot === 'socks') return customSocks(params);
 
   return INDEX[slot].get(partId);
 };

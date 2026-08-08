@@ -7,6 +7,8 @@ import { CUSTOM_HAIR_ID, customHair } from '../parts/hair/custom';
 import { toHairParams } from '../parts/hair/custom/params';
 import { CUSTOM_OUTER_ID, customOuter } from '../parts/outer/custom';
 import { toOuterParams } from '../parts/outer/custom/params';
+import { CUSTOM_SOCKS_ID, customSocks } from '../parts/socks/custom';
+import { toSocksParams } from '../parts/socks/custom/params';
 
 /**
  * A family of pieces the child shapes rather than picks.
@@ -97,6 +99,24 @@ export const SHAPED_OUTER: ShapedFamily = {
   read: toOuterParams,
   render: (params) => customOuter(params).render,
   apply: (params, color) => ({ type: 'applyPart', part: customOuter(params), color, params }),
+};
+
+export const SHAPED_SOCKS: ShapedFamily = {
+  id: CUSTOM_SOCKS_ID,
+  label: 'socks.custom',
+  axes: [{ key: 'height', label: 'socks.height' }],
+  choice: {
+    key: 'pattern',
+    label: 'socks.pattern',
+    options: [
+      { value: 'plain', label: 'socks.pattern.plain' },
+      { value: 'stripes', label: 'socks.pattern.stripes' },
+      { value: 'dots', label: 'socks.pattern.dots' },
+    ],
+  },
+  read: toSocksParams,
+  render: (params) => customSocks(params).render,
+  apply: (params, color) => ({ type: 'applyPart', part: customSocks(params), color, params }),
 };
 
 /** The axes of the shaped piece she is wearing in that slot, if she is. */

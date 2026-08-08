@@ -17,7 +17,7 @@ and cheeks — and the **parametric hair generator** are done. Next on the list 
 remaining Phase 2 slots (`socks`, `outer`, `handheld`), which need artwork, or the saved-looks
 gallery, which needs a design decision first — see the note there.
 
-**Two parametric slots now: the hairstyle and the jacket.** The jacket is reachable — its own tray,
+**Three parametric slots now: the hairstyle, the jacket and the socks.** The jacket is reachable — its own tray,
 its own axes, and the panel that shapes it is the same component the hairstyle uses.
 
 **What the second slot revealed.** Not a shared params type: the two modules came out the same
@@ -30,8 +30,14 @@ panel identical but for three words.
 The geometry builders were left alone on purpose, and that still looks right — nothing above them
 needs to know what an axis means in user units.
 
-Adding a third parametric slot is now: a params module, a geometry module, one `ShapedFamily`, one
-tray entry. The labels in a family are spelled out rather than built from the axis name, so a
+Adding a parametric slot is now: a params module, a geometry module, one `ShapedFamily`, one tray
+entry. The socks were built that way and `ShapedFamily` needed no change at all, which is the first
+evidence the shape is right rather than merely fitting two cases.
+
+The socks also showed that `choice` earns its place: a pattern has no order to slide along, so a
+slider between dots and stripes would have to stop somewhere in the middle and draw nothing. Their
+print comes from `lib/patterns`, which emits a shape only where one fits — wind them down to the
+ankle and they print fewer stripes rather than spilling onto the shin. The labels in a family are spelled out rather than built from the axis name, so a
 missing catalogue entry is a compile error instead of a key printed on screen.
 
 Two things that only bite in this slot: `outer` paints at z 60, over the body, so **no collar may

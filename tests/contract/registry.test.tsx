@@ -38,6 +38,9 @@ const SLOT_ANCHORS: Partial<Record<Slot, { minY: number; maxY: number }>> = {
   outer: { minY: ANCHORS.shoulderLeft.y, maxY: ANCHORS.waist.y },
   bottom: { minY: ANCHORS.waist.y, maxY: ANCHORS.hip.y },
   shoes: { minY: ANCHORS.shoeLeft.y1, maxY: ANCHORS.sole.y },
+  // Socks paint under the shoes, so the foot has to be covered even though none
+  // of it shows: cut at the shoe, a bare ankle appears the moment they come off.
+  socks: { minY: ANCHORS.shoeLeft.y1, maxY: ANCHORS.sole.y },
   // A head accessory fails by floating beside the head, so what it must do is
   // span the anchor it hangs from.
   accessoryHead: { minY: ANCHORS.headAccessorySide.y, maxY: ANCHORS.headAccessorySide.y },

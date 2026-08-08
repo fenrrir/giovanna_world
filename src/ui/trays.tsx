@@ -6,7 +6,7 @@ import type { LookAction } from '../model/reducer';
 import { SELECTABLE_SLOTS, type Slot, type TraySlot } from '../model/slots';
 import type { HairStyle, Look, Palette, PartParams } from '../model/types';
 import { HAIR_STYLES, PARTS_BY_SLOT } from '../parts/registry';
-import { SHAPED_HAIR, SHAPED_OUTER, shapedParams, type ShapedFamily } from './shaped';
+import { SHAPED_HAIR, SHAPED_OUTER, SHAPED_SOCKS, shapedParams, type ShapedFamily } from './shaped';
 
 /**
  * What a tray is made of.
@@ -90,6 +90,17 @@ const BY_ID: Record<TraySlot, TrayDefinition> = {
     focus: THUMB_FOCUS.blush,
     label: 'tray.blush',
     randomised: false,
+  },
+  socks: {
+    id: 'socks',
+    slot: 'socks',
+    palette: 'fabric',
+    focus: THUMB_FOCUS.socks,
+    label: 'tray.socks',
+    /* Off the dice for the same reason as the jacket: its only piece is one she
+     * shapes, and the randomiser never lands on those. */
+    randomised: false,
+    shaped: SHAPED_SOCKS,
   },
   outer: {
     id: 'outer',

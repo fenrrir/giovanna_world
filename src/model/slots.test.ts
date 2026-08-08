@@ -67,6 +67,7 @@ describe('SELECTABLE_SLOTS', () => {
       'blush',
       'top',
       'bottom',
+      'socks',
       'shoes',
       'outer',
       'accessoryHead',
