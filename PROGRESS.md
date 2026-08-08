@@ -11,7 +11,7 @@ The session entry point. Read this before anything else, act on **Next up**, upd
 
 ## Next up
 
-**Phase 2 in progress.** Randomise and drag-and-drop are done. Next on the list below: the five
+**Phase 2 in progress.** Randomise, drag-and-drop and taking a piece off are done. Next on the list below: the five
 Phase 2 slots (`socks`, `outer`, `accessoryFace`, `accessoryHead`, `handheld`), which need
 artwork, or the saved-looks gallery, which needs a design decision first — see the note there.
 
@@ -112,6 +112,19 @@ the 120 ms the spec allows.
 
 The piece is applied on release, not on press. Applying on press would have made the drag
 decorative: the piece would already be on the doll before the child had moved it anywhere.
+
+**Taking a piece off.** Drag it off the doll and let go outside the stage. Until this there was no
+way to undress at all — every tray swapped one piece for another, so a shoe once put on could only
+be exchanged for a different shoe.
+
+Which piece comes off is decided by the browser's own hit test, so it is per-pixel: the child has
+to touch painted artwork, not merely the piece's bounding box. That is the right behaviour — the
+hairstyles are horseshoes, and the middle of their box is the face — but it is worth watching on
+the iPad with a real finger, on the thinner pieces especially.
+
+Two known limits, recorded rather than hidden. Removal is drag-only, so there is no keyboard path
+to it, unlike every other control. And the randomiser always fills all four trays, so it can never
+produce a doll that is deliberately barefoot.
 
 ### Still deferred
 

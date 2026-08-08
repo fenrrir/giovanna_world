@@ -58,6 +58,14 @@ export const trayById = (id: TraySlot): TrayDefinition => BY_ID[id];
 export const TRAYS: readonly TrayDefinition[] = SELECTABLE_SLOTS.map(trayById);
 
 /**
+ * The tray a slot belongs to, for the times something starts from the doll
+ * rather than from a tray. Both hair slots answer with the one hair tray,
+ * because the child only ever sees one.
+ */
+export const trayForSlot = (slot: Slot): TrayDefinition | undefined =>
+  slot === 'hairBack' ? BY_ID.hair : TRAYS.find((tray) => tray.slot === slot);
+
+/**
  * One choosable thing in a tray.
  *
  * Each item carries the action that applies it, so the tray never branches on

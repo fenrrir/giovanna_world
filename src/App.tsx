@@ -1,11 +1,8 @@
 import { useCallback, useRef, useState, type JSX } from 'react';
 
-import { useTranslation } from './i18n';
-import type { TraySlot } from './model/slots';
-import { BODY, findPart } from './parts/registry';
-import { Doll } from './render/Doll';
-import { useLook } from './state/lookContext';
+import { RENDER_ORDER, type Slot, type TraySlot } from './model/slots';
 import { ColorTray } from './ui/ColorTray';
+import { DraggableDoll } from './ui/DraggableDoll';
 import { PartTray } from './ui/PartTray';
 import { RandomButton } from './ui/RandomButton';
 import { SlotBar } from './ui/SlotBar';
@@ -21,8 +18,6 @@ import styles from './App.module.css';
  * in place — no modal, no back button (SPEC section 4).
  */
 export const App = (): JSX.Element => {
-  const { t } = useTranslation();
-  const { look } = useLook();
   const [active, setActive] = useState<TraySlot>('hair');
   const tray = trayById(active);
   const stage = useRef<HTMLElement>(null);
@@ -38,16 +33,22 @@ export const App = (): JSX.Element => {
     return box !== undefined && x >= box.left && x <= box.right && y >= box.top && y <= box.bottom;
   }, []);
 
+  /**
+   * Which layer is under a point. The browser's own hit test answers it, which
+   * is why it is injected rather than computed — the doll is SVG, and working
+   * out what a finger is on top of is not something to reimplement.
+   */
+  const slotAt = useCallback(({ x, y }: DragPoint): Slot | null => {
+    const painted = document.elementFromPoint(x, y)?.closest('[data-slot]');
+    const slot = painted?.getAttribute('data-slot');
+
+    return RENDER_ORDER.find((candidate) => candidate === slot) ?? null;
+  }, []);
+
   return (
     <main className={styles.app}>
       <section className={styles.stage} ref={stage}>
-        <Doll
-          className={styles.doll}
-          look={look}
-          lookup={findPart}
-          body={BODY}
-          label={t('doll.label')}
-        />
+        <DraggableDoll className={styles.doll} isInsideStage={isInsideDropZone} slotAt={slotAt} />
       </section>
 
       <section className={styles.panel}>

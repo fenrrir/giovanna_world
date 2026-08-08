@@ -55,6 +55,15 @@ Element.prototype.releasePointerCapture = (pointerId: number): void => {
 };
 Element.prototype.hasPointerCapture = (pointerId: number): boolean => captured.has(pointerId);
 
+/**
+ * jsdom has no hit testing either. The app asks the browser which layer a
+ * finger is on when a piece is pulled off the doll (SPEC §13); without this the
+ * call is simply absent and any test that presses on the doll throws. Returning
+ * null is the honest default — nothing is laid out, so nothing is under a point
+ * — and a test that cares stubs it.
+ */
+document.elementFromPoint = (): Element | null => null;
+
 beforeEach(() => {
   localStorage.clear();
   captured.clear();

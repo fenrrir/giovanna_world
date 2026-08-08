@@ -144,6 +144,54 @@ describe('lookReducer', () => {
     });
   });
 
+  describe('removeSlot', () => {
+    it('takes a garment off', () => {
+      const dressed = lookReducer(DEFAULT_LOOK, { type: 'applyPart', part: top, color: '#1D9E75' });
+      const next = lookReducer(dressed, { type: 'removeSlot', slot: 'top' });
+
+      expect(next.equipped.top).toBeUndefined();
+    });
+
+    it('leaves the other slots dressed', () => {
+      const first = lookReducer(DEFAULT_LOOK, { type: 'applyPart', part: top, color: '#1D9E75' });
+      const second = lookReducer(first, { type: 'applyPart', part: bottom, color: '#EF9F27' });
+      const next = lookReducer(second, { type: 'removeSlot', slot: 'top' });
+
+      expect(next.equipped.bottom).toStrictEqual({ partId: 'bottom.skirt', color: '#EF9F27' });
+    });
+
+    it.each(['hairBack', 'hairFront'] as const)(
+      'takes both halves of the hair off when pulled by %s',
+      (slot) => {
+        const dressed = lookReducer(DEFAULT_LOOK, { type: 'applyHair', hair, color: '#6B3A1F' });
+        const next = lookReducer(dressed, { type: 'removeSlot', slot });
+
+        expect(next.equipped.hairBack).toBeUndefined();
+        expect(next.equipped.hairFront).toBeUndefined();
+      },
+    );
+
+    it('is a no-op on a slot with nothing in it', () => {
+      const next = lookReducer(DEFAULT_LOOK, { type: 'removeSlot', slot: 'shoes' });
+
+      expect(next).toBe(DEFAULT_LOOK);
+    });
+
+    it('cannot take the body off, because the body is never equipped', () => {
+      const dressed = lookReducer(DEFAULT_LOOK, { type: 'applyPart', part: top, color: '#1D9E75' });
+      const next = lookReducer(dressed, { type: 'removeSlot', slot: 'body' });
+
+      expect(next).toBe(dressed);
+    });
+
+    it('leaves the skin tone alone', () => {
+      const dressed = lookReducer(DEFAULT_LOOK, { type: 'applyPart', part: top, color: '#1D9E75' });
+      const next = lookReducer(dressed, { type: 'removeSlot', slot: 'top' });
+
+      expect(next.skin).toBe(DEFAULT_LOOK.skin);
+    });
+  });
+
   describe('purity', () => {
     it.each([
       ['setSkin', { type: 'setSkin', color: '#C68A5E' }],
