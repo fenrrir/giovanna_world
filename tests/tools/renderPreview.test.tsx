@@ -6,6 +6,7 @@ import { describe, it } from 'vitest';
 import { VIEW_BOX_ATTR } from '../../src/anchors';
 import { PALETTES } from '../../src/model/palettes';
 import type { Look } from '../../src/model/types';
+import { lookReducer } from '../../src/model/reducer';
 import { BODY, findPart } from '../../src/parts/registry';
 import { resolveLayers } from '../../src/render/resolve';
 import { TRAYS, trayItems } from '../../src/ui/trays';
@@ -81,15 +82,19 @@ describe('preview', () => {
       mkdirSync(OUT, { recursive: true });
 
       for (const item of trayItems(tray)) {
-        const cell = renderToStaticMarkup(
-          <g>
-            {BODY.render(PALETTES.skin[1])}
-            {item.render(PALETTES[tray.palette][0])}
-          </g>,
+        /*
+         * Composed through the reducer and the layer resolver, not by drawing
+         * the part over the body. Hair occupies a slot behind the doll and one
+         * in front of it; painting both on top hides the face and makes the
+         * preview lie about the very thing it exists to show.
+         */
+        const look = lookReducer(
+          { schemaVersion: 1, skin: PALETTES.skin[1], equipped: {} },
+          item.apply(PALETTES[tray.palette][0]),
         );
 
-        writeFileSync(`${OUT}/part-${slug(item.id)}.svg`, page(cell));
-        writeFileSync(`${OUT}/part-${slug(item.id)}-holes.svg`, page(cell, HOLE_BACKDROP));
+        writeFileSync(`${OUT}/part-${slug(item.id)}.svg`, page(draw(look)));
+        writeFileSync(`${OUT}/part-${slug(item.id)}-holes.svg`, page(draw(look), HOLE_BACKDROP));
       }
     },
   );
