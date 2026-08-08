@@ -2,6 +2,7 @@
  * Every part belongs to a slot. The renderer sorts by z (SPEC section 7).
  */
 export type Slot =
+  | 'scene'
   | 'hairBack'
   | 'body'
   | 'blush'
@@ -19,6 +20,9 @@ export type Slot =
 
 /** Stacking order. The gaps between values leave room for future insertions. */
 export const Z: Record<Slot, number> = {
+  /* Behind everything. Negative because the spec's own floor is hairBack at 0,
+     and a backdrop is not a layer of the doll to be numbered among them. */
+  scene: -10,
   hairBack: 0,
   body: 10,
   blush: 12,
@@ -43,6 +47,7 @@ export const RENDER_ORDER: readonly Slot[] = (Object.keys(Z) as Slot[]).sort((a,
  * (SPEC section 7), so it is a tray identifier rather than a Slot.
  */
 export type TraySlot =
+  | 'scene'
   | 'hair'
   | 'brows'
   | 'lips'
@@ -57,6 +62,7 @@ export type TraySlot =
 
 /** In the order they read down the doll: hair, then the face, then the outfit. */
 export const SELECTABLE_SLOTS: readonly TraySlot[] = [
+  'scene',
   'hair',
   'brows',
   'lips',

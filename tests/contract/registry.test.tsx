@@ -63,6 +63,9 @@ const HEAD = {
   maxY: ANCHORS.headCenter.y + ANCHORS.headCenter.r,
 };
 
+/** Slots whose artwork is a backdrop rather than something worn on the doll. */
+const FILLS_CANVAS = new Set<Slot>(['scene']);
+
 const SLOT_REGIONS: Partial<Record<Slot, typeof HEAD>> = {
   brows: HEAD,
   lips: HEAD,
@@ -208,7 +211,26 @@ describe.each(everyPart())('%s', (id, part) => {
     expect(bounds.maxY, `${id} reaches below its region`).toBeLessThanOrEqual(region.maxY);
   });
 
+  /*
+   * The lateral margin is a rule about things worn on a doll. A backdrop that
+   * stopped at her shoulders would be a poster she is standing next to, so it
+   * is exempt — and owes the opposite instead: it must cover the whole canvas,
+   * or the stage shows through at an edge.
+   */
+  it('covers the whole canvas when it is a backdrop', () => {
+    if (!FILLS_CANVAS.has(part.slot)) return;
+
+    const bounds = boundsOf(renderPart(part, palette[0]))!;
+
+    expect(bounds.minX, `${id} leaves a gap at the left`).toBeLessThanOrEqual(0);
+    expect(bounds.minY, `${id} leaves a gap at the top`).toBeLessThanOrEqual(0);
+    expect(bounds.maxX, `${id} leaves a gap at the right`).toBeGreaterThanOrEqual(VIEW_BOX.width);
+    expect(bounds.maxY, `${id} leaves a gap at the bottom`).toBeGreaterThanOrEqual(VIEW_BOX.height);
+  });
+
   it('stays within the doll bounds, leaving the lateral margin free', () => {
+    if (FILLS_CANVAS.has(part.slot)) return;
+
     const bounds = boundsOf(renderPart(part, palette[0]))!;
 
     expect(bounds.minX).toBeGreaterThanOrEqual(ANCHORS.dollBounds.x1);

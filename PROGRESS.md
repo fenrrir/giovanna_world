@@ -256,6 +256,23 @@ obvious the moment the doll was rendered:
 `/dev/sheet` only ever show the single point of the parameter space she is wearing; nothing else
 would have put the extremes in front of a pair of eyes.
 
+## Phase 3
+
+**Background scenes are started.** `scene` is a slot at z -10, behind everything, with one meadow in
+it. It is a tray like any other, so choosing and recolouring came free.
+
+It is the first part that is neither worn nor the doll, and that showed up in the contract. The
+lateral margin is a rule about things worn on a doll; a backdrop that stopped at her shoulders would
+be a poster she is standing next to. So `scene` is exempt from it, and owes the opposite instead —
+`FILLS_CANVAS` in the contract suite holds it to covering the whole canvas, or the stage shows
+through at an edge.
+
+It still takes one colour like every other part: she picks the sky and the ground follows it down a
+tone. That keeps a green afternoon and a violet evening in the same drawing, at the cost of a scene
+reading close to monochrome. Worth revisiting only if a scene ever needs two unrelated colours.
+
+Still open in Phase 3: PNG export and a second character in the same scene.
+
 ### Still deferred
 
 Not built, deliberately. Each is real scope, recorded so nothing is lost — but no stub exists in the source.

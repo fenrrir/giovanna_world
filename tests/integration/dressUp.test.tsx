@@ -262,7 +262,7 @@ describe('the interface itself', () => {
 
     await user.tab();
 
-    expect(document.activeElement).toBe(trayButton('tray.hair'));
+    expect(document.activeElement).toBe(trayButton('tray.scene'));
   });
 
   it('chooses a piece from the keyboard as well as by tap', async () => {

@@ -12,6 +12,7 @@ export const ptBR = {
 
   'doll.label': 'Personagem montado',
 
+  'tray.scene': 'Cenário',
   'tray.hair': 'Cabelo',
   'tray.top': 'Blusa',
   'tray.bottom': 'Saia e calça',

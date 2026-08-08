@@ -5,6 +5,7 @@ import { RENDER_ORDER, SELECTABLE_SLOTS, Z } from './slots';
 describe('Z', () => {
   it("holds every slot with its spec value, and the face in the body's gap", () => {
     expect(Z).toStrictEqual({
+      scene: -10,
       hairBack: 0,
       body: 10,
       blush: 12,
@@ -52,8 +53,8 @@ describe('RENDER_ORDER', () => {
     expect(zValues).toStrictEqual([...zValues].sort((a, b) => a - b));
   });
 
-  it('starts at the back hair and ends at the handheld object', () => {
-    expect(RENDER_ORDER[0]).toBe('hairBack');
+  it('starts at the backdrop and ends at the handheld object', () => {
+    expect(RENDER_ORDER[0]).toBe('scene');
     expect(RENDER_ORDER.at(-1)).toBe('handheld');
   });
 });
@@ -61,6 +62,7 @@ describe('RENDER_ORDER', () => {
 describe('SELECTABLE_SLOTS', () => {
   it('offers the child every tray, in the order they appear on screen', () => {
     expect(SELECTABLE_SLOTS).toStrictEqual([
+      'scene',
       'hair',
       'brows',
       'lips',

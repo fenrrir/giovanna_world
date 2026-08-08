@@ -169,7 +169,9 @@ describe('randomLook', () => {
   it('replaces the outfit she was wearing', () => {
     const look = randomLook(sequence(0), dressed);
 
-    expect(look.equipped.top?.partId).toBe(trayItems(TRAYS[4]!)[0]?.id);
+    const top = TRAYS.find((tray) => tray.id === 'top')!;
+
+    expect(look.equipped.top?.partId).toBe(trayItems(top)[0]?.id);
   });
 
   it('covers every tray the child can open', () => {
@@ -179,6 +181,7 @@ describe('randomLook', () => {
   it('always dresses the outfit and only sometimes the rest', () => {
     expect(ALWAYS.map((tray) => tray.id)).toStrictEqual(['hair', 'top', 'bottom', 'shoes']);
     expect(SOMETIMES.map((tray) => tray.id)).toStrictEqual([
+      'scene',
       'socks',
       'outer',
       'accessoryHead',
