@@ -47,3 +47,17 @@ export const ANCHORS = {
   headAccessorySide: { x: 406, y: 87 },
   headAccessoryCenter: { x: 340, y: 66 },
 } as const;
+
+/**
+ * The region a thumbnail zooms into, per tray.
+ *
+ * Derived from the anchors above rather than measured by hand, so a shoe fills
+ * its thumbnail instead of sitting as a dot in the corner. The part itself is
+ * still the single source of truth — this only supplies a transform.
+ */
+export const THUMB_FOCUS = {
+  hair: { x: 258, y: 40, width: 164, height: 190 },
+  top: { x: 254, y: 186, width: 172, height: 170 },
+  bottom: { x: 262, y: 270, width: 156, height: 190 },
+  shoes: { x: 286, y: 430, width: 108, height: 80 },
+} as const satisfies Record<string, Box>;
