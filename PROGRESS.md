@@ -11,15 +11,20 @@ The session entry point. Read this before anything else, act on **Next up**, upd
 
 ## Next up
 
-**Draw `top.polka-dot-dress`** — the first part in the backlog below, and the only one that
-exercises `hides`. One part per session (SPEC §16).
+**Phase 1 is complete.** All twelve wearable parts are drawn, registered and passing the
+contract suite; the engine, interface, PWA and deployment were already in place.
+
+What is left is not code. Four of the nine acceptance criteria in SPEC §17 are verified; of the
+five still open, four need the iPad and the last one needs the child. Run through the checklist
+at the bottom of this file, then decide whether to start Phase 2 from the deferred list.
 
 ## Status
 
 Plan: [docs/plans/2026-08-08-paper-doll-mvp.md](docs/plans/2026-08-08-paper-doll-mvp.md)
 
-Foundation, engine, interface, PWA and deployment are done. The app is live at
-**https://fenrrir.github.io/giovanna_world/** with 349 tests and 100% coverage.
+Phase 1 is complete: foundation, engine, interface, PWA, deployment and all twelve wearable
+parts. The app is live at **https://fenrrir.github.io/giovanna_world/** with 540 tests and
+100% coverage.
 
 | #   | Task                                                                    | Status |
 | --- | ----------------------------------------------------------------------- | ------ |
@@ -55,77 +60,44 @@ Foundation, engine, interface, PWA and deployment are done. The app is live at
 - **No routing library.** The dev sheet lives at the `#/dev/sheet` hash, because GitHub Pages
   cannot rewrite paths and the game has exactly one level of navigation.
 
-## Phase 1 part backlog
+## Phase 1 parts
 
-SPEC §15 puts **12 parts** in Phase 1. Four are built — one per tray — leaving the eight below.
-Build **one per session**: SPEC §16 warns that a batch generated in one go comes out inconsistent
-between the parts.
+All twelve are drawn and registered. SPEC §16 asks for one per session, and that held: every
+part below was drawn, rendered and looked at before the next was started.
 
-The contract suite in `tests/contract/registry.test.tsx` checks every new part automatically
-against the six criteria of SPEC §12, so a new piece of artwork needs no test of its own. It has
-been verified to actually fail on a hardcoded tone, a coordinate outside the viewBox, and a
-forbidden gradient.
+| Tray   | Parts                                                          |
+| ------ | -------------------------------------------------------------- |
+| Hair   | `bob-fringe`, `long-wavy`, `twin-buns`                         |
+| Top    | `t-shirt`, `polka-dot-dress`, `striped-sweatshirt`, `tank-top` |
+| Bottom | `skirt`, `jeans`, `shorts`                                     |
+| Shoes  | `sneakers`, `mary-janes`                                       |
 
-Paste-ready prompts:
+`top.polka-dot-dress` is the only one that declares `hides`, so it is the part that exercises the
+render's hiding rule end to end.
 
-1. **`top.polka-dot-dress`** — _build this one first; it is the only backlog part that exercises `hides`._
+### What drawing them taught
 
-   > Create the part `top.polka-dot-dress` following `SPEC.md` sections 8 and 9.
-   > Description: a sleeveless A-line dress with a fitted bodice and a flared skirt, covered in evenly spaced polka dots.
-   > Relevant anchors: shoulders (282,216) and (398,216), waist y280, skirt hem y398 within x 234–446.
-   > It must declare `hides: ['bottom']`. Dots come from `dots()` in `lib/patterns.tsx`.
-   > Register it in `parts/registry.ts` and show it to me in `/dev/sheet`.
+Every visual defect in this project came from one of these, and none was caught by an assertion.
+The contract suite proves a part is anchored, in bounds and recolourable; it cannot tell you the
+piece looks right. Read these before drawing a new part:
 
-2. **`hair.long-wavy`**
-
-   > Create the part `hair.long-wavy` following `SPEC.md` sections 8 and 9.
-   > Description: long wavy hair falling past the shoulders, with a centre parting.
-   > Relevant anchors: skull top (340,68), head centre (340,130) r62, shoulders (282,216) and (398,216).
-   > Register it in `parts/registry.ts` and show it to me in `/dev/sheet`.
-
-3. **`hair.twin-buns`**
-
-   > Create the part `hair.twin-buns` following `SPEC.md` sections 8 and 9.
-   > Description: two round buns high on the head with a soft fringe.
-   > Relevant anchors: skull top (340,68), head centre (340,130) r62, centre head-accessory mount (340,66).
-   > Register it in `parts/registry.ts` and show it to me in `/dev/sheet`.
-
-4. **`top.striped-sweatshirt`**
-
-   > Create the part `top.striped-sweatshirt` following `SPEC.md` sections 8 and 9.
-   > Description: a loose long-sleeved sweatshirt with horizontal stripes and a ribbed hem.
-   > Relevant anchors: shoulders (282,216) and (398,216), arms x266–294 and x386–414 down to y338, waist y280.
-   > Stripes come from `stripes()` in `lib/patterns.tsx`.
-   > Register it in `parts/registry.ts` and show it to me in `/dev/sheet`.
-
-5. **`top.tank-top`**
-
-   > Create the part `top.tank-top` following `SPEC.md` sections 8 and 9.
-   > Description: a fitted sleeveless tank top with narrow straps.
-   > Relevant anchors: neck base y198 x322–358, shoulders (282,216) and (398,216), waist y280.
-   > Register it in `parts/registry.ts` and show it to me in `/dev/sheet`.
-
-6. **`bottom.jeans`**
-
-   > Create the part `bottom.jeans` following `SPEC.md` sections 8 and 9.
-   > Description: full-length trousers with a waistband, a centre seam and turned-up cuffs.
-   > Relevant anchors: waist y280 (band x284–396 h18), hip y330, legs x306–336 and x344–374, ankle y440.
-   > Register it in `parts/registry.ts` and show it to me in `/dev/sheet`.
-
-7. **`bottom.shorts`**
-
-   > Create the part `bottom.shorts` following `SPEC.md` sections 8 and 9.
-   > Description: mid-thigh shorts with a waistband and a soft fold at each hem.
-   > Relevant anchors: waist y280, hip y330, legs x306–336 and x344–374, hem around y390.
-   > Register it in `parts/registry.ts` and show it to me in `/dev/sheet`.
-
-8. **`shoes.mary-janes`**
-   > Create the part `shoes.mary-janes` following `SPEC.md` sections 8 and 9.
-   > Description: rounded flat shoes with a single strap across the instep and a small buckle.
-   > Relevant anchors: left shoe x296–344 y464–494, right shoe x336–384 y464–494, sole y494.
-   > The two shoe boxes overlap by 8 px; pull each shoe back from the centre line or the pair
-   > reads as one wide platform.
-   > Register it in `parts/registry.ts` and show it to me in `/dev/sheet`.
+- **Derive an edge from the anchor it has to meet, never by eye.** Skin showed four separate
+  times — the shoe inner edge, the dress straps, the trouser hem, the hair temples — each time
+  because a number was chosen to look right rather than computed from the leg, shoulder or skull
+  it had to cover.
+- **A back layer needs no cut-out for the body.** `hairBack` renders behind the doll, so the body
+  already occludes it. A notch cut "for the neck" is duplicate work, and wherever it runs wider
+  than the torso it becomes a hole.
+- **Frame the face with one shape.** A thin fringe plus separate temple locks leaves the outer
+  edge of the skull showing between them. Both long hairstyles ended up as a single horseshoe.
+- **Two curves meeting at a point make a point.** A centre parting drawn as two sweeps converging
+  on the crown gives a widow's peak whatever the curvature; the hairline has to be one arc.
+- **Give a limb its own tone.** Arms and sleeves drawn in the body colour merge into the torso
+  and the silhouette becomes one flat block.
+- **Do not round all four corners of a garment edge.** `rx` on a `rect` curves the corner away
+  from the limb underneath and opens a gap at the join.
+- **Mirror by writing both sides out.** Parameterising the mirror with sign arithmetic produced
+  geometry that silently collapsed, leaving the doll sleeveless while every assertion passed.
 
 ## Deferred by YAGNI
 
@@ -149,6 +121,10 @@ registering parts, not reshaping the model.
 
 From SPEC §17. Ticked only where actually verified; the rest name the exact step still owed.
 
+Four of the nine are done. The five open ones all need the iPad — install it from
+https://fenrrir.github.io/giovanna_world/ and work down the list. `npm run dev:lan` is faster for
+iterating but cannot answer the offline one; see the README for which criteria it can prove.
+
 - [ ] **Installs from the iPad home screen and opens full screen, without an address bar.**
       Needs the iPad: Safari → https://fenrrir.github.io/giovanna_world/ → Share → Add to Home
       Screen, then open from the home screen. The manifest declares `display: standalone` and
@@ -168,8 +144,11 @@ From SPEC §17. Ticked only where actually verified; the rest name the exact ste
 none` and `touch-action: manipulation` are in `src/styles/global.css`; needs the iPad.
 - [ ] **Holding a finger on the doll does not open Safari's context menu.**
       `-webkit-touch-callout: none` is set; needs the iPad.
-- [ ] **The 12 parts pass the 6 criteria from SPEC §12.** 4 of 12 built, all passing the contract
-      suite. Eight remain in the backlog above.
+- [x] **The 12 parts pass the 6 criteria from SPEC §12.** All twelve are built and checked
+      automatically by `tests/contract/registry.test.tsx`, in every colour of their palette. The
+      suite was verified to actually fail on a hardcoded tone, a coordinate outside the viewBox
+      and a forbidden gradient, so a pass means something. Each was also looked at before being
+      called done — see the list above for what that caught.
 - [x] **Closing and reopening the app preserves the character.** Covered by the look-store
       integration tests: hydrate, reconcile against the registry, 300 ms debounced write, and a
       flush on unmount so the last change survives the app closing.
