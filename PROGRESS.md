@@ -11,51 +11,69 @@ The session entry point. Read this before anything else, act on **Next up**, upd
 
 ## Next up
 
-**Task 2 — Vite + React 18 + TypeScript strict scaffold.**
-See `docs/plans/2026-08-08-paper-doll-mvp.md` for the step-by-step.
+**Draw `top.polka-dot-dress`** — the first part in the backlog below, and the only one that
+exercises `hides`. One part per session (SPEC §16).
 
 ## Status
 
 Plan: [docs/plans/2026-08-08-paper-doll-mvp.md](docs/plans/2026-08-08-paper-doll-mvp.md)
 
-| #   | Task                                                                    | Status      |
-| --- | ----------------------------------------------------------------------- | ----------- |
-| 1   | Repository bootstrap and English documentation                          | in progress |
-| 2   | Vite + React 18 + TypeScript strict scaffold                            | pending     |
-| 3   | Quality pipeline (lint, format, tests, 95% coverage, husky, commitlint) | pending     |
-| 4   | Domain model — slots, types, palettes, anchors                          | pending     |
-| 5   | `lib/color.ts` — `shade` helper                                         | pending     |
-| 6   | `lib/patterns.ts` — procedural SVG pattern generators                   | pending     |
-| 7   | `lib/debounce.ts`, `lib/storage.ts`, `model/defaults.ts`                | pending     |
-| 8   | `model/sanitize.ts` and `model/reducer.ts`                              | pending     |
-| 9   | `render/resolve.ts`, `Doll.tsx`, `Thumb.tsx`                            | pending     |
-| 10  | Base body, registry and SPEC §12 contract tests                         | pending     |
-| 11  | Art part — `hair.bob-fringe`                                            | pending     |
-| 12  | Art part — `top.t-shirt`                                                | pending     |
-| 13  | Art part — `bottom.skirt`                                               | pending     |
-| 14  | Art part — `shoes.sneakers`                                             | pending     |
-| 15  | i18n module with pt-BR catalogue                                        | pending     |
-| 16  | `state/LookContext` with debounced autosave                             | pending     |
-| 17  | Child UI — `SlotBar`, `PartTray`, `ColorTray`, `App` layout             | pending     |
-| 18  | `/dev/sheet` contact sheet quality tool                                 | pending     |
-| 19  | PWA — offline precache, manifest and iOS icons                          | pending     |
-| 20  | CI and GitHub Pages deployment                                          | pending     |
-| 21  | Progress record and acceptance review                                   | pending     |
+Foundation, engine, interface, PWA and deployment are done. The app is live at
+**https://fenrrir.github.io/giovanna_world/** with 349 tests and 100% coverage.
+
+| #   | Task                                                                    | Status |
+| --- | ----------------------------------------------------------------------- | ------ |
+| 1   | Repository bootstrap and English documentation                          | done   |
+| 2   | Vite + React 18 + TypeScript strict scaffold                            | done   |
+| 3   | Quality pipeline (lint, format, tests, 95% coverage, husky, commitlint) | done   |
+| 4   | Domain model — slots, types, palettes, anchors                          | done   |
+| 5   | `lib/color.ts` — `shade` helper                                         | done   |
+| 6   | `lib/patterns.ts` — procedural SVG pattern generators                   | done   |
+| 7   | `lib/debounce.ts`, `lib/storage.ts`, `model/defaults.ts`                | done   |
+| 8   | `model/sanitize.ts` and `model/reducer.ts`                              | done   |
+| 9   | `render/resolve.ts`, `Doll.tsx`, `Thumb.tsx`                            | done   |
+| 10  | Base body, registry and SPEC §12 contract tests                         | done   |
+| 11  | Art part — `hair.bob-fringe`                                            | done   |
+| 12  | Art part — `top.t-shirt`                                                | done   |
+| 13  | Art part — `bottom.skirt`                                               | done   |
+| 14  | Art part — `shoes.sneakers`                                             | done   |
+| 15  | i18n module with pt-BR catalogue                                        | done   |
+| 16  | `state/LookContext` with debounced autosave                             | done   |
+| 17  | Child UI — `SlotBar`, `PartTray`, `ColorTray`, `App` layout             | done   |
+| 18  | `/dev/sheet` contact sheet quality tool                                 | done   |
+| 19  | PWA — offline precache, manifest and iOS icons                          | done   |
+| 20  | CI and GitHub Pages deployment                                          | done   |
+| 21  | Progress record and acceptance review                                   | done   |
+
+### Decisions worth knowing
+
+- **TypeScript is pinned to 5.9, not 7.** `typescript-eslint` supports `<6.1.0`, and type-aware
+  linting is what enforces the SOLID and clean-code rules. Revisit when the plugin catches up.
+- **ESLint is pinned to 9, not 10** — `eslint-plugin-jsx-a11y` does not support 10 yet.
+- **`src/main.tsx` is the only production file outside the coverage gate.** It is
+  `createRoot(...).render(...)` with no branch to assert.
+- **No routing library.** The dev sheet lives at the `#/dev/sheet` hash, because GitHub Pages
+  cannot rewrite paths and the game has exactly one level of navigation.
 
 ## Phase 1 part backlog
 
-SPEC §15 puts **12 parts** in Phase 1. Tasks 11–14 build the first four (one per tray), leaving
-the eight below. Build **one per session** — SPEC §16: a batch generated in one go comes out
-inconsistent between the parts.
+SPEC §15 puts **12 parts** in Phase 1. Four are built — one per tray — leaving the eight below.
+Build **one per session**: SPEC §16 warns that a batch generated in one go comes out inconsistent
+between the parts.
+
+The contract suite in `tests/contract/registry.test.tsx` checks every new part automatically
+against the six criteria of SPEC §12, so a new piece of artwork needs no test of its own. It has
+been verified to actually fail on a hardcoded tone, a coordinate outside the viewBox, and a
+forbidden gradient.
 
 Paste-ready prompts:
 
-1. **`bottom.polka-dot-dress`** — _build this one first; it is the only backlog part that exercises `hides`._
+1. **`top.polka-dot-dress`** — _build this one first; it is the only backlog part that exercises `hides`._
 
    > Create the part `top.polka-dot-dress` following `SPEC.md` sections 8 and 9.
    > Description: a sleeveless A-line dress with a fitted bodice and a flared skirt, covered in evenly spaced polka dots.
    > Relevant anchors: shoulders (282,216) and (398,216), waist y280, skirt hem y398 within x 234–446.
-   > It must declare `hides: ['bottom']`. Dots come from `dots()` in `lib/patterns.ts`.
+   > It must declare `hides: ['bottom']`. Dots come from `dots()` in `lib/patterns.tsx`.
    > Register it in `parts/registry.ts` and show it to me in `/dev/sheet`.
 
 2. **`hair.long-wavy`**
@@ -77,7 +95,7 @@ Paste-ready prompts:
    > Create the part `top.striped-sweatshirt` following `SPEC.md` sections 8 and 9.
    > Description: a loose long-sleeved sweatshirt with horizontal stripes and a ribbed hem.
    > Relevant anchors: shoulders (282,216) and (398,216), arms x266–294 and x386–414 down to y338, waist y280.
-   > Stripes come from `stripes()` in `lib/patterns.ts`.
+   > Stripes come from `stripes()` in `lib/patterns.tsx`.
    > Register it in `parts/registry.ts` and show it to me in `/dev/sheet`.
 
 5. **`top.tank-top`**
@@ -105,6 +123,8 @@ Paste-ready prompts:
    > Create the part `shoes.mary-janes` following `SPEC.md` sections 8 and 9.
    > Description: rounded flat shoes with a single strap across the instep and a small buckle.
    > Relevant anchors: left shoe x296–344 y464–494, right shoe x336–384 y464–494, sole y494.
+   > The two shoe boxes overlap by 8 px; pull each shoe back from the centre line or the pair
+   > reads as one wide platform.
    > Register it in `parts/registry.ts` and show it to me in `/dev/sheet`.
 
 ## Deferred by YAGNI
@@ -127,14 +147,28 @@ registering parts, not reshaping the model.
 
 ## MVP acceptance checklist
 
-From SPEC §17. Tick only what has actually been verified.
+From SPEC §17. Ticked only where actually verified; the rest name the exact step still owed.
 
-- [ ] Installs from the iPad home screen and opens full screen, without an address bar.
-- [ ] Works with the iPad in aeroplane mode, from load through to autosave.
-- [ ] Not a single word in the game's interface.
-- [ ] Every touch target is at least 60×60 px.
-- [ ] No elastic overscroll bounce and no accidental double-tap zoom.
-- [ ] Holding a finger on the doll does not open Safari's context menu.
-- [ ] The 12 parts pass the 6 criteria from SPEC §12.
-- [ ] Closing and reopening the app preserves the character.
-- [ ] A six-year-old can change hair, clothes and colour with no verbal instruction.
+- [ ] **Installs from the iPad home screen and opens full screen, without an address bar.**
+      Needs the iPad: Safari → https://fenrrir.github.io/giovanna_world/ → Share → Add to Home
+      Screen, then open from the home screen. The manifest declares `display: standalone` and
+      `start_url: /giovanna_world/`, and the iOS meta tags are in `index.html`.
+- [ ] **Works with the iPad in aeroplane mode, from load through to autosave.**
+      Needs a real browser. The service worker precaches all 19 bundle entries with a navigation
+      fallback to `index.html`; the round trip (install, go offline, reload) is still unverified.
+- [x] **Not a single word in the game's interface.** Asserted mechanically: the dress-up
+      integration test dresses the doll from every tray and then requires the whole rendered tree
+      to contain no text at all, with every control named through `aria-label`.
+- [ ] **Every touch target is at least 60×60 px.** The CSS floor is `68×68` with a `10px` gap in
+      `src/ui/controls.module.css`, but jsdom does no layout, so this needs measuring in a browser.
+- [ ] **No elastic overscroll bounce and no accidental double-tap zoom.** `overscroll-behavior:
+none` and `touch-action: manipulation` are in `src/styles/global.css`; needs the iPad.
+- [ ] **Holding a finger on the doll does not open Safari's context menu.**
+      `-webkit-touch-callout: none` is set; needs the iPad.
+- [ ] **The 12 parts pass the 6 criteria from SPEC §12.** 4 of 12 built, all passing the contract
+      suite. Eight remain in the backlog above.
+- [x] **Closing and reopening the app preserves the character.** Covered by the look-store
+      integration tests: hydrate, reconcile against the registry, 300 ms debounced write, and a
+      flush on unmount so the last change survives the app closing.
+- [ ] **A six-year-old can change hair, clothes and colour with no verbal instruction.**
+      Only the child can answer this one.

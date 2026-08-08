@@ -46,6 +46,14 @@ white collar `#FBFBF9`.
 
 One part per session. A batch generated in one go comes out inconsistent between the parts (SPEC §16).
 
+**Look at the artwork before you call a part done.** The contract suite proves a part is
+anchored, in bounds and recolourable; it cannot tell you the piece looks right. Three defects in
+the first four parts were invisible to every assertion and obvious on sight — arms merging into
+the torso, two shoes reading as one platform, a sleeve leaving a sliver of skin at the shoulder.
+
+Where no browser is available, `npx vitest run tests/tools` writes the doll to `preview/*.svg`,
+and on macOS `qlmanage -t -s 680 -o preview preview/*.svg` turns those into images.
+
 ## UX rules that outrank aesthetics
 
 - **Zero visible text in the game.** Every control is a thumbnail or a colour swatch; its accessible
