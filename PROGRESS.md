@@ -154,13 +154,16 @@ From SPEC §17. Ticked only where actually verified; the rest name the exact ste
       Screen, then open from the home screen. The manifest declares `display: standalone` and
       `start_url: /giovanna_world/`, and the iOS meta tags are in `index.html`.
 - [ ] **Works with the iPad in aeroplane mode, from load through to autosave.**
-      Needs a real browser. The service worker precaches all 19 bundle entries with a navigation
-      fallback to `index.html`; the round trip (install, go offline, reload) is still unverified.
+      Verified on the live site that the service worker registers and reaches `activated`, and
+      that its Workbox precache holds all 12 runtime entries — `index.html`, the JS bundle, the
+      CSS, the manifest and every icon. Autosave was seen writing `look:current`. What is still
+      untested is the last step: cut the network and reload.
 - [x] **Not a single word in the game's interface.** Asserted mechanically: the dress-up
       integration test dresses the doll from every tray and then requires the whole rendered tree
       to contain no text at all, with every control named through `aria-label`.
-- [ ] **Every touch target is at least 60×60 px.** The CSS floor is `68×68` with a `10px` gap in
-      `src/ui/controls.module.css`, but jsdom does no layout, so this needs measuring in a browser.
+- [x] **Every touch target is at least 60×60 px.** Measured on the live site in a real browser at
+      both 1280×720 and 768×1024: all nine controls are 68×68 or 70×70, and the smallest gap
+      between any two is 10 px. The layout also holds at both widths, covering the 768–1366 range.
 - [ ] **No elastic overscroll bounce and no accidental double-tap zoom.** `overscroll-behavior:
 none` and `touch-action: manipulation` are in `src/styles/global.css`; needs the iPad.
 - [ ] **Holding a finger on the doll does not open Safari's context menu.**
