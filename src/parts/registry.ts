@@ -4,6 +4,7 @@ import type { HairStyle, Part } from '../model/types';
 import { BODY } from './body';
 import { BOB_FRINGE } from './hair/bobFringe';
 import { SKIRT } from './bottom/skirt';
+import { SNEAKERS } from './shoes/sneakers';
 import { T_SHIRT } from './top/tShirt';
 
 /**
@@ -21,7 +22,7 @@ export const HAIR_STYLES: readonly HairStyle[] = [BOB_FRINGE];
 
 const TOPS: readonly Part[] = [T_SHIRT];
 const BOTTOMS: readonly Part[] = [SKIRT];
-const SHOES: readonly Part[] = [];
+const SHOES: readonly Part[] = [SNEAKERS];
 
 /**
  * Slots with no Phase 1 artwork are present but empty. The taxonomy already
