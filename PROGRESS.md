@@ -287,10 +287,18 @@ Stored at `stage:current`, schemaVersion 2. **A look from before is not migrated
 look could have become the first doll, but the backdrop left the look in the same change, so a
 migration would have to guess which of two dolls a sky belonged to. She loses one outfit, once.
 
+`stageReducer` is done too, and it is where the shape of the rest was decided. Every action a tray
+already dispatches arrives wrapped in `dress` and goes straight to `lookReducer`, unchanged, against
+whichever doll she is dressing. `lookReducer` never learns there are two dolls and neither does
+anything that dispatches to it. Only two actions are the stage's own — who she is dressing, and the
+sky — because they are the two a `Look` cannot answer.
+
 **Still to build**, all of it in the shell:
 
-- `LookProvider` becomes a stage provider. `useLook()` should keep its shape and hand back the
-  dressed doll, so nothing downstream changes.
+- `LookProvider` becomes a stage provider over `stageReducer`. `useLook()` keeps its shape and hands
+  back the dressed doll, so nothing downstream changes. Watch for two things when doing it:
+  `loadLook`/`saveLook` fall out of use and should go with it rather than linger, and the scene tray
+  has to stop dispatching `applyPart` and start dispatching `setScene`.
 - The stage renders the scene once, then both dolls side by side. Each doll needs its own transform
   — the canvas is one doll wide, so two of them need placing.
 - Tapping a doll sets `dressing`. The mark on the active one has to be visible without being text.
