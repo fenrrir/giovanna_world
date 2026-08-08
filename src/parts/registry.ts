@@ -8,6 +8,7 @@ import { TWIN_BUNS } from './hair/twinBuns';
 import { SKIRT } from './bottom/skirt';
 import { POLKA_DOT_DRESS } from './top/polkaDotDress';
 import { STRIPED_SWEATSHIRT } from './top/stripedSweatshirt';
+import { TANK_TOP } from './top/tankTop';
 import { SNEAKERS } from './shoes/sneakers';
 import { T_SHIRT } from './top/tShirt';
 
@@ -24,7 +25,7 @@ export { BODY };
 /** Hairstyles are chosen as a pair and written into two slots by the reducer. */
 export const HAIR_STYLES: readonly HairStyle[] = [BOB_FRINGE, LONG_WAVY, TWIN_BUNS];
 
-const TOPS: readonly Part[] = [T_SHIRT, POLKA_DOT_DRESS, STRIPED_SWEATSHIRT];
+const TOPS: readonly Part[] = [T_SHIRT, POLKA_DOT_DRESS, STRIPED_SWEATSHIRT, TANK_TOP];
 const BOTTOMS: readonly Part[] = [SKIRT];
 const SHOES: readonly Part[] = [SNEAKERS];
 

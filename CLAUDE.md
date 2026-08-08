@@ -117,10 +117,16 @@ Two rules that follow from those bugs, and are worth checking before drawing:
 
 ```bash
 npm run dev            # http://localhost:5173/  (dev sheet at /#/dev/sheet)
+npm run dev:lan        # same, reachable from the iPad; vite prints the address
 npm run verify         # format:check + lint + typecheck + test:coverage + build
 npm run test:watch     # vitest in watch mode
 npx vitest run tests/contract   # the SPEC §12 per-part gate
+npx vitest run tests/tools      # writes preview/*.svg for a headless look
 ```
+
+`dev:lan` is for iterating on the artwork and the interface against a real finger. It cannot
+prove the offline criterion: a service worker needs HTTPS or `localhost`, so there is none over
+`http://` on the LAN. Validate installing and running offline against the deployed URL.
 
 `npm run verify` is exactly what the pre-commit hook and CI run. If it passes locally, CI passes.
 
