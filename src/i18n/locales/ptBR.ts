@@ -23,9 +23,11 @@ export const ptBR = {
   'zoom.label': 'Aproximar a boneca',
 
   'tray.open': 'Abrir as opções de {tray}',
+  'scroll.back': 'Ver as opções anteriores',
+  'scroll.forward': 'Ver as próximas opções',
   'part.choose': 'Vestir esta peça de {tray}',
-  'color.choose': 'Pintar de outra cor',
-  'skin.choose': 'Mudar o tom de pele',
+  'color.pick': 'Escolher qualquer outra cor',
+  'skin.pick': 'Escolher qualquer outro tom de pele',
   'look.randomise': 'Segurar para sortear uma roupa nova',
 
   'dev.sheet.title': 'Folha de contato',

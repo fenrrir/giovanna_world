@@ -86,4 +86,11 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  /*
+   * A grid item refuses to shrink below its content without this, so the tray
+   * bar grew to the width of all its trays and the randomise button was clipped
+   * off the end of the panel. It is also what lets the row overflow inside
+   * itself, which is the condition the chevrons look for.
+   */
+  min-width: 0;
 }

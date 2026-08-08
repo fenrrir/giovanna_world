@@ -1,60 +1,47 @@
 import type { JSX } from 'react';
 
-import { useTranslation } from '../i18n';
 import { PALETTES } from '../model/palettes';
 import { useLook } from '../state/lookContext';
-import { TapTarget } from './TapTarget';
+import { ColorPicker } from './ColorPicker';
 import { equippedIn, type TrayDefinition } from './trays';
 import styles from './controls.module.css';
 
 type ColorTrayProps = { tray: TrayDefinition };
 
 /**
- * The colours for the open tray, plus the skin tones.
+ * The skin tone, and the colour of whatever is worn in the open tray.
  *
- * Recolouring an empty slot would do nothing visible, so the garment palette
- * only appears once something is worn there. The skin row is always available,
+ * Both are free pickers rather than rows of swatches: any colour at all, which
+ * is what the child asked the app for. The palettes still exist behind them —
+ * they are what a new piece arrives wearing and what the randomiser draws from
+ * — but they are no longer the limit.
+ *
+ * Recolouring an empty slot would do nothing visible, so the second picker only
+ * appears once something is worn there. The skin picker is always available,
  * because the body is always on screen.
  */
 export const ColorTray = ({ tray }: ColorTrayProps): JSX.Element => {
-  const { t } = useTranslation();
   const { look, dispatch } = useLook();
   const worn = equippedIn(look, tray);
 
   return (
-    <div>
-      <ul className={styles.row}>
-        {PALETTES.skin.map((color) => (
-          <li key={color}>
-            <TapTarget
-              label={t('skin.choose')}
-              selected={color === look.skin}
-              onSelect={() => {
-                dispatch({ type: 'setSkin', color });
-              }}
-            >
-              <span className={styles.swatch} style={{ background: color }} aria-hidden="true" />
-            </TapTarget>
-          </li>
-        ))}
-      </ul>
+    <div className={styles.pickers}>
+      <ColorPicker
+        value={look.skin}
+        label="skin.pick"
+        onPick={(color) => {
+          dispatch({ type: 'setSkin', color });
+        }}
+      />
 
       {worn !== undefined && (
-        <ul className={styles.row}>
-          {PALETTES[tray.palette].map((color) => (
-            <li key={color}>
-              <TapTarget
-                label={t('color.choose')}
-                selected={color === look.equipped[tray.slot]?.color}
-                onSelect={() => {
-                  dispatch({ type: 'setSlotColor', slot: tray.slot, color });
-                }}
-              >
-                <span className={styles.swatch} style={{ background: color }} aria-hidden="true" />
-              </TapTarget>
-            </li>
-          ))}
-        </ul>
+        <ColorPicker
+          value={look.equipped[tray.slot]?.color ?? PALETTES[tray.palette][0]}
+          label="color.pick"
+          onPick={(color) => {
+            dispatch({ type: 'setSlotColor', slot: tray.slot, color });
+          }}
+        />
       )}
     </div>
   );

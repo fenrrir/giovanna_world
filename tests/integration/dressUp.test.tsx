@@ -1,4 +1,4 @@
-import { act, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -61,6 +61,9 @@ const trayButton = (tray: keyof typeof ptBR): HTMLElement =>
     name: ptBR['tray.open'].replace('{tray}', ptBR[tray]),
   });
 
+/** The free picker for whatever is worn in the open tray. */
+const colorPicker = (): HTMLElement => screen.getByLabelText(ptBR['color.pick']);
+
 const partButtons = (): HTMLElement[] =>
   screen.getAllByRole('button', { name: /^Vestir esta peça/ });
 
@@ -108,8 +111,7 @@ describe('dressing the doll', () => {
     await user.click(trayButton('tray.hair'));
     await user.click(partButtons()[0]!);
 
-    const swatches = screen.getAllByRole('button', { name: ptBR['color.choose'] });
-    await user.click(swatches[1]!);
+    fireEvent.change(colorPicker(), { target: { value: '#111111' } });
 
     act(() => {
       vi.advanceTimersByTime(AUTOSAVE_DELAY_MS);
@@ -159,8 +161,7 @@ describe('dressing the doll', () => {
 
     const before = doll().querySelector('g[data-slot="top"] path')?.getAttribute('fill');
 
-    const skins = screen.getAllByRole('button', { name: ptBR['skin.choose'] });
-    await user.click(skins[3]!);
+    fireEvent.change(screen.getByLabelText(ptBR['skin.pick']), { target: { value: '#8a5a38' } });
 
     expect(doll().querySelector('g[data-slot="top"] path')?.getAttribute('fill')).toBe(before);
   });
@@ -170,11 +171,11 @@ describe('dressing the doll', () => {
 
     await user.click(trayButton('tray.shoes'));
 
-    expect(screen.queryAllByRole('button', { name: ptBR['color.choose'] })).toHaveLength(0);
+    expect(screen.queryByLabelText(ptBR['color.pick'])).toBeNull();
 
     await user.click(partButtons()[0]!);
 
-    expect(screen.getAllByRole('button', { name: ptBR['color.choose'] }).length).toBeGreaterThan(0);
+    expect(colorPicker()).toBeInTheDocument();
   });
 
   it('keeps the chosen colour when swapping a piece in the same tray', async () => {
@@ -183,15 +184,14 @@ describe('dressing the doll', () => {
     await user.click(trayButton('tray.top'));
     await user.click(partButtons()[0]!);
 
-    const swatches = screen.getAllByRole('button', { name: ptBR['color.choose'] });
-    await user.click(swatches[4]!);
+    fireEvent.change(colorPicker(), { target: { value: '#378add' } });
     await user.click(partButtons()[0]!);
 
     act(() => {
       vi.advanceTimersByTime(AUTOSAVE_DELAY_MS);
     });
 
-    expect(storedLook(storage)?.equipped.top?.color).toBe('#378ADD');
+    expect(storedLook(storage)?.equipped.top?.color).toBe('#378add');
   });
 
   it('autosaves the assembled look after the debounce', async () => {
@@ -285,17 +285,16 @@ describe('the interface itself', () => {
     expect(trayButton('tray.shoes')).toHaveAttribute('aria-pressed', 'true');
   });
 
-  it('recolours from the keyboard too', async () => {
+  it("puts the colour picker in the keyboard's reach too", async () => {
     const { user } = mount();
 
     await user.click(trayButton('tray.top'));
     await user.click(partButtons()[0]!);
 
-    const swatches = screen.getAllByRole('button', { name: ptBR['color.choose'] });
-    swatches[3]!.focus();
-    await user.keyboard('{Enter}');
+    colorPicker().focus();
 
-    expect(swatches[3]).toHaveAttribute('aria-pressed', 'true');
+    // Opening the picker from there is the platform's job, not this app's.
+    expect(document.activeElement).toBe(colorPicker());
   });
 
   it('keeps the doll and the trays on one screen, with no dialog', () => {

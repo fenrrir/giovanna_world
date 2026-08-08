@@ -64,6 +64,36 @@ Element.prototype.hasPointerCapture = (pointerId: number): boolean => captured.h
  */
 document.elementFromPoint = (): Element | null => null;
 
+/**
+ * jsdom lays nothing out, so it ships no ResizeObserver: there is no size for
+ * one to report. The scrolling tray bar watches its own width to decide whether
+ * a chevron has anywhere to point, and without the constructor the component
+ * throws on mount. Observing nothing is the honest stand-in — the row never
+ * changes size in a test, so the callback would never fire in a browser either.
+ */
+class NoopResizeObserver implements ResizeObserver {
+  observe(): void {
+    // Nothing is ever laid out, so nothing ever resizes.
+  }
+  unobserve(): void {
+    // Symmetry with observe.
+  }
+  disconnect(): void {
+    // Nothing to disconnect from.
+  }
+}
+
+globalThis.ResizeObserver = NoopResizeObserver;
+
+/**
+ * jsdom implements no scrolling either. Returning nothing keeps the chevron's
+ * handler callable, and a test that cares what it was asked to scroll spies on
+ * this.
+ */
+Element.prototype.scrollBy = (): void => {
+  // No layout, so there is nowhere to scroll to.
+};
+
 beforeEach(() => {
   localStorage.clear();
   captured.clear();

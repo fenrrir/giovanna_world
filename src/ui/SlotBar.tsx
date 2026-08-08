@@ -5,6 +5,7 @@ import { PALETTES } from '../model/palettes';
 import type { TraySlot } from '../model/slots';
 import { Thumb } from '../render/Thumb';
 import { useLook } from '../state/lookContext';
+import { ScrollRow } from './ScrollRow';
 import { TapTarget } from './TapTarget';
 import { TRAYS, equippedIn, trayIcon } from './trays';
 import styles from './controls.module.css';
@@ -15,7 +16,7 @@ type SlotBarProps = {
 };
 
 /**
- * The four trays the child can open.
+ * The trays the child can open.
  *
  * Each label is a thumbnail of the piece itself, never a word (SPEC section 4).
  * A tray shows what is currently worn, so the bar reads as a summary of the
@@ -26,7 +27,7 @@ export const SlotBar = ({ active, onSelect }: SlotBarProps): JSX.Element => {
   const { look } = useLook();
 
   return (
-    <ul className={styles.row}>
+    <ScrollRow>
       {TRAYS.map((tray) => {
         const icon = trayIcon(look, tray);
         const wornColor = look.equipped[tray.slot]?.color;
@@ -56,6 +57,6 @@ export const SlotBar = ({ active, onSelect }: SlotBarProps): JSX.Element => {
           </li>
         );
       })}
-    </ul>
+    </ScrollRow>
   );
 };
