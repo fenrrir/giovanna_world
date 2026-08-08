@@ -3,6 +3,7 @@ import type { Slot } from '../model/slots';
 import type { HairStyle, Part } from '../model/types';
 import { BODY } from './body';
 import { BOB_FRINGE } from './hair/bobFringe';
+import { T_SHIRT } from './top/tShirt';
 
 /**
  * The single import point for artwork.
@@ -17,7 +18,7 @@ export { BODY };
 /** Hairstyles are chosen as a pair and written into two slots by the reducer. */
 export const HAIR_STYLES: readonly HairStyle[] = [BOB_FRINGE];
 
-const TOPS: readonly Part[] = [];
+const TOPS: readonly Part[] = [T_SHIRT];
 const BOTTOMS: readonly Part[] = [];
 const SHOES: readonly Part[] = [];
 
