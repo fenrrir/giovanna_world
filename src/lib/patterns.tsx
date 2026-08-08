@@ -15,15 +15,22 @@ type DotOptions = { radius?: number; spacing?: number };
 type StripeOptions = { width?: number; spacing?: number };
 type CheckOptions = { size?: number };
 
-/** Positions of a step of `stride`, starting at `start`, that fit before `end`. */
+/**
+ * Positions of a step of `stride` that fit between `start` and `end`, centred.
+ *
+ * Packing from the start instead leaves the whole remainder on one side, which
+ * shows up as a pattern visibly off-centre on the garment whenever the box is
+ * not an exact multiple of the spacing.
+ */
 const track = (start: number, end: number, stride: number, extent: number): number[] => {
-  const positions: number[] = [];
+  const span = end - start;
+  const count = Math.floor((span - extent) / stride) + 1;
 
-  for (let position = start; position + extent <= end; position += stride) {
-    positions.push(position);
-  }
+  if (count <= 0) return [];
 
-  return positions;
+  const offset = (span - ((count - 1) * stride + extent)) / 2;
+
+  return Array.from({ length: count }, (_, index) => start + offset + index * stride);
 };
 
 export const dots = (box: Box, color: string, options: DotOptions = {}): ReactNode => {

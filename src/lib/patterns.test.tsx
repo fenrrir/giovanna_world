@@ -50,6 +50,16 @@ describe('dots', () => {
     expect(loose.length).toBeLessThan(tight.length);
   });
 
+  it('centres the grid in the box, rather than leaving the remainder on one side', () => {
+    // 80 wide with 26 spacing fits three 12px dots, leaving 16px to share.
+    const svg = renderFragment(dots(BOX, COLOR, { radius: 6, spacing: 26 }));
+    const centres = [...svg.querySelectorAll('circle')].map((circle) =>
+      Number(circle.getAttribute('cx')),
+    );
+
+    expect((Math.min(...centres) + Math.max(...centres)) / 2).toBeCloseTo(BOX.x + BOX.width / 2);
+  });
+
   it('emits nothing when a dot cannot fit inside the box', () => {
     const svg = renderFragment(dots({ x: 0, y: 0, width: 4, height: 4 }, COLOR, { radius: 10 }));
 
