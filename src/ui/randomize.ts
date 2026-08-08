@@ -16,6 +16,10 @@ import { RANDOM_TRAYS, trayItems } from './trays';
  * which pieces come out. It lives beside the trays rather than in the model
  * because "one piece per tray" is what the child sees; the model has eleven
  * slots and no idea they are grouped into four.
+ *
+ * A tray whose only remaining choice is one she shapes herself comes out
+ * untouched, which is the same answer it already gave for a tray with no
+ * artwork at all.
  */
 
 export type Rng = () => number;
@@ -25,7 +29,10 @@ const pick = <T>(items: readonly T[], rng: Rng): T | undefined =>
 
 export const randomLook = (rng: Rng, current: Look): Look =>
   RANDOM_TRAYS.reduce<Look>((look, tray) => {
-    const item = pick(trayItems(tray), rng);
+    const item = pick(
+      trayItems(tray).filter((candidate) => !candidate.shaped),
+      rng,
+    );
     const color = pick(PALETTES[tray.palette], rng);
 
     return item && color ? lookReducer(look, item.apply(color)) : look;

@@ -30,7 +30,8 @@ describe('the contact sheet', () => {
   it('opens on the hair tray, one cell per hairstyle', () => {
     mount();
 
-    expect(cellsIn('parts-row')).toHaveLength(HAIR_STYLES.length);
+    // The drawn hairstyles, plus the generated one at its default axes.
+    expect(cellsIn('parts-row')).toHaveLength(HAIR_STYLES.length + 1);
   });
 
   it('draws every part over the same body, at the same scale', () => {

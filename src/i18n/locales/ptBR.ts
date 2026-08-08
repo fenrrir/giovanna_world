@@ -26,6 +26,7 @@ export const ptBR = {
   'scroll.back': 'Ver as opções anteriores',
   'scroll.forward': 'Ver as próximas opções',
   'part.choose': 'Vestir esta peça de {tray}',
+  'hair.custom': 'Fazer um cabelo do meu jeito',
   'color.pick': 'Escolher qualquer outra cor',
   'skin.pick': 'Escolher qualquer outro tom de pele',
   'look.randomise': 'Segurar para sortear uma roupa nova',

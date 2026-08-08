@@ -5,7 +5,11 @@ import { PALETTES } from '../model/palettes';
 import { SELECTABLE_SLOTS } from '../model/slots';
 import type { Look } from '../model/types';
 import { randomLook } from './randomize';
-import { RANDOM_TRAYS, TRAYS, trayItems } from './trays';
+import { RANDOM_TRAYS, TRAYS, trayItems, type TrayDefinition, type TrayItem } from './trays';
+
+/** What the dice may land on: every piece except the ones she shapes herself. */
+const drawable = (tray: TrayDefinition): TrayItem[] =>
+  trayItems(tray).filter((item) => !item.shaped);
 
 /** Yields the given values in order, then repeats the last one. */
 const sequence = (...values: number[]): (() => number) => {
@@ -40,7 +44,7 @@ describe('randomLook', () => {
     const look = randomLook(sequence(0), DEFAULT_LOOK);
 
     for (const tray of RANDOM_TRAYS) {
-      expect(look.equipped[tray.slot]?.partId).toBe(trayItems(tray)[0]?.id);
+      expect(look.equipped[tray.slot]?.partId).toBe(drawable(tray)[0]?.id);
       expect(look.equipped[tray.slot]?.color).toBe(PALETTES[tray.palette][0]);
     }
   });
@@ -49,7 +53,7 @@ describe('randomLook', () => {
     const look = randomLook(sequence(0.999), DEFAULT_LOOK);
 
     for (const tray of RANDOM_TRAYS) {
-      expect(look.equipped[tray.slot]?.partId).toBe(trayItems(tray).at(-1)?.id);
+      expect(look.equipped[tray.slot]?.partId).toBe(drawable(tray).at(-1)?.id);
       expect(look.equipped[tray.slot]?.color).toBe(PALETTES[tray.palette].at(-1));
     }
   });
@@ -58,7 +62,7 @@ describe('randomLook', () => {
     const look = randomLook(sequence(1), DEFAULT_LOOK);
 
     for (const tray of RANDOM_TRAYS) {
-      expect(look.equipped[tray.slot]?.partId).toBe(trayItems(tray).at(-1)?.id);
+      expect(look.equipped[tray.slot]?.partId).toBe(drawable(tray).at(-1)?.id);
     }
   });
 
@@ -66,6 +70,17 @@ describe('randomLook', () => {
     const look = randomLook(sequence(0.5), DEFAULT_LOOK);
 
     expect(look.equipped.hairBack).toStrictEqual(look.equipped.hairFront);
+  });
+
+  /*
+   * Choosing it opens the axes that shape it, so a roll of the dice landing on
+   * it would open an editor the child never asked for. It could only ever be
+   * drawn at its default axes anyway — a fixed piece wearing a disguise.
+   */
+  it('never lands on the hairstyle she shapes herself', () => {
+    for (const rng of [sequence(0), sequence(0.5), sequence(0.999), sequence(1)]) {
+      expect(randomLook(rng, DEFAULT_LOOK).equipped.hairFront?.partId).not.toBe('hair.custom');
+    }
   });
 
   it('produces a valid look, ready to be stored', () => {

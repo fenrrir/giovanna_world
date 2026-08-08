@@ -4,7 +4,9 @@ import { THUMB_FOCUS, type Box } from '../anchors';
 import type { MessageKey } from '../i18n';
 import type { LookAction } from '../model/reducer';
 import { SELECTABLE_SLOTS, type Slot, type TraySlot } from '../model/slots';
-import type { Look, Palette } from '../model/types';
+import type { HairStyle, Look, Palette, PartParams } from '../model/types';
+import { CUSTOM_HAIR_ID, customHair } from '../parts/hair/custom';
+import { toHairParams } from '../parts/hair/custom/params';
 import { HAIR_STYLES, PARTS_BY_SLOT } from '../parts/registry';
 
 /**
@@ -123,20 +125,40 @@ export type TrayItem = {
   id: string;
   render: (color: string) => ReactNode;
   apply: (color: string) => LookAction;
+  /** Its own accessible name, for an item that is not just another piece. */
+  label?: MessageKey;
+  /**
+   * Whether choosing it also opens the axes that shape it.
+   *
+   * The randomiser leaves these alone: landing on one would open an editor
+   * with no gesture from the child, and it could only ever draw the piece at
+   * its default axes anyway, which is a fixed piece wearing a disguise.
+   */
+  shaped?: boolean;
 };
 
-const hairItems = (): TrayItem[] =>
-  HAIR_STYLES.map((hair) => ({
-    id: hair.id,
-    // Both halves, so the thumbnail shows the hairstyle the child will get.
-    render: (color) => (
-      <>
-        {hair.back(color)}
-        {hair.front(color)}
-      </>
-    ),
-    apply: (color) => ({ type: 'applyHair', hair, color }),
-  }));
+const hairItem = (hair: HairStyle, params?: PartParams): TrayItem => ({
+  id: hair.id,
+  // Both halves, so the thumbnail shows the hairstyle the child will get.
+  render: (color) => (
+    <>
+      {hair.back(color)}
+      {hair.front(color)}
+    </>
+  ),
+  apply: (color) => ({ type: 'applyHair', hair, color, ...(params ? { params } : {}) }),
+});
+
+/**
+ * The drawn hairstyles, then the one she shapes herself.
+ *
+ * Last, and carrying her current axes rather than the defaults, so its
+ * thumbnail shows the hair she already made instead of a stranger's.
+ */
+const hairItems = (custom?: PartParams): TrayItem[] => [
+  ...HAIR_STYLES.map((hair) => hairItem(hair)),
+  { ...hairItem(customHair(custom), toHairParams(custom)), label: 'hair.custom', shaped: true },
+];
 
 const partItems = (slot: Slot): TrayItem[] =>
   PARTS_BY_SLOT[slot].map((part) => ({
@@ -145,8 +167,12 @@ const partItems = (slot: Slot): TrayItem[] =>
     apply: (color) => ({ type: 'applyPart', part, color }),
   }));
 
-export const trayItems = (tray: TrayDefinition): TrayItem[] =>
-  tray.id === 'hair' ? hairItems() : partItems(tray.slot);
+export const trayItems = (tray: TrayDefinition, custom?: PartParams): TrayItem[] =>
+  tray.id === 'hair' ? hairItems(custom) : partItems(tray.slot);
+
+/** The axes of the generated hairstyle she is wearing, if she is wearing it. */
+export const customHairParams = (look: Look): PartParams | undefined =>
+  look.equipped.hairFront?.partId === CUSTOM_HAIR_ID ? look.equipped.hairFront.params : undefined;
 
 /** The item currently worn in this tray, if any. */
 export const equippedIn = (look: Look, tray: TrayDefinition): string | undefined =>
@@ -154,7 +180,7 @@ export const equippedIn = (look: Look, tray: TrayDefinition): string | undefined
 
 /** What a tray shows as its own icon: what is worn, else the first choice. */
 export const trayIcon = (look: Look, tray: TrayDefinition): TrayItem | undefined => {
-  const items = trayItems(tray);
+  const items = trayItems(tray, customHairParams(look));
   const worn = equippedIn(look, tray);
 
   return items.find((item) => item.id === worn) ?? items[0];

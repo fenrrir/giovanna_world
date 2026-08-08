@@ -3,7 +3,7 @@ import type { JSX } from 'react';
 import { PALETTES } from '../model/palettes';
 import { useLook } from '../state/lookContext';
 import { DraggablePart } from './DraggablePart';
-import { equippedIn, trayItems, type TrayDefinition } from './trays';
+import { customHairParams, equippedIn, trayItems, type TrayDefinition } from './trays';
 import type { DragPoint } from './useDrag';
 import styles from './controls.module.css';
 
@@ -26,7 +26,7 @@ export const PartTray = ({ tray, isInsideDropZone }: PartTrayProps): JSX.Element
 
   return (
     <ul className={styles.row}>
-      {trayItems(tray).map((item) => (
+      {trayItems(tray, customHairParams(look)).map((item) => (
         <li key={item.id}>
           <DraggablePart
             tray={tray}

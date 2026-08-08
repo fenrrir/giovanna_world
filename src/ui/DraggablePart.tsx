@@ -39,7 +39,8 @@ export const DraggablePart = ({
     isInsideDropZone,
   });
 
-  const label = t('part.choose', { tray: t(tray.label) });
+  // An item that does more than dress the doll says so in its own words.
+  const label = item.label ? t(item.label) : t('part.choose', { tray: t(tray.label) });
 
   return (
     <>
