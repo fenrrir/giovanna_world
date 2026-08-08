@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dev-dist/
+.vite/
+
+# Test output
+coverage/
+
+# TypeScript incremental build info
+*.tsbuildinfo
+
+# Local environment overrides
+*.local
+.env
+.env.*
+!.env.example
+
+# Editor and OS noise
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
