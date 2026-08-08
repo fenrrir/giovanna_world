@@ -8,6 +8,9 @@ export default defineConfig({
   plugins: [react()],
   test: {
     environment: 'jsdom',
+    // jsdom withholds localStorage on an opaque origin, and persistence is a
+    // first-class behaviour here — so give it a real one.
+    environmentOptions: { jsdom: { url: 'http://localhost/' } },
     setupFiles: ['./tests/setup.ts'],
     include: ['src/**/*.test.{ts,tsx}', 'tests/**/*.test.{ts,tsx}'],
     restoreMocks: true,

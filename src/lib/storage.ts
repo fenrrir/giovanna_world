@@ -28,8 +28,27 @@ const isLook = (value: unknown): value is Look =>
  * This deliberately knows nothing about the part registry. Reconciling a look
  * against the parts that actually exist is `sanitizeLook`'s job.
  */
-export const loadLook = (storage: Storage = localStorage): Look | null => {
-  const raw = storage.getItem(CURRENT_LOOK_KEY);
+/**
+ * The browser store, or null when there is none.
+ *
+ * Reading `localStorage` is not always safe: Safari with cookies blocked
+ * throws on access, and a non-browser host may not define it at all. Treating
+ * that as "no data" keeps SPEC section 14's promise that losing a look is a
+ * normal scenario rather than a failure.
+ */
+const browserStorage = (): Storage | null => {
+  try {
+    // The DOM lib types this as always present; at runtime it may not be.
+    const store = globalThis.localStorage as Storage | undefined;
+
+    return store ?? null;
+  } catch {
+    return null;
+  }
+};
+
+export const loadLook = (storage: Storage | null = browserStorage()): Look | null => {
+  const raw = storage?.getItem(CURRENT_LOOK_KEY) ?? null;
 
   if (raw === null) return null;
 
@@ -42,9 +61,9 @@ export const loadLook = (storage: Storage = localStorage): Look | null => {
   }
 };
 
-export const saveLook = (look: Look, storage: Storage = localStorage): void => {
+export const saveLook = (look: Look, storage: Storage | null = browserStorage()): void => {
   try {
-    storage.setItem(CURRENT_LOOK_KEY, JSON.stringify(look));
+    storage?.setItem(CURRENT_LOOK_KEY, JSON.stringify(look));
   } catch {
     // A full or unavailable store must never surface as an error on screen.
   }

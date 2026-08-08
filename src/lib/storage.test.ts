@@ -98,6 +98,51 @@ describe('loadLook', () => {
   });
 });
 
+describe('with no store available', () => {
+  it('reads nothing rather than throwing', () => {
+    expect(loadLook(null)).toBeNull();
+  });
+
+  it('writes nothing rather than throwing', () => {
+    expect(() => {
+      saveLook(A_LOOK, null);
+    }).not.toThrow();
+  });
+
+  /** Safari with cookies blocked throws on the property access itself. */
+  const withBlockedLocalStorage = (run: () => void): void => {
+    const original = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
+
+    Object.defineProperty(globalThis, 'localStorage', {
+      configurable: true,
+      get() {
+        throw new DOMException('access denied', 'SecurityError');
+      },
+    });
+
+    try {
+      run();
+    } finally {
+      if (original) Object.defineProperty(globalThis, 'localStorage', original);
+      else Reflect.deleteProperty(globalThis, 'localStorage');
+    }
+  };
+
+  it('reads nothing when the browser denies access to the store', () => {
+    withBlockedLocalStorage(() => {
+      expect(loadLook()).toBeNull();
+    });
+  });
+
+  it('writes nothing when the browser denies access to the store', () => {
+    withBlockedLocalStorage(() => {
+      expect(() => {
+        saveLook(A_LOOK);
+      }).not.toThrow();
+    });
+  });
+});
+
 describe('saveLook', () => {
   it('swallows a quota error, because losing a look is a normal scenario', () => {
     const storage = fakeStorage();
