@@ -1,4 +1,4 @@
-import { ptBR } from '../i18n/locales/ptBR';
+import { ptBR } from '../i18n/locales/ptBR.ts';
 
 /**
  * The installed app's identity.

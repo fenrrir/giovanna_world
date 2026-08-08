@@ -2,7 +2,7 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
-import { BASE_PATH, manifest } from './src/pwa/manifest';
+import { BASE_PATH, manifest } from './src/pwa/manifest.ts';
 
 /**
  * GitHub Pages serves this project from https://fenrrir.github.io/giovanna_world/,
