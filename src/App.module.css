@@ -1,6 +1,51 @@
 .app {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(300px, 1fr) minmax(320px, 1fr);
+  gap: 12px;
   height: 100%;
+  padding: 12px;
   background: #fbfbf9;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+}
+
+.stage {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  border-radius: 24px;
+  background: #f1f0fb;
+}
+
+.doll {
+  max-height: 100%;
+}
+
+/*
+ * One level of navigation (SPEC section 4): the tray chooser, the pieces and
+ * the colours are all on screen at once. Opening a tray swaps the contents in
+ * place — there is no modal and no way back to find.
+ */
+.panel {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 8px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.parts {
+  overflow-y: auto;
+  border-radius: 20px;
+  background: #f1f0fb;
+}
+
+/* iPad portrait and anything narrower stacks instead of splitting. */
+@media (max-width: 900px) {
+  .app {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
 }

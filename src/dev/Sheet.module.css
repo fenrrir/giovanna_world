@@ -1,0 +1,50 @@
+.sheet {
+  padding: 16px;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  color: #2a2a33;
+  background: #fbfbf9;
+  min-height: 100%;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.control {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.cell {
+  flex: 0 0 200px;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.caption {
+  margin: 24px 0 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.empty {
+  padding: 24px;
+  color: #6a6a75;
+}

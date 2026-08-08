@@ -20,15 +20,18 @@ const HEM = waist.y + 22;
 
 const render = (color: string): ReactNode => (
   <g>
-    {/* Sleeves, behind the body of the shirt so the seam reads cleanly. */}
+    {/*
+      Sleeves, drawn behind the shirt body and reaching well inside it. Ending
+      them at the body's edge leaves a sliver of skin at the shoulder seam.
+    */}
     <path
-      d="M 288 212 L 262 226 C 256 230 256 240 260 250 L 268 268
-         C 271 274 280 274 284 268 L 296 240 Z"
+      d="M 306 204 C 282 202 262 214 259 232 L 263 262
+         C 265 272 280 275 286 267 L 306 242 Z"
       fill={shade(color, FOLD)}
     />
     <path
-      d="M 392 212 L 418 226 C 424 230 424 240 420 250 L 412 268
-         C 409 274 400 274 396 268 L 384 240 Z"
+      d="M 374 204 C 398 202 418 214 421 232 L 417 262
+         C 415 272 400 275 394 267 L 374 242 Z"
       fill={shade(color, FOLD)}
     />
 

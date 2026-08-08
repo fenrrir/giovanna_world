@@ -17,6 +17,13 @@ const { shoeLeft, shoeRight, sole } = ANCHORS;
 const SOLE_HEIGHT = 10;
 const TOE_RADIUS = 12;
 
+/**
+ * The two shoe anchor boxes overlap by 8 px, which is room to work in rather
+ * than an instruction to fill. Each shoe is pulled back from the centre line so
+ * the pair reads as two shoes instead of one wide platform.
+ */
+const CENTRE_GAP = 6;
+
 type ShoeBox = { x1: number; x2: number; y1: number; y2: number };
 
 const shoe = (box: ShoeBox, color: string, laceX: number): ReactNode => {
@@ -52,10 +59,15 @@ const shoe = (box: ShoeBox, color: string, laceX: number): ReactNode => {
   );
 };
 
+const centre = (shoeLeft.x2 + shoeRight.x1) / 2;
+
+const LEFT: ShoeBox = { ...shoeLeft, x2: centre - CENTRE_GAP };
+const RIGHT: ShoeBox = { ...shoeRight, x1: centre + CENTRE_GAP };
+
 const render = (color: string): ReactNode => (
   <g>
-    {shoe(shoeLeft, color, (shoeLeft.x1 + shoeLeft.x2) / 2 - 4)}
-    {shoe(shoeRight, color, (shoeRight.x1 + shoeRight.x2) / 2 + 4)}
+    {shoe(LEFT, color, (LEFT.x1 + LEFT.x2) / 2)}
+    {shoe(RIGHT, color, (RIGHT.x1 + RIGHT.x2) / 2)}
   </g>
 );
 

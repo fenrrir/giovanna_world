@@ -11,7 +11,7 @@ type DollProps = {
   body: Part;
   /** Accessible name. The canvas carries no visible text. */
   label: string;
-  className?: string;
+  className?: string | undefined;
 };
 
 /**

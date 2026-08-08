@@ -13,7 +13,7 @@ type ThumbProps = {
   focus: Box;
   /** Accessible name. Thumbnails carry no visible text. */
   label: string;
-  className?: string;
+  className?: string | undefined;
 };
 
 /**

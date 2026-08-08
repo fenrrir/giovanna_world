@@ -1,0 +1,49 @@
+/*
+ * SPEC section 4: every touch target is at least 60x60 CSS px with at least
+ * 8 px between them. These two values are the floor for every control here.
+ */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-content: flex-start;
+  margin: 0;
+  padding: 8px;
+  list-style: none;
+}
+
+.target {
+  display: grid;
+  place-items: center;
+  min-width: 68px;
+  min-height: 68px;
+  padding: 4px;
+  border: 3px solid transparent;
+  border-radius: 16px;
+  background: #ffffff;
+  cursor: pointer;
+  /* No transition longer than 120 ms (SPEC section 4). */
+  transition:
+    border-color 100ms ease,
+    background-color 100ms ease;
+}
+
+.target:hover {
+  background: #f1f0fb;
+}
+
+.selected {
+  border-color: #7f77dd;
+  background: #eeecfb;
+}
+
+.thumb {
+  width: 56px;
+  height: 56px;
+}
+
+.swatch {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
