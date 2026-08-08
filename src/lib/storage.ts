@@ -1,7 +1,13 @@
+import { DEFAULT_STAGE, type Stage } from '../model/stage';
 import type { EquippedPart, Look } from '../model/types';
 
 /** The active look, written with a 300 ms debounce (SPEC section 14). */
 export const CURRENT_LOOK_KEY = 'look:current';
+
+/** The two of them and their backdrop, written with the same 300 ms debounce. */
+export const CURRENT_STAGE_KEY = 'stage:current';
+
+const STAGE_VERSION = 2;
 
 /** The looks she chose to keep (SPEC section 14). */
 export const SAVED_LOOKS_KEY = 'look:saved';
@@ -120,3 +126,48 @@ export const withSavedLook = (saved: readonly Look[], look: Look): Look[] => {
 
   return [look, ...saved.filter((kept) => JSON.stringify(kept) !== same)].slice(0, MAX_SAVED_LOOKS);
 };
+
+const isStage = (value: unknown): value is Stage =>
+  isRecord(value) &&
+  value.schemaVersion === STAGE_VERSION &&
+  Array.isArray(value.dolls) &&
+  value.dolls.length === 2 &&
+  value.dolls.every(isLook) &&
+  (value.dressing === 0 || value.dressing === 1) &&
+  (value.scene === undefined || isEquippedPart(value.scene));
+
+/**
+ * The stage as it was left, or the default when there is nothing usable.
+ *
+ * A stored `look:current` from before there were two dolls is not migrated. It
+ * could have been — one look becomes the first doll — but the backdrop moved out
+ * of the look in the same change, so a migration would have to guess which of
+ * two dolls a sky belonged to. SPEC section 14 already says an unknown version
+ * starts from the default with no error on screen; she rebuilds an outfit in
+ * under a minute, and nothing pretends to know what it cannot.
+ */
+export const loadStage = (storage: Storage | null = browserStorage()): Stage | null => {
+  const raw = storage?.getItem(CURRENT_STAGE_KEY) ?? null;
+
+  if (raw === null) return null;
+
+  try {
+    const parsed: unknown = JSON.parse(raw);
+
+    return isStage(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+};
+
+export const saveStage = (stage: Stage, storage: Storage | null = browserStorage()): void => {
+  try {
+    storage?.setItem(CURRENT_STAGE_KEY, JSON.stringify(stage));
+  } catch {
+    // A full or unavailable store must never surface as an error on screen.
+  }
+};
+
+/** What the app opens on: what she left, else two dolls on a bare stage. */
+export const openingStage = (storage: Storage | null = browserStorage()): Stage =>
+  loadStage(storage) ?? DEFAULT_STAGE;

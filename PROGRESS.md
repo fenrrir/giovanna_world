@@ -271,7 +271,32 @@ It still takes one colour like every other part: she picks the sky and the groun
 tone. That keeps a green afternoon and a violet evening in the same drawing, at the cost of a scene
 reading close to monochrome. Worth revisiting only if a scene ever needs two unrelated colours.
 
-Still open in Phase 3: PNG export and a second character in the same scene.
+**The second character is started: the model is done, the interface is not.**
+
+Two decisions were taken and are settled. The backdrop belongs to the **stage**, not to either doll
+— shared it belonged to neither, owned it meant switching dolls changed the sky. And she chooses who
+she is dressing by **tapping that doll on the stage**, which needs no new control and reuses the hit
+test the undressing drag already has.
+
+`Stage` in `src/model/stage.ts` holds the pair, the backdrop and which one her taps dress. `Look` is
+untouched by the move: it still describes one person from skin to bag, so the trays, the album, the
+randomiser and the drag go on reading exactly what they read before. That is what keeps the
+remaining work to the shell rather than through the whole app.
+
+Stored at `stage:current`, schemaVersion 2. **A look from before is not migrated**, deliberately: one
+look could have become the first doll, but the backdrop left the look in the same change, so a
+migration would have to guess which of two dolls a sky belonged to. She loses one outfit, once.
+
+**Still to build**, all of it in the shell:
+
+- `LookProvider` becomes a stage provider. `useLook()` should keep its shape and hand back the
+  dressed doll, so nothing downstream changes.
+- The stage renders the scene once, then both dolls side by side. Each doll needs its own transform
+  — the canvas is one doll wide, so two of them need placing.
+- Tapping a doll sets `dressing`. The mark on the active one has to be visible without being text.
+- `scene` stops being read from `Look.equipped`; the scene tray writes `Stage.scene`.
+
+Still open after that: PNG export.
 
 ### Still deferred
 
