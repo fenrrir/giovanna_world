@@ -18,7 +18,7 @@ const equippedLayers = (look: Look, lookup: PartLookup): EquippedLayer[] => {
   const entries = Object.entries(look.equipped) as [Slot, EquippedPart][];
 
   for (const [slot, entry] of entries) {
-    const part = lookup(slot, entry.partId);
+    const part = lookup(slot, entry.partId, entry.params);
 
     // A part removed from the registry is skipped silently (SPEC section 14).
     if (part) layers.push({ slot, part, color: entry.color });

@@ -79,6 +79,22 @@ describe('lookReducer', () => {
 
       expect(next.equipped.hairBack?.color).toBe(next.equipped.hairFront?.color);
     });
+
+    it('carries the params of a generated hairstyle into both slots', () => {
+      const next = lookReducer(DEFAULT_LOOK, {
+        type: 'applyHair',
+        hair,
+        color: '#6B3A1F',
+        params: { length: 0.8, fringe: 'curtain' },
+      });
+
+      expect(next.equipped.hairBack).toStrictEqual({
+        partId: 'hair.bob',
+        color: '#6B3A1F',
+        params: { length: 0.8, fringe: 'curtain' },
+      });
+      expect(next.equipped.hairFront).toStrictEqual(next.equipped.hairBack);
+    });
   });
 
   describe('setSlotColor', () => {

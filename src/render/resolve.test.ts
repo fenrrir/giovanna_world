@@ -3,7 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { stubLookup, stubPart } from '../../tests/doubles';
 import { DEFAULT_LOOK } from '../model/defaults';
 import { lookReducer } from '../model/reducer';
-import type { Look } from '../model/types';
+import type { PartLookup } from '../model/sanitize';
+import type { Look, PartParams } from '../model/types';
 import { resolveLayers } from './resolve';
 
 const body = stubPart('body', 'body.base');
@@ -142,6 +143,37 @@ describe('resolveLayers', () => {
       });
 
       expect(slotsOf(look)).toContain('bottom');
+    });
+  });
+
+  describe('generated parts', () => {
+    it('hands the equipped params to the lookup, so a part can be built from them', () => {
+      const seen: (PartParams | undefined)[] = [];
+      const recording: PartLookup = (slot, partId, params) => {
+        seen.push(params);
+
+        return lookup(slot, partId);
+      };
+      const look = dressed({
+        top: { partId: 'top.t-shirt', color: '#1D9E75', params: { length: 0.8 } },
+      });
+
+      resolveLayers(look, recording, body);
+
+      expect(seen).toStrictEqual([{ length: 0.8 }]);
+    });
+
+    it('asks for a part with no params when the entry carries none', () => {
+      const seen: (PartParams | undefined)[] = [];
+      const recording: PartLookup = (slot, partId, params) => {
+        seen.push(params);
+
+        return lookup(slot, partId);
+      };
+
+      resolveLayers(dressed({ top: { partId: 'top.t-shirt', color: '#1D9E75' } }), recording, body);
+
+      expect(seen).toStrictEqual([undefined]);
     });
   });
 

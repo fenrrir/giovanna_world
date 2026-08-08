@@ -1,11 +1,11 @@
 import type { Slot } from './slots';
-import type { EquippedPart, HairStyle, Look, Part } from './types';
+import type { EquippedPart, HairStyle, Look, Part, PartParams } from './types';
 
 export type LookAction =
   | { type: 'replaceLook'; look: Look }
   | { type: 'setSkin'; color: string }
   | { type: 'applyPart'; part: Part; color: string }
-  | { type: 'applyHair'; hair: HairStyle; color: string }
+  | { type: 'applyHair'; hair: HairStyle; color: string; params?: PartParams }
   | { type: 'setSlotColor'; slot: Slot; color: string }
   | { type: 'removeSlot'; slot: Slot };
 
@@ -72,7 +72,13 @@ export const lookReducer = (state: Look, action: LookAction): Look => {
       };
 
     case 'applyHair': {
-      const entry = { partId: action.hair.id, color: action.color };
+      // The key is omitted rather than set to undefined: a ready-made hairstyle
+      // must store exactly what it stored before generated hair existed.
+      const entry: EquippedPart = {
+        partId: action.hair.id,
+        color: action.color,
+        ...(action.params ? { params: action.params } : {}),
+      };
 
       return {
         ...state,

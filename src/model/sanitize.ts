@@ -1,15 +1,17 @@
 import { DEFAULT_LOOK } from './defaults';
 import { PAINTED_SLOTS, type Slot } from './slots';
-import type { EquippedPart, Look, Part } from './types';
+import type { EquippedPart, Look, Part, PartParams } from './types';
 
 /**
  * Resolves a slot and part id to the part itself, or undefined when the part is
  * no longer registered.
  *
  * Taken as a parameter rather than imported, so the model layer never depends
- * on the art layer.
+ * on the art layer. A generated part is built from `params` on the way out,
+ * which is why the params travel here rather than into `Part.render`: the art
+ * layer closes over them and every other layer stays unaware.
  */
-export type PartLookup = (slot: Slot, partId: string) => Part | undefined;
+export type PartLookup = (slot: Slot, partId: string, params?: PartParams) => Part | undefined;
 
 /**
  * Drops every equipped entry whose part has left the registry.

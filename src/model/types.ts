@@ -29,7 +29,23 @@ export type HairStyle = {
   front: (color: string) => ReactNode;
 };
 
-export type EquippedPart = { partId: string; color: string };
+/**
+ * The axes of a part the child shapes herself, rather than picks ready-made.
+ *
+ * Opaque to the model: only the art layer knows what a key means, which is what
+ * keeps the model from having to learn about hair to store a hairstyle.
+ */
+export type PartParams = Readonly<Record<string, number | string>>;
+
+export type EquippedPart = {
+  partId: string;
+  color: string;
+  /**
+   * Absent for every ready-made part. Additive, so a look stored before
+   * generated parts existed reads back unchanged and `schemaVersion` stays 1.
+   */
+  params?: PartParams;
+};
 
 export type Look = {
   schemaVersion: 1;
