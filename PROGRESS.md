@@ -13,9 +13,9 @@ The session entry point. Read this before anything else, act on **Next up**, upd
 
 **Phase 4 in progress: the world.** Plan at
 [docs/plans/2026-08-08-world.md](docs/plans/2026-08-08-world.md) — a map, locations holding several
-environments each, and a doll you put inside one. **Tasks 1 to 5 are done.** The app opens on a map,
-tapping a building goes inside, and a location narrows the rail to its own rooms. Next is task 6 —
-the drag that chooses where a doll stands and takes her out again.
+environments each, and a doll you put inside one. **Tasks 1 to 6 are done** — the world is playable
+end to end. Next is task 7, painting a place, then task 8's living room (one drawing) and task 9's
+documentation.
 
 Read that plan before touching anything: it carries the one thing this repository could not have
 told you, which is that **deleting a slot from the taxonomy crashes rather than repairing on read**
@@ -552,6 +552,33 @@ drawn over it.
 wardrobe on the very first open. Every open after that resumes where she left off. It is the one
 thing in this change that pushes against SPEC section 17's last criterion, the one the whole
 project is measured by, and only a child can settle it.
+
+### Carrying a doll, and the gesture set that fell out of it
+
+`dollTransform` gained an exact inverse. `canvasX` undoes the `xMidYMid meet` letterboxing — the
+element's rectangle is not the canvas, and measuring against it would put her further right than the
+child let go by however much empty space is down the side — and `acrossFloor` turns that into the
+0..1 the model stores. A test walks five positions at two scales through both, because a doll
+landing anywhere but under the finger that dropped her is the whole failure this feature can have.
+
+**The gesture set is now one rule, not two.** A doll in a room behaves exactly like a garment on a
+doll: tap to choose, drag off to remove. And a doll in the rail behaves exactly like a piece in a
+tray: tap or carry. The one difference is deliberate — for a garment the tap and the drag do the
+same thing, and for a doll they do not: a tap stands her at the next free spot, a drop stands her
+where it landed. Where she goes is the whole point of carrying her, so the drag has to mean more
+than the tap rather than decorating it.
+
+That also moved dressing from press to release, which is where every other choice in this app
+already happened.
+
+`useDrag`'s `onDrop` now carries the release point. Every existing caller ignores it — a garment
+lands on the doll wherever it is dropped — so it cost nothing to add and is what a placement is
+made of.
+
+**What running it in a browser taught**, and it is a testing lesson rather than a product one: three
+pointer events dispatched in the same tick never see React reconcile between them, so the state the
+release handler closes over is the state from before the press. A finger has frames; a script does
+not. The gesture only appeared broken.
 
 ### Still deferred
 

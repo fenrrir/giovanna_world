@@ -22,8 +22,12 @@ export type Drag = {
 };
 
 type DragOptions = {
-  /** Called when the piece is released over the drop zone. */
-  onDrop: () => void;
+  /**
+   * Called when the piece is released over the drop zone, with where it was
+   * let go. Most callers ignore it — a garment lands on the doll wherever it is
+   * dropped — but a doll put down in a room stands exactly there.
+   */
+  onDrop: (point: DragPoint) => void;
   /** Called when the press never became a drag, so it was a tap. */
   onTap: () => void;
   /** Injected, because the zone is a laid-out rectangle the hook cannot know. */
@@ -95,7 +99,7 @@ export const useDrag = ({
       }
 
       if (isInsideDropZone(point)) {
-        onDrop();
+        onDrop(point);
         return;
       }
 

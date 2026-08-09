@@ -46,3 +46,36 @@ export const dollTransform = (floor: Floor, x: number, anchors: BodyAnchors = AN
 
   return `translate(${String(dx)} ${String(dy)}) scale(${String(round(floor.scale))})`;
 };
+
+/** The rectangle a laid-out canvas occupies on screen. */
+export type Box = { left: number; top: number; width: number; height: number };
+
+/**
+ * Where a finger is, in canvas units.
+ *
+ * `preserveAspectRatio="xMidYMid meet"` letterboxes the drawing inside its box,
+ * so the element's own rectangle is not the canvas: measuring against it would
+ * put her a little further right than the child let go, by however much empty
+ * space is down the side. This is the same fit the browser does, undone.
+ */
+export const canvasX = (clientX: number, box: Box): number => {
+  const fit = Math.min(box.width / VIEW_BOX.width, box.height / VIEW_BOX.height);
+  const empty = (box.width - VIEW_BOX.width * fit) / 2;
+
+  return (clientX - box.left - empty) / fit;
+};
+
+/**
+ * How far across a floor a point is, as the model stores it.
+ *
+ * The exact inverse of the placement `dollTransform` reads, so a doll dropped
+ * somewhere is drawn back under the finger that dropped her. It runs over where
+ * her centre may be rather than across the canvas, which is what keeps the ends
+ * meaning "as far left as she fits" at any size.
+ */
+export const acrossFloor = (floor: Floor, at: number, anchors: BodyAnchors = ANCHORS): number => {
+  const half = (anchors.dollBounds.x2 - anchors.dollBounds.x1) / 2;
+  const band = VIEW_BOX.width - 2 * half * floor.scale;
+
+  return across((at - half * floor.scale) / band);
+};

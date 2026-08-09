@@ -1,17 +1,20 @@
 import type { JSX } from 'react';
 
-import { useTranslation } from '../i18n';
 import type { EnvironmentId } from '../model/places';
 import { DOLLS } from '../model/world';
-import { BODY, findPart } from '../parts/registry';
-import { Doll } from '../render/Doll';
 import { useWorld } from '../state/worldContext';
+import { acrossFloor, canvasX } from '../world/placement';
+import { findEnvironment } from '../world/registry';
+import { PlacingDoll } from './PlacingDoll';
 import { ScrollRail } from './ScrollRail';
-import { TapTarget } from './TapTarget';
+import type { DragPoint } from './useDrag';
 import styles from './controls.module.css';
 
 type DollRailProps = {
   here: EnvironmentId;
+  /** Where the room is on screen, so a drop can be measured against it. */
+  stage: () => DOMRect | undefined;
+  isInsideDropZone: (point: DragPoint) => boolean;
 };
 
 /**
@@ -33,37 +36,37 @@ const spotFor = (taken: number): number => (taken === 0 ? 0.25 : 0.75);
  * per-pixel hit test with no key to press, exactly like the drag that
  * undresses, so the way in cannot be that gesture alone.
  *
- * Taking her out of the room is left to the drag that arrives with choosing
- * where she stands, which is how a garment already comes off.
+ * Carrying her into the room instead stands her where the finger let go. Taking
+ * her out again is the mirror of it, on the room itself: drag her off the stage,
+ * which is how a garment already comes off.
  */
-export const DollRail = ({ here }: DollRailProps): JSX.Element => {
-  const { t } = useTranslation();
+export const DollRail = ({ here, stage, isInsideDropZone }: DollRailProps): JSX.Element => {
   const { world, dispatch } = useWorld();
 
   const isHere = (doll: number): boolean => world.placements[doll]?.at === here;
   const taken = DOLLS.filter(isHere).length;
+  const { floor } = findEnvironment(here);
 
   return (
     <div className={styles.column}>
       <ScrollRail>
         {DOLLS.map((doll) => (
           <li key={doll}>
-            <TapTarget
-              label={t('doll.put')}
-              selected={isHere(doll)}
+            <PlacingDoll
+              look={world.dolls[doll]}
+              here={isHere(doll)}
+              isInsideDropZone={isInsideDropZone}
               onSelect={() => {
                 if (isHere(doll)) dispatch({ type: 'dressDoll', doll });
                 else dispatch({ type: 'place', doll, x: spotFor(taken) });
               }}
-            >
-              <Doll
-                className={styles.thumb}
-                look={world.dolls[doll]}
-                lookup={findPart}
-                body={BODY}
-                label={t('doll.put')}
-              />
-            </TapTarget>
+              onPlace={(point) => {
+                const box = stage();
+
+                if (box)
+                  dispatch({ type: 'place', doll, x: acrossFloor(floor, canvasX(point.x, box)) });
+              }}
+            />
           </li>
         ))}
       </ScrollRail>

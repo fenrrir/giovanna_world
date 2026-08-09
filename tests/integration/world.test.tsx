@@ -1,10 +1,13 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { App } from '../../src/App';
 import { I18nProvider, ptBR } from '../../src/i18n';
 import { DEFAULT_WORLD, type World } from '../../src/model/world';
 import { WorldProvider } from '../../src/state/WorldProvider';
+import { dollTransform } from '../../src/world/placement';
+import { findEnvironment } from '../../src/world/registry';
 import { DRESSING } from '../doubles';
 
 const mount = (world: World = DEFAULT_WORLD) =>
@@ -15,6 +18,8 @@ const mount = (world: World = DEFAULT_WORLD) =>
       </WorldProvider>
     </I18nProvider>,
   );
+
+const mountWithUser = () => ({ ...mount(), user: userEvent.setup() });
 
 const tap = (element: HTMLElement): void => {
   fireEvent.pointerDown(element);
@@ -38,6 +43,47 @@ const inTheWardrobe = (): boolean =>
 /** Who is painted in the room, by the marker a tap is hit-tested against. */
 const standing = (): string[] =>
   [...room().querySelectorAll('[data-doll]')].map((one) => one.getAttribute('data-doll') ?? '');
+
+/** Where in the room each doll is drawn, as the transform that put her there. */
+const placedAt = (doll: number): string =>
+  room()
+    .querySelector(`[data-doll="${String(doll)}"]`)
+    ?.getAttribute('transform') ?? '';
+
+const STAGE = { left: 200, top: 0, right: 880, bottom: 540, width: 680, height: 540 };
+
+/** The room laid out at exactly canvas size, so a drop lands where it reads. */
+const stubStageRect = (): void => {
+  vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (
+    this: Element,
+  ): DOMRect {
+    const onStage = this.tagName === 'SECTION' || this.querySelector('svg[role="img"]') !== null;
+
+    return {
+      ...(onStage ? STAGE : { left: 0, top: 0, right: 0, bottom: 0, width: 0, height: 0 }),
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    };
+  });
+};
+
+type Point = { x: number; y: number };
+
+const drag = (on: HTMLElement, from: Point, to: Point): void => {
+  fireEvent.pointerDown(on, { clientX: from.x, clientY: from.y });
+  fireEvent.pointerMove(on, { clientX: to.x, clientY: to.y });
+  fireEvent.pointerUp(on, { clientX: to.x, clientY: to.y });
+};
+
+/** Down and up in the same place: a tap, whatever else is watching for a drag. */
+const tapAt = (on: HTMLElement, at: Point): void => {
+  fireEvent.pointerDown(on, { clientX: at.x, clientY: at.y });
+  fireEvent.pointerUp(on, { clientX: at.x, clientY: at.y });
+};
+
+const INSIDE = { x: 300, y: 300 };
+const OUTSIDE = { x: 0, y: 0 };
 
 describe('the world she moves around in', () => {
   beforeEach(() => {
@@ -149,7 +195,7 @@ describe('the world she moves around in', () => {
     const painted = room().querySelector('[data-doll="1"]')!;
 
     vi.spyOn(document, 'elementFromPoint').mockReturnValue(painted);
-    fireEvent.pointerDown(room(), { clientX: 10, clientY: 10 });
+    tapAt(room(), INSIDE);
 
     expect(inTheWardrobe()).toBe(true);
   });
@@ -159,7 +205,7 @@ describe('the world she moves around in', () => {
     tap(ways()[0]!);
 
     vi.spyOn(document, 'elementFromPoint').mockReturnValue(null);
-    fireEvent.pointerDown(room(), { clientX: 10, clientY: 10 });
+    tapAt(room(), INSIDE);
 
     expect(inTheWardrobe()).toBe(false);
   });
@@ -172,6 +218,76 @@ describe('the world she moves around in', () => {
 
     expect(inTheWardrobe()).toBe(false);
     expect(room()).toBeInTheDocument();
+  });
+
+  /*
+   * The whole point of carrying her rather than tapping her: a tap stands her
+   * at the next free spot, and this stands her where the finger let go.
+   */
+  it('stands a doll exactly where she is carried to', () => {
+    mount();
+    tap(ways()[1]!);
+    stubStageRect();
+
+    // Two thirds across the room, measured against the canvas the stub lays out.
+    drag(dolls()[0]!, OUTSIDE, { x: STAGE.left + STAGE.width * 0.66, y: 300 });
+
+    const near = placedAt(0);
+
+    tap(dolls()[1]!);
+
+    expect(near).not.toBe(placedAt(1));
+    expect(standing()).toStrictEqual(['0', '1']);
+  });
+
+  it('keeps her in the room when she is carried past its edge', () => {
+    mount();
+    tap(ways()[1]!);
+    stubStageRect();
+
+    drag(dolls()[0]!, OUTSIDE, { x: STAGE.left + 4, y: 300 });
+
+    expect(placedAt(0)).toBe(dollTransform(findEnvironment('park.meadow').floor, 0));
+  });
+
+  /* The mirror of the drag that undresses, on the room instead of the doll:
+     drag her off the stage and she is out of it. */
+  it('takes a doll out of the room when she is dragged off it', () => {
+    mount();
+    tap(ways()[0]!);
+    stubStageRect();
+
+    const painted = room().querySelector('[data-doll="0"]')!;
+
+    vi.spyOn(document, 'elementFromPoint').mockReturnValue(painted);
+    drag(room(), INSIDE, OUTSIDE);
+
+    expect(standing()).toStrictEqual(['1']);
+  });
+
+  it('leaves her where she was when the drag stops back inside the room', () => {
+    mount();
+    tap(ways()[0]!);
+    stubStageRect();
+
+    const painted = room().querySelector('[data-doll="0"]')!;
+
+    vi.spyOn(document, 'elementFromPoint').mockReturnValue(painted);
+    drag(room(), INSIDE, { x: STAGE.left + 100, y: 320 });
+
+    expect(standing()).toStrictEqual(['0', '1']);
+  });
+
+  /* The rail is where both ways in live, and this is the half of it a finger
+     cannot reach: no gesture in this game may be pointer-only. */
+  it('stands a doll in the room from the keyboard', async () => {
+    const { user } = mountWithUser();
+
+    await user.click(ways()[1]!);
+    await user.tab();
+    await user.keyboard('{Enter}');
+
+    expect(standing()).toStrictEqual(['0']);
   });
 
   it('adds no words to the interface', () => {

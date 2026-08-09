@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { ANCHORS, VIEW_BOX } from '../anchors';
-import { dollTransform } from './placement';
+import { acrossFloor, canvasX, dollTransform } from './placement';
 
 const GROUND = { y: ANCHORS.sole.y, scale: 1 };
 
@@ -91,5 +91,60 @@ describe('dollTransform', () => {
     const centred = dollTransform({ y: 400, scale: 1 }, 0.5, shifted);
 
     expect(centred).toBe(`translate(-10 ${String(400 - ANCHORS.sole.y - 10)}) scale(1)`);
+  });
+});
+
+describe('canvasX', () => {
+  /* The canvas exactly fills its box: no letterboxing to undo. */
+  it('reads a point straight off a box of the same shape', () => {
+    const box = { left: 0, top: 0, width: VIEW_BOX.width, height: VIEW_BOX.height };
+
+    expect(canvasX(0, box)).toBe(0);
+    expect(canvasX(340, box)).toBe(340);
+  });
+
+  it('takes the box off the screen into account', () => {
+    const box = { left: 100, top: 0, width: VIEW_BOX.width, height: VIEW_BOX.height };
+
+    expect(canvasX(100, box)).toBe(0);
+  });
+
+  it('scales a box drawn smaller than the canvas', () => {
+    const box = { left: 0, top: 0, width: VIEW_BOX.width / 2, height: VIEW_BOX.height / 2 };
+
+    expect(canvasX(VIEW_BOX.width / 4, box)).toBe(VIEW_BOX.width / 2);
+  });
+
+  /*
+   * The one this exists for. A box wider than the canvas letterboxes it with
+   * empty space down each side, and measuring against the box rather than the
+   * drawing would put her further right than the child let go.
+   */
+  it('ignores the empty space beside a canvas in too wide a box', () => {
+    const box = { left: 0, top: 0, width: VIEW_BOX.width + 200, height: VIEW_BOX.height };
+
+    expect(canvasX(100, box)).toBe(0);
+    expect(canvasX(100 + VIEW_BOX.width, box)).toBe(VIEW_BOX.width);
+  });
+});
+
+describe('acrossFloor', () => {
+  /* The two have to be exact inverses, or a doll lands somewhere other than
+     where the finger let her go. */
+  it.each([0, 0.25, 0.5, 0.75, 1])('undoes dollTransform at %s', (x) => {
+    for (const scale of [1, 0.5]) {
+      const floor = { y: ANCHORS.sole.y, scale };
+      const [, dx] = /translate\((-?[\d.]+) /.exec(dollTransform(floor, x))!;
+      const middle = (ANCHORS.dollBounds.x1 + ANCHORS.dollBounds.x2) / 2;
+
+      expect(acrossFloor(floor, Number(dx) + middle * scale)).toBeCloseTo(x);
+    }
+  });
+
+  it('keeps a finger past the edge inside the room', () => {
+    const floor = { y: ANCHORS.sole.y, scale: 1 };
+
+    expect(acrossFloor(floor, -400)).toBe(0);
+    expect(acrossFloor(floor, VIEW_BOX.width + 400)).toBe(1);
   });
 });
