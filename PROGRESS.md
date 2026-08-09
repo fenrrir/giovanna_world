@@ -51,9 +51,10 @@ the right abstraction. Deliberately nothing generic was built for it: `hair.cust
 nothing else. When the time comes, the pieces that will want generalising are `TrayItem.shaped`
 and `HairParamsPanel`, not the builders.
 
-The iPad validation is nearly closed: six of the nine acceptance criteria in SPEC §17 are verified,
-including installing to the home screen and running in aeroplane mode, both done on the device.
-Three remain — two gestures to try on the iPad and the one only the child can answer.
+**The iPad validation is closed. All nine acceptance criteria in SPEC §17 are verified**, the last
+four on the device itself — installing to the home screen, aeroplane mode, the iOS gesture
+hardening, and the child dressing the doll with nobody telling her how. Nothing in the MVP is owed
+any more; what is left below is Phase 3 and the deferred list.
 
 ## Status
 
@@ -401,10 +402,14 @@ is her saying she wants to find this one again.
 
 From SPEC §17. Ticked only where actually verified; the rest name the exact step still owed.
 
-Six of the nine are done. Two of the three still open need the iPad in hand; the last needs the
-child. Install it from https://fenrrir.github.io/giovanna_world/ and work down the list.
-`npm run dev:lan` is faster for iterating but cannot answer the offline one; see the README for
-which criteria it can prove.
+**All nine are done.** The last four were answered on the iPad itself, installed from
+https://fenrrir.github.io/giovanna_world/ — including the one no test could ever have reached, the
+child using it without being told how.
+
+Keep this list honest as the app changes: the four mechanical criteria are re-checked by the suite
+on every commit, but the five device ones are only ever as current as the last time someone held
+the iPad. `npm run dev:lan` is faster for iterating and cannot answer the offline one; see the
+README for which criteria it can prove.
 
 - [x] **Installs from the iPad home screen and opens full screen, without an address bar.**
       Done on the device: Safari → Share → Add to Home Screen, and opening from the icon gives
@@ -422,15 +427,14 @@ which criteria it can prove.
       went vertical, at both 1366×800 and 768×1024: every thumbnail is 70×70, both colour pickers
       68×68, the chevrons 68×60 and the sliders 60 tall, with 10 px between neighbours in a rail.
       Neither width overflows horizontally, which covers the 768–1366 range.
-- [ ] **No elastic overscroll bounce and no accidental double-tap zoom.** `overscroll-behavior:
-none` and `touch-action: manipulation` are in `src/styles/global.css`; needs the iPad.
-      **Test the rails specifically**: since the controls went vertical, `.rail` and `.axes` are
-      scroll containers of their own, and neither carries `overscroll-behavior`. Rolling one past
-      its end can chain to the document and produce exactly the bounce this forbids — which could
-      not happen while the bar ran sideways, because the page has nowhere to go horizontally. If it
-      does, `overscroll-behavior: contain` on both is the fix.
-- [ ] **Holding a finger on the doll does not open Safari's context menu.**
-      `-webkit-touch-callout: none` is set; needs the iPad.
+- [x] **No elastic overscroll bounce and no accidental double-tap zoom.** Done on the device, with
+      the vertical rails tested specifically: they are scroll containers of their own and carry no
+      `overscroll-behavior` of their own, so rolling one past its end could have chained to the
+      document — it does not. `overscroll-behavior: none` and `touch-action: manipulation` on
+      `html, body` in `src/styles/global.css` are holding. Worth re-testing the day a third scroll
+      container appears; `overscroll-behavior: contain` on the rails is the fix if one ever chains.
+- [x] **Holding a finger on the doll does not open Safari's context menu.** Done on the device: a
+      long press on the artwork offers nothing. `-webkit-touch-callout: none` is set.
 - [x] **The 12 parts pass the 6 criteria from SPEC §12.** All twelve are built and checked
       automatically by `tests/contract/registry.test.tsx`, in every colour of their palette. The
       suite was verified to actually fail on a hardcoded tone, a coordinate outside the viewBox
@@ -439,5 +443,6 @@ none` and `touch-action: manipulation` are in `src/styles/global.css`; needs the
 - [x] **Closing and reopening the app preserves the character.** Covered by the look-store
       integration tests: hydrate, reconcile against the registry, 300 ms debounced write, and a
       flush on unmount so the last change survives the app closing.
-- [ ] **A six-year-old can change hair, clothes and colour with no verbal instruction.**
-      Only the child can answer this one.
+- [x] **A six-year-old can change hair, clothes and colour with no verbal instruction.**
+      Answered by the child, which is the only way it could be. This is the criterion the whole
+      no-words rule was for, and it is the one no suite in this repository could ever have reached.
