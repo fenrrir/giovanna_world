@@ -5,6 +5,7 @@ import { PALETTES } from '../model/palettes';
 import type { TraySlot } from '../model/slots';
 import { Thumb } from '../render/Thumb';
 import { useLook } from '../state/lookContext';
+import { PLACE_FOCUS, type Environment } from '../world/registry';
 import { ScrollRail } from './ScrollRail';
 import { TapTarget } from './TapTarget';
 import { TRAYS, equippedIn, trayIcon } from './trays';
@@ -18,6 +19,19 @@ export type ActiveTray = TraySlot | typeof SAVED_TRAY;
 type SlotBarProps = {
   active: ActiveTray;
   onSelect: (tray: ActiveTray) => void;
+  /**
+   * The room she is standing in, at the head of the rail.
+   *
+   * The way out of the wardrobe, and it costs no column of its own: this rail
+   * already ends with a drawn item that is not a tray — the album's star — so
+   * this is the same move at the other end. It is a picture of where she is
+   * going, not a back button.
+   */
+  place: {
+    environment: Environment;
+    color: string;
+    onLeave: () => void;
+  };
 };
 
 /**
@@ -27,12 +41,26 @@ type SlotBarProps = {
  * A tray shows what is currently worn, so the bar reads as a summary of the
  * doll rather than an abstract menu.
  */
-export const SlotBar = ({ active, onSelect }: SlotBarProps): JSX.Element => {
+export const SlotBar = ({ active, onSelect, place }: SlotBarProps): JSX.Element => {
   const { t } = useTranslation();
   const { look } = useLook();
 
   return (
     <ScrollRail>
+      {/* First, and a room rather than a piece: it is where she goes back to,
+          not something she can put on. */}
+      <li>
+        <TapTarget label={t('place.leave')} selected={false} onSelect={place.onLeave}>
+          <Thumb
+            className={styles.thumb}
+            render={place.environment.render}
+            color={place.color}
+            focus={PLACE_FOCUS}
+            label={t('place.leave')}
+          />
+        </TapTarget>
+      </li>
+
       {TRAYS.map((tray) => {
         const icon = trayIcon(look, tray);
         const wornColor = look.equipped[tray.slot]?.color;

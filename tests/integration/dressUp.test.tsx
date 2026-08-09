@@ -280,7 +280,10 @@ describe('the interface itself', () => {
     // never leaves them fails here rather than hanging.
     for (let step = 0; step < 20 && (step === 0 || inside()); step += 1) await user.tab();
 
-    expect(document.activeElement).toBe(trayButton('tray.scene'));
+    /* The head of the tray rail is the room she is standing in — the way back
+       out of the wardrobe, and the first thing a keyboard reaches after the
+       stage and the pieces. */
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: ptBR['place.leave'] }));
   });
 
   it('chooses a piece from the keyboard as well as by tap', async () => {

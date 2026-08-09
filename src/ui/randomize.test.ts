@@ -181,7 +181,6 @@ describe('randomLook', () => {
   it('always dresses the outfit and only sometimes the rest', () => {
     expect(ALWAYS.map((tray) => tray.id)).toStrictEqual(['hair', 'top', 'bottom', 'shoes']);
     expect(SOMETIMES.map((tray) => tray.id)).toStrictEqual([
-      'scene',
       'socks',
       'outer',
       'accessoryHead',

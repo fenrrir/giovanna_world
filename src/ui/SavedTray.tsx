@@ -2,7 +2,6 @@ import { useState, type JSX } from 'react';
 
 import { useTranslation } from '../i18n';
 import { loadSavedLooks, lookSignature, saveSavedLooks, withSavedLook } from '../lib/storage';
-import { inCurrentScene, withoutScene } from '../model/look';
 import { sanitizeLook } from '../model/sanitize';
 import type { Look } from '../model/types';
 import { BODY, findPart } from '../parts/registry';
@@ -27,10 +26,11 @@ const Star = (): JSX.Element => (
  *
  * `loadSavedLooks` knows nothing of the registry by design, so an entry kept by
  * an earlier version still carries whatever that version could wear — including
- * the place she was standing in, and slots this one has since dropped. Both are
- * repaired here rather than left to surface as a backdrop she did not ask for.
+ * the backdrop, back when a place was something a doll wore. Nothing here has
+ * to know that: a slot this version does not have is not a slot, and falls away
+ * with every other piece that has left.
  */
-const asOutfit = (look: Look): Look => sanitizeLook(withoutScene(look), findPart);
+const asOutfit = (look: Look): Look => sanitizeLook(look, findPart);
 
 /**
  * The looks she chose to keep.
@@ -52,19 +52,14 @@ export const SavedTray = (): JSX.Element => {
   const { look, dispatch } = useLook();
   const [album, setAlbum] = useState<Look[]>(() => loadSavedLooks().map(asOutfit));
 
-  /* What the star keeps: the doll, not the room. Where she is standing belongs
-     to the stage rather than to her, so it is no more hers to remember than the
-     time of day is. */
-  const outfit = withoutScene(look);
-
   const keep = (): void => {
-    const next = withSavedLook(album, outfit);
+    const next = withSavedLook(album, look);
 
     setAlbum(next);
     saveSavedLooks(next);
   };
 
-  const worn = lookSignature(outfit);
+  const worn = lookSignature(look);
 
   return (
     /* The same column the pieces stand in, minus the colours: there is nothing
@@ -83,9 +78,9 @@ export const SavedTray = (): JSX.Element => {
               label={t('saved.wear')}
               selected={lookSignature(kept) === worn}
               onSelect={() => {
-                /* Put back on where she is now, not where she was when she
-                   kept it: the outfit is hers to carry, the room is not. */
-                dispatch({ type: 'replaceLook', look: inCurrentScene(kept, look) });
+                /* Only ever an outfit now. Where she is standing belongs to the
+                   world, so putting one back on cannot move her. */
+                dispatch({ type: 'replaceLook', look: kept });
               }}
             >
               <Doll

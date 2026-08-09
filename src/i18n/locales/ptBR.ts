@@ -11,8 +11,12 @@ export const ptBR = {
   'app.description': 'Jogo de vestir personagens, para brincar offline no iPad.',
 
   'doll.label': 'Personagem montado',
+  'doll.put': 'Deixar esta boneca aqui',
 
-  'tray.scene': 'Cenário',
+  'place.go': 'Ir para este lugar',
+  'place.leave': 'Voltar para o lugar onde ela está',
+  'place.here': 'O lugar onde ela está',
+
   'tray.hair': 'Cabelo',
   'tray.top': 'Blusa',
   'tray.bottom': 'Saia e calça',

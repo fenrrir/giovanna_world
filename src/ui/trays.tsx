@@ -42,16 +42,6 @@ export type TrayDefinition = {
  * compile error here until it is defined, and no fallback branch is needed.
  */
 const BY_ID: Record<TraySlot, TrayDefinition> = {
-  scene: {
-    id: 'scene',
-    slot: 'scene',
-    palette: 'fabric',
-    focus: THUMB_FOCUS.scene,
-    label: 'tray.scene',
-    /* Scenery rather than outfit, so the dice may set it or leave her on plain
-       ground — the same treatment an accessory gets. */
-    randomised: 'sometimes',
-  },
   hair: {
     id: 'hair',
     slot: 'hairFront',

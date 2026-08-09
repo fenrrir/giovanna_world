@@ -39,8 +39,24 @@ const wearSomething = (tray: keyof typeof ptBR, which = 0): void => {
   tap(pieces()[which]!);
 };
 
-/** Which piece of the open tray is marked as the one she is wearing. */
-const wornPiece = (): number => pieces().findIndex((piece) => piece.ariaPressed === 'true');
+/** Leaves the wardrobe for the room, where the places are. */
+const goTo = (which: number): void => {
+  tap(screen.getAllByRole('button', { name: ptBR['place.leave'] })[0]!);
+  tap(placeThumb(which));
+};
+
+const placeThumb = (which: number): HTMLElement =>
+  screen.getAllByRole('button', { name: ptBR['place.go'] })[which]!;
+
+/** Stands the first doll in the room she is looking at. */
+const putHerHere = (): void => {
+  tap(screen.getAllByRole('button', { name: ptBR['doll.put'] })[0]!);
+};
+
+/** Back into the wardrobe: tap a doll who is already standing in the room. */
+const dressHer = (): void => {
+  tap(screen.getAllByRole('button', { name: ptBR['doll.put'] })[0]!);
+};
 
 const stored = (): unknown => JSON.parse(localStorage.getItem(SAVED_LOOKS_KEY) ?? 'null');
 
@@ -138,51 +154,56 @@ describe('the album of looks she keeps', () => {
 
   /*
    * The star means "I want to find this outfit again", not "I want this
-   * afternoon again". Where she is standing belongs to the stage rather than to
-   * the doll, so keeping her cannot keep the meadow with her.
+   * afternoon again". Where she is standing belongs to the world now, so there
+   * is nothing of the room left in a `Look` for the album to pick up.
    */
-  it('keeps the doll and leaves the place she was standing in', () => {
+  it('keeps an outfit with no place in it', () => {
     mount();
-    wearSomething('tray.scene');
     wearSomething('tray.top');
     openTray('tray.saved');
     keep();
 
-    expect(storedAlbum()[0]?.equipped.top).toBeDefined();
-    expect(storedAlbum()[0]?.equipped.scene).toBeUndefined();
+    const kept = storedAlbum()[0]?.equipped ?? {};
+
+    expect(kept.top).toBeDefined();
+    expect(Object.keys(kept)).not.toContain('scene');
   });
 
   it('does not move her when she puts a kept outfit back on', () => {
     mount();
-    wearSomething('tray.scene');
+    wearSomething('tray.top');
     openTray('tray.saved');
     keep();
 
-    // A different backdrop, then the kept outfit back: she stays in the second.
-    wearSomething('tray.scene', 1);
+    goTo(1);
+    putHerHere();
+    dressHer();
     openTray('tray.saved');
     tap(kept()[0]!);
-    openTray('tray.scene');
 
-    expect(wornPiece()).toBe(1);
+    // Still in the meadow: an outfit has no place in it to drag her back to.
+    tap(screen.getAllByRole('button', { name: ptBR['place.leave'] })[0]!);
+
+    expect(placeThumb(1)).toHaveAttribute('aria-pressed', 'true');
   });
 
-  /* An entry kept before the album knew the difference still carries a place,
-     and it must not drag her back there. */
-  it('ignores the place an older entry remembers', () => {
-    const older: Look = {
+  /*
+   * An entry kept when a place was still something the doll wore. Reading it is
+   * the exact shape of the crash that used to be possible: a slot this version
+   * has never heard of, handed to a lookup indexed by slot.
+   */
+  it('reads an entry that remembers a place this version no longer has', () => {
+    const older = {
       ...DEFAULT_LOOK,
       equipped: { ...DEFAULT_LOOK.equipped, scene: { partId: 'scene.meadow', color: '#1D9E75' } },
     };
 
     localStorage.setItem(SAVED_LOOKS_KEY, JSON.stringify([older]));
     mount();
-    wearSomething('tray.scene', 1);
     openTray('tray.saved');
     tap(kept()[0]!);
-    openTray('tray.scene');
 
-    expect(wornPiece()).toBe(1);
+    expect(kept()[0]).toHaveAttribute('aria-pressed', 'true');
   });
 
   it('adds no words to the interface', () => {

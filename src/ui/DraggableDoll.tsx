@@ -8,15 +8,22 @@ import {
 
 import { useTranslation } from '../i18n';
 import { isPainted, type Slot } from '../model/slots';
+import type { DollIndex } from '../model/world';
 import { BODY, findPart } from '../parts/registry';
-import { Doll } from '../render/Doll';
+import { Scene } from '../render/Scene';
 import { useLook } from '../state/lookContext';
+import type { Environment } from '../world/registry';
 import { DragGhost } from './DragGhost';
 import { trayForSlot } from './trays';
 import { useDrag, type DragPoint } from './useDrag';
 
 type DraggableDollProps = {
   className?: string | undefined;
+  /** Which of them she is dressing, so a tap on her can say so. */
+  doll: DollIndex;
+  /** The room she will be put back in, painted behind her while she dresses. */
+  environment: Environment;
+  color: string;
   /** Where the doll's stage is. Only the layout knows the rectangle. */
   isInsideStage: (point: DragPoint) => boolean;
   /** The visible region of the canvas, set by the zoom slider. */
@@ -38,6 +45,9 @@ type DraggableDollProps = {
  */
 export const DraggableDoll = ({
   className,
+  doll,
+  environment,
+  color,
   isInsideStage,
   slotAt,
   viewBox,
@@ -89,7 +99,15 @@ export const DraggableDoll = ({
       {...handlers}
       onPointerDown={onPointerDown}
     >
-      <Doll look={look} lookup={findPart} body={BODY} label={t('doll.label')} viewBox={viewBox} />
+      <Scene
+        environment={environment}
+        color={color}
+        standing={[{ doll, look }]}
+        lookup={findPart}
+        body={BODY}
+        label={t('doll.label')}
+        viewBox={viewBox}
+      />
 
       {at && dragged && (
         <DragGhost

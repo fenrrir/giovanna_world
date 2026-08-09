@@ -6,7 +6,6 @@ import {
   awayFrom,
   dressedDoll,
   lookingAt,
-  modeOf,
   nowDressing,
   painted,
   repairWorld,
@@ -32,23 +31,17 @@ describe('DEFAULT_WORLD', () => {
     expect(DEFAULT_WORLD.dolls[0].skin).not.toBe(DEFAULT_WORLD.dolls[1].skin);
   });
 
-  it('starts with nobody put anywhere and nothing painted', () => {
-    expect(DEFAULT_WORLD.placements).toStrictEqual([null, null]);
+  /* There has to be somebody to tap before there is any way to put one there,
+     or the first thing she sees is an empty room she cannot fill. */
+  it('starts with both of them already standing in the same room', () => {
+    expect(DEFAULT_WORLD.placements.map((placement) => placement?.at)).toStrictEqual([
+      DEFAULT_WORLD.here,
+      DEFAULT_WORLD.here,
+    ]);
+  });
+
+  it('starts with nothing painted', () => {
     expect(DEFAULT_WORLD.colors).toStrictEqual({});
-  });
-});
-
-describe('modeOf', () => {
-  it('is the map when she is looking at nowhere in particular', () => {
-    expect(modeOf(onTheMap)).toBe('map');
-  });
-
-  it('is a place when she is in one and dressing nobody', () => {
-    expect(modeOf(inTheBedroom)).toBe('place');
-  });
-
-  it('is dressing when she has picked a doll', () => {
-    expect(modeOf({ ...inTheBedroom, dressing: 1 })).toBe('dress');
   });
 });
 
@@ -116,7 +109,7 @@ describe('putting a doll somewhere', () => {
   });
 
   it('leaves the other doll where she was', () => {
-    expect(standing(inTheBedroom, 1, 0.5).placements[0]).toBeNull();
+    expect(standing(inTheBedroom, 1, 0.5).placements[0]).toBe(inTheBedroom.placements[0]);
   });
 
   /* A six-year-old aims past the edge, and half a doll outside the canvas is

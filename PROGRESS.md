@@ -13,9 +13,9 @@ The session entry point. Read this before anything else, act on **Next up**, upd
 
 **Phase 4 in progress: the world.** Plan at
 [docs/plans/2026-08-08-world.md](docs/plans/2026-08-08-world.md) — a map, locations holding several
-environments each, and a doll you put inside one. **Tasks 1 to 3 are done, and task 4 is half
-done**: the shell now runs on the world, and nothing on screen has changed yet. Next is the other
-half — `scene` leaving the slot taxonomy and the places rail replacing the scene tray.
+environments each, and a doll you put inside one. **Tasks 1 to 4 are done.** The scene is a place
+now, both dolls stand in rooms, and tapping one dresses her. Next is task 5, the map — the first
+drawing the world asks for, and the thing that makes a location mean something on screen.
 
 Read that plan before touching anything: it carries the one thing this repository could not have
 told you, which is that **deleting a slot from the taxonomy crashes rather than repairing on read**
@@ -480,6 +480,43 @@ way into the first doll. Reading it back in a real browser showed that is a comm
 The migration now carries the look across whole, and the backdrop falls away on read with everything
 else the moment the slot goes. It also settles the general rule — **a migration moves data, it does
 not edit it**; the repair belongs where every other repair already is.
+
+### The scene became a place, and the rest followed from it
+
+`scene` is gone from `Slot`, `Z`, `TraySlot` and the registry; `src/parts/scene/` moved whole into
+`src/world/locations/`; `src/model/look.ts` was deleted, because `sanitizeLook` now does by itself
+what `withoutScene` stood in for — **a slot this version does not have is not a slot**, and it falls
+away on read with every other piece that has left.
+
+Three shapes came out of it:
+
+- **`DollLayers` is the doll without a canvas.** The `<svg>` used to be hers, and a place cannot be
+  inside the doll standing in it. `Doll` is still the whole of what a thumbnail and the album need;
+  `Scene` owns the canvas a room and its dolls share.
+- **The place carries no `data-slot`.** That is what stops the drag that undresses from getting hold
+  of the wallpaper — the old backdrop was a layer of the doll and could be pulled off her. `data-doll`
+  is its counterpart, and how a tap knows who it landed on.
+- **`App` is a switch and nothing else.** `modeOf` was deleted with it: the shell branches on `here`
+  and `dressing` directly, which TypeScript narrows for free, and a helper returning a string the
+  shell then has to re-narrow from is worse than the branch it replaces.
+
+**The dolls rail was not in the plan, and a test is what asked for it.** Going to the meadow left her
+in an empty room with no way to put anybody in it — she could look at a place she used to be able to
+stand in, which is a thing taken away rather than given. So place mode got the tap half of the
+placing gesture now: tap a doll who is not here to stand her here, tap one who is to dress her.
+Choosing _where_ she stands is still the drag, and so is taking her out — that is how a garment
+already comes off.
+
+That second tap is also the only keyboard path into the wardrobe. Tapping her on the stage is a
+per-pixel hit test with no key to press, exactly like the drag that undresses, so the way in could
+not be that gesture alone.
+
+**What looking at it showed.** The loop holds: wardrobe → room → another room → put a doll down →
+tap her → wardrobe, with the room she is in always at the head of the tray rail. Two things worth
+carrying: at the inherited scale of 1 the dolls fill a room, which is the same finding the previews
+gave and the same answer — the room drawn for the world will ask for less. And a doll placed alone
+lands at a quarter across rather than in the middle, because a quarter and three quarters is the only
+pair that does not overlap at that scale; the drag will let her put them where she likes.
 
 ### Still deferred
 

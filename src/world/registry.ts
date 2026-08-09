@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 
+import { VIEW_BOX, type Box } from '../anchors';
 import type { EnvironmentId } from '../model/places';
 import { BEDROOM } from './locations/house/bedroom';
 import { MEADOW } from './locations/park/meadow';
@@ -36,3 +37,11 @@ export const ENVIRONMENTS_BY_ID: Readonly<Record<EnvironmentId, Environment>> = 
 };
 
 export const findEnvironment = (id: EnvironmentId): Environment => ENVIRONMENTS_BY_ID[id];
+
+/**
+ * A place is shown whole, where a piece is shown close up.
+ *
+ * Every other thumbnail zooms into the part of the doll its tray dresses. A
+ * room has no such part: what tells one from another is the whole of it.
+ */
+export const PLACE_FOCUS: Box = { x: 0, y: 0, width: VIEW_BOX.width, height: VIEW_BOX.height };

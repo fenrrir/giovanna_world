@@ -36,17 +36,6 @@ export type World = {
 };
 
 /**
- * The three modes, derived rather than stored.
- *
- * Three fields already answer the question between them, so a fourth field
- * holding the answer could only ever come to disagree with them.
- */
-export type Mode = 'map' | 'place' | 'dress';
-
-export const modeOf = (world: World): Mode =>
-  world.here === null ? 'map' : world.dressing === null ? 'place' : 'dress';
-
-/**
  * Two dolls on different skin tones.
  *
  * Identical, they would read as one doll drawn twice, and the first thing she
@@ -57,7 +46,12 @@ export const DEFAULT_WORLD: World = {
   dolls: [DEFAULT_LOOK, { ...DEFAULT_LOOK, skin: PALETTES.skin[2] }],
   here: 'house.bedroom',
   dressing: 0,
-  placements: [null, null],
+  /* Both of them already in the room, so the world is never empty on the first
+     open: there is somebody to tap before there is any way to put one there. */
+  placements: [
+    { at: 'house.bedroom', x: 0.25 },
+    { at: 'house.bedroom', x: 0.75 },
+  ],
   colors: {},
 };
 

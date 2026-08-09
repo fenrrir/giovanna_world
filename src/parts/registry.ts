@@ -4,8 +4,6 @@ import type { HairStyle, Part } from '../model/types';
 import { CUSTOM_HAIR_ID, customHair } from './hair/custom';
 import { CUSTOM_OUTER_ID, customOuter } from './outer/custom';
 import { BAG } from './handheld/bag';
-import { BEDROOM } from './scene/bedroom';
-import { MEADOW } from './scene/meadow';
 import { CUSTOM_SOCKS_ID, customSocks } from './socks/custom';
 import { BOW } from './accessoryHead/bow';
 import { ROUND_BLUSH } from './blush/round';
@@ -84,7 +82,6 @@ export const PARTS_BY_SLOT: Readonly<Record<Slot, readonly Part[]>> = {
   accessoryFace: [],
   accessoryHead: HEAD_ACCESSORIES,
   handheld: [BAG],
-  scene: [MEADOW, BEDROOM],
 };
 
 /**
