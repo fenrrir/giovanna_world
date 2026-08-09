@@ -1,6 +1,7 @@
 # CLAUDE.md — giovanna_world
 
 A paper-doll dress-up game for a six-year-old, running offline as an installed PWA on an iPad.
+A world of places she walks between, with a wardrobe inside it.
 Full contract in [SPEC.md](SPEC.md). **Start every session by reading [PROGRESS.md](PROGRESS.md)** — it holds the current status, the next action and the part backlog.
 
 ---
@@ -57,6 +58,31 @@ Beyond the art contract above, five rules that are load-bearing rather than styl
   `preview/hair-*.svg` across every axis. Three defects in the first version of the generator passed
   1350 assertions and were obvious on sight.
 
+## Adding a place
+
+A place is where a doll is, not something she wears — so it is not a part and it does not enter
+`PARTS_BY_SLOT`. Full contract in SPEC §18.
+
+1. Name it in `src/model/places.ts`. **That alone is a compile error** until step 3, which is the
+   point: no room can be named that cannot be drawn.
+2. Draw it under `src/world/locations/<location>/<name>.tsx`. It fills the canvas — the lateral
+   margin is a rule about things worn on a doll — and declares a `floor`: where her feet rest, and
+   how tall she stands there.
+3. Register it in `src/world/registry.ts`, one line.
+4. Run `npx vitest run tests/contract/world.test.tsx`. It checks the whole contract automatically;
+   there is no new test file to write.
+5. **Look at `preview/place-*.svg`.** Three dolls at both edges and the middle, which is what shows
+   a floor line, a scale and the clamp at once. Then the magenta `-holes` twin.
+6. Commit as `feat(world): <what she can do there now>`.
+
+Two things the rooms taught, and both were invisible to every assertion:
+
+- **A doll at scale 1 fills a room and reads as a giant.** The two backdrops that predate the world
+  keep it because changing them would change what the child already has; anything drawn _for_ the
+  world wants about 0.6.
+- **Place the furniture around where she stands, not by eye.** Two dolls land at a quarter and three
+  quarters of the floor. Something drawn there is behind her for good.
+
 ## Adding a part
 
 1. Create the file under `src/parts/<slot>/<name>.tsx`.
@@ -97,8 +123,13 @@ Two rules that follow from those bugs, and are worth checking before drawing:
   The single exception is `HairParamsPanel` — the axes of a generated part, where a thumbnail cannot
   stand for a continuous slider (SPEC §4). It is scoped to that panel and an integration test pins
   both halves; do not widen it. Its strings still go through `src/i18n` like everything else.
+- **Every move is tapping a picture of the destination** — a building on the map, a room, the doll
+  herself. Nothing stacks, there is no back button, and every place is one tap from anywhere. Inside
+  the wardrobe the older rule still holds exactly: opening a tray swaps a column in place.
+- **No gesture is pointer-only.** Tapping a doll on the stage is a per-pixel hit test with no key to
+  press, so the rail beside it carries the same way in. The drag that undresses is the one exception,
+  and it is recorded rather than hidden.
 - Touch targets ≥ 60×60 CSS px, ≥ 8 px apart.
-- One level of navigation. No modal, no back button.
 - No save button — autosave with a 300 ms debounce.
 - **Pointer Events only** (`onPointerDown`), never Touch Events.
 - No transition longer than 120 ms. `prefers-reduced-motion` respected. Visible keyboard focus.

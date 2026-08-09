@@ -13,13 +13,16 @@ The session entry point. Read this before anything else, act on **Next up**, upd
 
 **Phase 4 in progress: the world.** Plan at
 [docs/plans/2026-08-08-world.md](docs/plans/2026-08-08-world.md) — a map, locations holding several
-environments each, and a doll you put inside one. **Tasks 1 to 6 are done** — the world is playable
-end to end. Next is task 7, painting a place, then task 8's living room (one drawing) and task 9's
-documentation.
+environments each, and a doll you put inside one. **All nine tasks are done.** The world is built:
+she opens on a map, taps a building, walks between its rooms, carries a doll into one and stands her
+where she likes, dresses her, and puts her back.
 
-Read that plan before touching anything: it carries the one thing this repository could not have
-told you, which is that **deleting a slot from the taxonomy crashes rather than repairing on read**
-— see the section below.
+**Nothing in Phase 4 is owed.** What is left is the deferred list below, the Phase 2 slots that still
+want artwork, and one thing only a child can answer — see _What the iPad still has to settle_.
+
+The contract now lives where contracts live: **SPEC §18** is the world, **SPEC §4** carries the
+navigation rule that replaced "one level of navigation", and **CLAUDE.md has "adding a place"**
+beside "adding a part". Read those first; the sections below are why they say what they say.
 
 **Phase 2 in progress.** Randomise, drag-and-drop, taking a piece off, the zoom slider, the
 scrolling tray bar, the free colour picker, `accessoryHead` (one bow), the face — eyebrows, mouth
@@ -553,6 +556,20 @@ wardrobe on the very first open. Every open after that resumes where she left of
 thing in this change that pushes against SPEC section 17's last criterion, the one the whole
 project is measured by, and only a child can settle it.
 
+### What the iPad still has to settle
+
+One thing, and it is the criterion the whole project is measured by (SPEC §17): **a six-year-old
+opening this for the first time now taps twice — a building, then a doll — before she reaches the
+wardrobe.** Every open after that resumes exactly where she left off. Nothing in a test can answer
+whether those two taps read as an invitation or as an obstacle; only Giovanna can.
+
+If they read as an obstacle, the fix is one line: `DEFAULT_WORLD.here` back to a room. The map is
+still there in the rail.
+
+The four device criteria in the checklist below are also only as current as the last time someone
+held the iPad, and the shell has changed a great deal since then — three new rails, two new stages
+and a per-pixel tap on the artwork.
+
 ### Carrying a doll, and the gesture set that fell out of it
 
 `dollTransform` gained an exact inverse. `canvasX` undoes the `xMidYMid meet` letterboxing — the
@@ -579,6 +596,27 @@ made of.
 pointer events dispatched in the same tick never see React reconcile between them, so the state the
 release handler closes over is the state from before the press. A finger has frames; a script does
 not. The gesture only appeared broken.
+
+### Painting a place, and the room drawn for the world
+
+The colour picker follows the room rather than the doll now: it sits under the places rail, paints
+whichever room is in view, and each room remembers its own. The map has none — it is the world
+rather than a wall, and painting it would be painting everywhere at once.
+
+`house.livingRoom` is the first room drawn **for** the world rather than inherited by it, and it is
+where the scale finding from the previews got its answer: she stands at **0.62**, which leaves the
+sofa behind her looking like furniture instead of a footstool and leaves two of them room to stand
+apart. The two backdrops that predate the world keep scale 1 — changing them would change what the
+child already has — so the two scales sit side by side on purpose.
+
+Its furniture is placed **around where she stands**, not by eye: two dolls land at a quarter and
+three quarters of the floor, so anything drawn there is behind her for good. The picture hangs above
+the top of her head and the plant stands past the second spot.
+
+What that still cannot avoid, and is worth knowing before drawing the next room: **a doll can be
+carried anywhere, so any furniture is sometimes behind her.** At the default two spots the sofa's
+arms fall behind both dolls and it reads a little like a bench. That is what standing in a room
+means, not a defect — but a room whose furniture reads only when it is empty is a room drawn wrong.
 
 ### Still deferred
 

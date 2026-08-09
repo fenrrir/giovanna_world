@@ -9,6 +9,7 @@ import { useWorld } from '../state/worldContext';
 import type { World } from '../model/world';
 import { MAP_SPOTS } from '../world/anchors';
 import { ENVIRONMENTS_BY_ID, PLACE_FOCUS, WORLD_MAP, findLocation } from '../world/registry';
+import { ColorPicker } from './ColorPicker';
 import { ScrollRail } from './ScrollRail';
 import { TapTarget } from './TapTarget';
 import styles from './controls.module.css';
@@ -112,6 +113,21 @@ export const PlaceRail = (): JSX.Element => {
           </li>
         ))}
       </ScrollRail>
+
+      {/* Under the places it paints, where the piece column keeps its own
+          picker. Only in a room: the map is the world rather than a wall, and
+          painting it would be painting everywhere at once. */}
+      {here !== null && (
+        <div className={styles.pickers}>
+          <ColorPicker
+            value={world.colors[here] ?? ENVIRONMENTS_BY_ID[here].defaultColor}
+            label="place.paint"
+            onPick={(color) => {
+              dispatch({ type: 'paint', color });
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 };

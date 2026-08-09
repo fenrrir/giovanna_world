@@ -46,7 +46,17 @@ Rules that outweigh any aesthetic preference:
   pins both halves: words while she is shaping a part, none anywhere the panel is not.
 
 - **Touch targets ≥ 60×60 px** (CSS px), with at least 8 px of separation.
-- **One level of navigation.** Slots visible on the main screen; tapping a slot makes that slot's parts appear on the same screen. No stacked modals, no "back".
+- **Every move is made by tapping a picture of where she is going.** A building on the map, a
+  thumbnail of a room, the doll herself. Nothing stacks over anything, there is no "back", and every
+  place is one tap from wherever she is.
+
+  This replaces the original rule, which was _one level of navigation_: slots on the main screen,
+  tapping one showing its pieces on the same screen. That held while the game was one doll on one
+  stage. A world with a map, locations and rooms is hierarchical by definition, so the letter of the
+  rule could not survive — but its point was that a non-reader must never be lost, and the
+  replacement is what keeps that. Inside the wardrobe the original rule still holds exactly: opening
+  a tray swaps a column in place.
+
 - **No save button.** Autosave with a 300 ms debounce.
 - **No destructive error state.** There is no "erase everything" other than a single randomise/reset button confirmed by a long press.
 - **No timer, score, progression or lock.** It is a toy, not a game with an objective.
@@ -213,6 +223,12 @@ Render resolution rules:
 3. Sort by `Z` and concatenate the fragments inside a single `<svg>`.
 
 The body (`body`) is not optional and has no part variants in the MVP — it varies only by `skin`. A facial expression is prepared as a future variant.
+
+**A place is not a slot.** A backdrop was one for a while, at `z -10`, and it was the wrong shape:
+a part is worn on a doll and owes the lateral margin of section 8, while a place is where the doll
+is and owes the opposite. It also meant an outfit could not be kept without keeping the afternoon
+with it. Places live in `src/world/` under their own contract (section 18) and `Slot` holds only
+things a doll wears.
 
 ## 7a. Generated parts
 
@@ -395,7 +411,12 @@ A part only enters the `registry` if:
 
 ## 14. Persistence
 
-- Key `look:current` — the active `Look`, written with a 300 ms debounce.
+- Key `world:current` — everything she made, written with a 300 ms debounce: both dolls, where each
+  is standing, which room she is looking at and what colour she painted it. `schemaVersion` 3.
+  Version 2 was a `Stage` that never shipped, so no store holds one and the gap needs no migration.
+- Key `look:current` — the active `Look`, from before there was a world. **Read once and never
+  written**: whatever the doll was wearing becomes the first doll. A migration moves data and does
+  not edit it; anything she can no longer wear falls away on read like every other repair.
 - Key `look:saved` — an array of up to 12 `Look`s, for the child to keep finished outfits.
 - Always validate `schemaVersion` on read. An unknown version or invalid JSON → discard and start from the default, with no error on screen.
 - A referenced part that no longer exists in the registry → silently ignore that slot.
@@ -408,6 +429,9 @@ A part only enters the `registry` if:
 **Phase 2.** Drag and drop; `socks`, `outer`, `accessoryHead`, `accessoryFace`, `handheld`; a gallery of saved looks; a randomise button; optional sound.
 
 **Phase 3.** Background scenes; a second character in the same scene.
+
+**Phase 4 — the world.** A map of places; locations holding several rooms each; a doll carried into
+a room and left standing there. See section 18.
 
 _PNG export was dropped from this phase by decision, not deferred._
 
@@ -433,6 +457,69 @@ Ask for one at a time. A batch of parts generated in one go comes out inconsiste
 - [ ] The 12 parts pass the 6 criteria from section 12.
 - [ ] Closing and reopening the app preserves the character.
 - [ ] A six-year-old can change hair, clothes and colour with no verbal instruction.
+
+## 18. The world
+
+A place is where a doll is, not something she wears. That one sentence is the whole of this section;
+everything below follows from it.
+
+### The taxonomy, and the artwork under it
+
+`src/model/places.ts` says which places exist and how they nest — `LocationId`, `EnvironmentId`, and
+which rooms belong to which location. `src/world/registry.ts` provides the drawing for each. It is
+the same split `slots.ts` and `parts/registry.ts` already have, and it exists for the same reason:
+the model never imports the art layer.
+
+Both are keyed by the union rather than by `string`, so **naming a room in the taxonomy is a compile
+error until it has something to draw**. A location's rooms are ordered; the first is the one she
+arrives in.
+
+### What a place owes
+
+Everything a part owes, minus the one rule that does not fit and plus two of its own:
+
+1. `viewBox 0 0 680 540`, the same canvas as everything else.
+2. It **fills the canvas**. The lateral margin of section 8 is a rule about things worn on a doll; a
+   backdrop that stopped at her shoulders would be a poster she is standing next to.
+3. One colour from the child, every other tone derived through `shade` — **or declared in
+   `WORLD_COLORS`**. A house derived from the colour of the grass is a green house. Keep that
+   palette small: a second brown is a colour nobody can tell from the first.
+4. No gradient, filter, external image, shadow or blur. Absolute path commands only.
+5. A `floor`: where her feet rest, and how tall she stands there. It must leave room above it for
+   the doll at that scale, or her head goes out through the ceiling.
+
+`tests/contract/world.test.tsx` checks all of it automatically, so a new room needs no test of its
+own — but the artwork still has to be **looked at**. `preview/place-*.svg` stands three dolls in
+each room, at both edges and the middle, which is what shows a floor line, a scale and the clamp at
+once.
+
+### Where the map's places are
+
+`src/world/anchors.ts` holds one spot per location. It exists because two files must agree about
+those numbers: the map draws a building there and the finger has to land on the same disc. Two spots
+may never overlap, or each steals taps meant for the other.
+
+A `floor` is the opposite case and lives with its own room — nothing but that environment reads it.
+
+### Standing a doll in a room
+
+A room and a doll are drawn on the same canvas, so putting one inside the other is a transform:
+`dollTransform` in `src/world/placement.ts`, pure and string-returning like every builder here.
+
+`x` runs over **where her centre may be**, not across the canvas. At 0 her declared bounds land on
+the left edge, at 1 on the right, at any scale. A plain 0..1 across the canvas would leave half of
+her outside it at either end and force the room to know how wide she is. `canvasX` and `acrossFloor`
+are the exact inverse, so a doll dropped somewhere is drawn back under the finger that dropped her.
+
+### The gestures
+
+There is one rule, not two. A doll in a room behaves like a garment on a doll — tap to choose, drag
+off to remove. A doll in the rail behaves like a piece in a tray — tap or carry. The single
+deliberate difference: for a garment the tap and the drag do the same thing, and for a doll they do
+not, because where she goes is the point of carrying her.
+
+Every gesture that a finger can make, a keyboard can make too. Tapping a doll on the stage is a
+per-pixel hit test with no key to press, so the rail beside it carries the same two ways in.
 
 ---
 

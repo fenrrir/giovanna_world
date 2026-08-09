@@ -5,6 +5,7 @@ import { ENVIRONMENTS, type EnvironmentId, type LocationId } from '../model/plac
 import { MAP_SPOTS, type Spot } from './anchors';
 import { WORLD_MAP } from './map';
 import { BEDROOM } from './locations/house/bedroom';
+import { LIVING_ROOM } from './locations/house/livingRoom';
 import { MEADOW } from './locations/park/meadow';
 import type { Floor } from './placement';
 
@@ -35,6 +36,7 @@ export type Environment = {
  */
 export const ENVIRONMENTS_BY_ID: Readonly<Record<EnvironmentId, Environment>> = {
   'house.bedroom': BEDROOM,
+  'house.livingRoom': LIVING_ROOM,
   'park.meadow': MEADOW,
 };
 

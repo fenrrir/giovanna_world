@@ -63,14 +63,14 @@ remembering it. Hot reload works over the network, so an edit shows up on the iP
 **What this does and does not prove.** A service worker only runs on HTTPS or on `localhost`, so
 over `http://` on the LAN there is none — and `vite-plugin-pwa` leaves it off in dev regardless.
 
-| Criterion (SPEC §17)                        | `dev:lan` | Deployed URL |
-| ------------------------------------------- | --------- | ------------ |
-| Touch targets, layout, one-level navigation | yes       | yes          |
-| Pointer events, no double-tap zoom          | yes       | yes          |
-| No overscroll bounce, no long-press menu    | yes       | yes          |
-| Autosave survives a reload                  | yes       | yes          |
-| Opens full screen from the home screen      | yes       | yes          |
-| **Works in aeroplane mode**                 | **no**    | yes          |
+| Criterion (SPEC §17)                         | `dev:lan` | Deployed URL |
+| -------------------------------------------- | --------- | ------------ |
+| Touch targets, layout, moving between places | yes       | yes          |
+| Pointer events, no double-tap zoom           | yes       | yes          |
+| No overscroll bounce, no long-press menu     | yes       | yes          |
+| Autosave survives a reload                   | yes       | yes          |
+| Opens full screen from the home screen       | yes       | yes          |
+| **Works in aeroplane mode**                  | **no**    | yes          |
 
 So: iterate on the artwork and the interface over the LAN, and validate installing and running
 offline against https://fenrrir.github.io/giovanna_world/, which is HTTPS and redeploys on every

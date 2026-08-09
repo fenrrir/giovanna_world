@@ -12,7 +12,7 @@
  * copies of the same fact can disagree, and this one is asked on every tap.
  */
 export const ENVIRONMENTS = {
-  house: ['house.bedroom'],
+  house: ['house.bedroom', 'house.livingRoom'],
   park: ['park.meadow'],
 } as const;
 

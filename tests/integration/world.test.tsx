@@ -82,6 +82,9 @@ const tapAt = (on: HTMLElement, at: Point): void => {
   fireEvent.pointerUp(on, { clientX: at.x, clientY: at.y });
 };
 
+const painter = (): HTMLInputElement =>
+  screen.getByLabelText<HTMLInputElement>(ptBR['place.paint']);
+
 const INSIDE = { x: 300, y: 300 };
 const OUTSIDE = { x: 0, y: 0 };
 
@@ -138,13 +141,21 @@ describe('the world she moves around in', () => {
     expect(map()).toBeInTheDocument();
   });
 
-  /* What a location means on screen: the rail narrows to the rooms of the one
-     she is in, with the map always one tap away. */
+  /*
+   * What a location means on screen: the rail narrows to the rooms of the one
+   * she is in, with the map always one tap away. The house has two rooms and
+   * the park has one, so the narrowing is visible rather than merely claimed.
+   */
   it('shows the way back to the map and the rooms of this place, and no others', () => {
     mount();
     tap(ways()[0]!);
 
     expect(screen.getByRole('button', { name: ptBR['place.map'] })).toBeInTheDocument();
+    expect(rooms()).toHaveLength(2);
+
+    tap(screen.getByRole('button', { name: ptBR['place.map'] }));
+    tap(ways()[1]!);
+
     expect(rooms()).toHaveLength(1);
   });
 
@@ -288,6 +299,28 @@ describe('the world she moves around in', () => {
     await user.keyboard('{Enter}');
 
     expect(standing()).toStrictEqual(['0']);
+  });
+
+  /* The one power she had over a backdrop that a place must not take away:
+     picking its colour. It follows the room rather than the doll now. */
+  it('paints the room she is in, and remembers it per room', () => {
+    mount();
+    tap(ways()[0]!);
+    fireEvent.change(painter(), { target: { value: '#1d9e75' } });
+
+    const bedroom = painter().value;
+
+    tap(screen.getByRole('button', { name: ptBR['place.map'] }));
+    tap(ways()[1]!);
+
+    expect(bedroom).toBe('#1d9e75');
+    expect(painter().value).not.toBe('#1d9e75');
+  });
+
+  it('offers nothing to paint on the map, which is not a wall', () => {
+    mount();
+
+    expect(screen.queryByLabelText(ptBR['place.paint'])).toBeNull();
   });
 
   it('adds no words to the interface', () => {
