@@ -11,10 +11,10 @@ The session entry point. Read this before anything else, act on **Next up**, upd
 
 ## Next up
 
-**Phase 4 has started: the world.** Plan at
+**Phase 4 in progress: the world.** Plan at
 [docs/plans/2026-08-08-world.md](docs/plans/2026-08-08-world.md) — a map, locations holding several
-environments each, and a doll you put inside one. **Task 1 of nine is done** (this commit); next is
-task 2, `World` and `worldReducer`, which is pure model with no UI.
+environments each, and a doll you put inside one. **Tasks 1 and 2 of nine are done**; next is task 3,
+the `src/world/` content layer, which is still no UI.
 
 Read that plan before touching anything: it carries the one thing this repository could not have
 told you, which is that **deleting a slot from the taxonomy crashes rather than repairing on read**
@@ -393,7 +393,32 @@ remembering:
   kept adding twins she could not tell apart.
 
 `src/model/look.ts` is deliberately temporary. When `scene` leaves `Look` in task 4 of the plan it
-is deleted, not rewritten — `sanitizeLook` will do the same job by itself.
+is deleted, not rewritten — `sanitizeLook` will do the same job by itself. It has one caller outside
+the album now, the migration in `openingWorld`; that call goes at the same time.
+
+### `World` absorbed `Stage`, and three things were settled doing it
+
+`Stage` was complete, tested and wired to nothing. It is now `World`, and `stage.ts`,
+`stageReducer.ts` and their `stage:current` trio are gone. The wrapper it proved is kept whole: a
+tray action arrives as `{ type: 'dress' }` and goes straight to `lookReducer`, which still has no
+idea there is a world above it.
+
+- **A place is one name, not two.** `here` is an `EnvironmentId` and the location is derived with
+  `locationOf`. The plan had `{ locationId, environmentId }`, and two copies of one fact can
+  disagree — this one is read on every tap, so the copy went.
+- **`dressing` and `placements` are independent.** Dressing a doll is "whose taps land on her", not
+  "who is standing here", so a doll can be dressed before she is ever put in a room. The single
+  coupling is that **going anywhere stops the dressing**, which is also what makes the room
+  thumbnail the way out of the wardrobe without a control of its own.
+- **The stored shape is not the model shape**, and `StoredWorld` says so in the type system. `isWorld`
+  checks that a world is a world; `repairWorld` checks that the rooms it names still exist. Splitting
+  them is what lets a name from a later version cost her a backdrop instead of the whole world —
+  and it keeps the compiler from calling the check unnecessary, which is how the task 1 bug hid.
+
+`schemaVersion` is 3. Two was `Stage`'s and never shipped, so the gap is a number nobody has to
+migrate from. `look:current` **is** migrated, once, into the first doll: the earlier decision not to
+migrate it turned on having to guess which doll a sky belonged to, and the sky now belongs to
+neither.
 
 ### Still deferred
 

@@ -1,14 +1,27 @@
-import { DEFAULT_STAGE, type Stage } from '../model/stage';
+import { withoutScene } from '../model/look';
 import type { EquippedPart, Look } from '../model/types';
+import {
+  DEFAULT_WORLD,
+  repairWorld,
+  type DollIndex,
+  type StoredPlacement,
+  type StoredWorld,
+  type World,
+} from '../model/world';
 import { canonicalJson } from './canonical';
 
 /** The active look, written with a 300 ms debounce (SPEC section 14). */
 export const CURRENT_LOOK_KEY = 'look:current';
 
-/** The two of them and their backdrop, written with the same 300 ms debounce. */
-export const CURRENT_STAGE_KEY = 'stage:current';
+/**
+ * The two of them, their rooms and where she is looking, on the same debounce.
+ *
+ * Version 3 rather than 2: the `Stage` that claimed 2 never shipped, so no
+ * store anywhere holds one and the gap is a number nobody has to migrate from.
+ */
+export const CURRENT_WORLD_KEY = 'world:current';
 
-const STAGE_VERSION = 2;
+const WORLD_VERSION = 3;
 
 /** The looks she chose to keep (SPEC section 14). */
 export const SAVED_LOOKS_KEY = 'look:saved';
@@ -137,47 +150,80 @@ export const withSavedLook = (saved: readonly Look[], look: Look): Look[] => {
   return [look, ...saved.filter((kept) => lookSignature(kept) !== same)].slice(0, MAX_SAVED_LOOKS);
 };
 
-const isStage = (value: unknown): value is Stage =>
-  isRecord(value) &&
-  value.schemaVersion === STAGE_VERSION &&
-  Array.isArray(value.dolls) &&
-  value.dolls.length === 2 &&
-  value.dolls.every(isLook) &&
-  (value.dressing === 0 || value.dressing === 1) &&
-  (value.scene === undefined || isEquippedPart(value.scene));
+const isPlacement = (value: unknown): value is StoredPlacement | null =>
+  value === null ||
+  (isRecord(value) && typeof value.at === 'string' && typeof value.x === 'number');
+
+const isPlacements = (value: unknown): value is StoredWorld['placements'] =>
+  Array.isArray(value) && value.length === 2 && value.every(isPlacement);
+
+const isColors = (value: unknown): value is StoredWorld['colors'] =>
+  isRecord(value) && Object.values(value).every((color) => typeof color === 'string');
 
 /**
- * The stage as it was left, or the default when there is nothing usable.
+ * A world off the disk is checked for its shape here and for its names later.
  *
- * A stored `look:current` from before there were two dolls is not migrated. It
- * could have been — one look becomes the first doll — but the backdrop moved out
- * of the look in the same change, so a migration would have to guess which of
- * two dolls a sky belonged to. SPEC section 14 already says an unknown version
- * starts from the default with no error on screen; she rebuilds an outfit in
- * under a minute, and nothing pretends to know what it cannot.
+ * `here` and every placement are validated as strings rather than as rooms,
+ * deliberately: the room might have been deleted between versions, and losing
+ * the whole world over one name is how a child loses two dolls and every outfit
+ * on them. `repairWorld` drops the name; this only refuses what is not a world.
  */
-export const loadStage = (storage: Storage | null = browserStorage()): Stage | null => {
-  const raw = storage?.getItem(CURRENT_STAGE_KEY) ?? null;
+const isDolls = (value: unknown): value is StoredWorld['dolls'] =>
+  Array.isArray(value) && value.length === 2 && value.every(isLook);
+
+const isHere = (value: unknown): value is string | null =>
+  value === null || typeof value === 'string';
+
+const isDressing = (value: unknown): value is DollIndex | null =>
+  value === null || value === 0 || value === 1;
+
+const isWorld = (value: unknown): value is StoredWorld =>
+  isRecord(value) &&
+  value.schemaVersion === WORLD_VERSION &&
+  isDolls(value.dolls) &&
+  isHere(value.here) &&
+  isDressing(value.dressing) &&
+  isPlacements(value.placements) &&
+  isColors(value.colors);
+
+export const loadWorld = (storage: Storage | null = browserStorage()): World | null => {
+  const raw = storage?.getItem(CURRENT_WORLD_KEY) ?? null;
 
   if (raw === null) return null;
 
   try {
     const parsed: unknown = JSON.parse(raw);
 
-    return isStage(parsed) ? parsed : null;
+    return isWorld(parsed) ? repairWorld(parsed) : null;
   } catch {
     return null;
   }
 };
 
-export const saveStage = (stage: Stage, storage: Storage | null = browserStorage()): void => {
+export const saveWorld = (world: World, storage: Storage | null = browserStorage()): void => {
   try {
-    storage?.setItem(CURRENT_STAGE_KEY, JSON.stringify(stage));
+    storage?.setItem(CURRENT_WORLD_KEY, JSON.stringify(world));
   } catch {
     // A full or unavailable store must never surface as an error on screen.
   }
 };
 
-/** What the app opens on: what she left, else two dolls on a bare stage. */
-export const openingStage = (storage: Storage | null = browserStorage()): Stage =>
-  loadStage(storage) ?? DEFAULT_STAGE;
+/**
+ * The look she was wearing before there was a world, as the first doll.
+ *
+ * The one migration this app performs, and it runs once. The backdrop she was
+ * standing in is dropped rather than carried: it belonged to neither doll,
+ * which is the whole reason it moved out of `Look`. She keeps the outfit, which
+ * is the part she made.
+ */
+const migrated = (storage: Storage | null): World | null => {
+  const worn = loadLook(storage);
+
+  return worn === null
+    ? null
+    : { ...DEFAULT_WORLD, dolls: [withoutScene(worn), DEFAULT_WORLD.dolls[1]] };
+};
+
+/** What the app opens on: what she left, else what she wore, else the default. */
+export const openingWorld = (storage: Storage | null = browserStorage()): World =>
+  loadWorld(storage) ?? migrated(storage) ?? DEFAULT_WORLD;
