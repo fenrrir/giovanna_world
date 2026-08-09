@@ -44,8 +44,10 @@ export type World = {
 export const DEFAULT_WORLD: World = {
   schemaVersion: 3,
   dolls: [DEFAULT_LOOK, { ...DEFAULT_LOOK, skin: PALETTES.skin[2] }],
-  here: 'house.bedroom',
-  dressing: 0,
+  /* Nowhere in particular: she opens on the map and picks a place, which is
+     what makes the world hers rather than a room she was put in. */
+  here: null,
+  dressing: null,
   /* Both of them already in the room, so the world is never empty on the first
      open: there is somebody to tap before there is any way to put one there. */
   placements: [

@@ -13,6 +13,8 @@ export const ptBR = {
   'doll.label': 'Personagem montado',
   'doll.put': 'Deixar esta boneca aqui',
 
+  'place.map': 'Ver o mapa do mundo',
+  'place.enter': 'Entrar neste lugar',
   'place.go': 'Ir para este lugar',
   'place.leave': 'Voltar para o lugar onde ela está',
   'place.here': 'O lugar onde ela está',

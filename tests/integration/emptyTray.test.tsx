@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { I18nProvider, ptBR } from '../../src/i18n';
 import type * as Registry from '../../src/parts/registry';
+import { DRESSING } from '../doubles';
 
 /**
  * What the interface does with a tray that has no artwork.
@@ -84,7 +85,7 @@ const mountApp = async (): Promise<void> => {
 
   render(
     <I18nProvider>
-      <WorldProvider>
+      <WorldProvider world={DRESSING}>
         <App />
       </WorldProvider>
     </I18nProvider>,

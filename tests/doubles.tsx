@@ -1,4 +1,5 @@
 import type { PartLookup } from '../src/model/sanitize';
+import { DEFAULT_WORLD, type World } from '../src/model/world';
 import { RENDER_ORDER, type Slot } from '../src/model/slots';
 import type { HairStyle, Part } from '../src/model/types';
 
@@ -48,3 +49,12 @@ export const indexedLookup = (...parts: Part[]): PartLookup => {
 
   return (slot, partId) => index[slot].get(partId);
 };
+
+/**
+ * A world already in the wardrobe.
+ *
+ * The app opens on the map, and every test that wants a tray would otherwise
+ * have to walk there first — turning each of them into a test of navigation as
+ * well. This is the injected world `WorldProvider` takes for exactly that.
+ */
+export const DRESSING: World = { ...DEFAULT_WORLD, here: 'house.bedroom', dressing: 0 };

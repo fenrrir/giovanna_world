@@ -7,11 +7,12 @@ import { SAVED_LOOKS_KEY } from '../../src/lib/storage';
 import { DEFAULT_LOOK } from '../../src/model/defaults';
 import type { Look } from '../../src/model/types';
 import { WorldProvider } from '../../src/state/WorldProvider';
+import { DRESSING } from '../doubles';
 
 const mount = () =>
   render(
     <I18nProvider>
-      <WorldProvider>
+      <WorldProvider world={DRESSING}>
         <App />
       </WorldProvider>
     </I18nProvider>,
@@ -39,14 +40,15 @@ const wearSomething = (tray: keyof typeof ptBR, which = 0): void => {
   tap(pieces()[which]!);
 };
 
-/** Leaves the wardrobe for the room, where the places are. */
-const goTo = (which: number): void => {
+/** Out of the wardrobe, onto the map, and into the second location. */
+const goToTheMeadow = (): void => {
   tap(screen.getAllByRole('button', { name: ptBR['place.leave'] })[0]!);
-  tap(placeThumb(which));
+  tap(screen.getByRole('button', { name: ptBR['place.map'] }));
+  tap(screen.getAllByRole('button', { name: ptBR['place.enter'] })[1]!);
 };
 
-const placeThumb = (which: number): HTMLElement =>
-  screen.getAllByRole('button', { name: ptBR['place.go'] })[which]!;
+/** Which room of the current location she is looking at. */
+const roomHere = (): HTMLElement => screen.getAllByRole('button', { name: ptBR['place.go'] })[0]!;
 
 /** Stands the first doll in the room she is looking at. */
 const putHerHere = (): void => {
@@ -175,7 +177,7 @@ describe('the album of looks she keeps', () => {
     openTray('tray.saved');
     keep();
 
-    goTo(1);
+    goToTheMeadow();
     putHerHere();
     dressHer();
     openTray('tray.saved');
@@ -184,7 +186,8 @@ describe('the album of looks she keeps', () => {
     // Still in the meadow: an outfit has no place in it to drag her back to.
     tap(screen.getAllByRole('button', { name: ptBR['place.leave'] })[0]!);
 
-    expect(placeThumb(1)).toHaveAttribute('aria-pressed', 'true');
+    expect(roomHere()).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getAllByRole('button', { name: ptBR['place.go'] })).toHaveLength(1);
   });
 
   /*

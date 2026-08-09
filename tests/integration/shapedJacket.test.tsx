@@ -4,11 +4,12 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { App } from '../../src/App';
 import { I18nProvider, ptBR } from '../../src/i18n';
 import { WorldProvider } from '../../src/state/WorldProvider';
+import { DRESSING } from '../doubles';
 
 const mount = () =>
   render(
     <I18nProvider>
-      <WorldProvider>
+      <WorldProvider world={DRESSING}>
         <App />
       </WorldProvider>
     </I18nProvider>,

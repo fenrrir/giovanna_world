@@ -5,11 +5,12 @@ import { App } from '../../src/App';
 import { I18nProvider, ptBR } from '../../src/i18n';
 import { MAX_ZOOM, MIN_ZOOM } from '../../src/lib/zoom';
 import { WorldProvider } from '../../src/state/WorldProvider';
+import { DRESSING } from '../doubles';
 
 const mount = () =>
   render(
     <I18nProvider>
-      <WorldProvider>
+      <WorldProvider world={DRESSING}>
         <App />
       </WorldProvider>
     </I18nProvider>,

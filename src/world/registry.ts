@@ -1,7 +1,9 @@
 import type { ReactNode } from 'react';
 
 import { VIEW_BOX, type Box } from '../anchors';
-import type { EnvironmentId } from '../model/places';
+import { ENVIRONMENTS, type EnvironmentId, type LocationId } from '../model/places';
+import { MAP_SPOTS, type Spot } from './anchors';
+import { WORLD_MAP } from './map';
 import { BEDROOM } from './locations/house/bedroom';
 import { MEADOW } from './locations/park/meadow';
 import type { Floor } from './placement';
@@ -37,6 +39,27 @@ export const ENVIRONMENTS_BY_ID: Readonly<Record<EnvironmentId, Environment>> = 
 };
 
 export const findEnvironment = (id: EnvironmentId): Environment => ENVIRONMENTS_BY_ID[id];
+
+/**
+ * A location, as the map shows it: where it sits, and the way in.
+ *
+ * The way in is its first environment, which is also its picture — a location
+ * has no drawing of its own, and the room she arrives in is the truest thing to
+ * show her before she gets there.
+ */
+export type Location = {
+  id: LocationId;
+  spot: Spot;
+  entrance: Environment;
+};
+
+export const findLocation = (id: LocationId): Location => ({
+  id,
+  spot: MAP_SPOTS[id],
+  entrance: ENVIRONMENTS_BY_ID[ENVIRONMENTS[id][0]],
+});
+
+export { WORLD_MAP };
 
 /**
  * A place is shown whole, where a piece is shown close up.

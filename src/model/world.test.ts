@@ -35,9 +35,16 @@ describe('DEFAULT_WORLD', () => {
      or the first thing she sees is an empty room she cannot fill. */
   it('starts with both of them already standing in the same room', () => {
     expect(DEFAULT_WORLD.placements.map((placement) => placement?.at)).toStrictEqual([
-      DEFAULT_WORLD.here,
-      DEFAULT_WORLD.here,
+      'house.bedroom',
+      'house.bedroom',
     ]);
+  });
+
+  /* She picks a place before she is in one, which is what makes the world hers
+     rather than a room she was put in. */
+  it('opens on the map, dressing nobody', () => {
+    expect(DEFAULT_WORLD.here).toBeNull();
+    expect(DEFAULT_WORLD.dressing).toBeNull();
   });
 
   it('starts with nothing painted', () => {

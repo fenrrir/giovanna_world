@@ -7,6 +7,7 @@ import { hairBackPath, hairFrontPath } from '../../src/parts/hair/custom/geometr
 import { DEFAULT_HAIR_PARAMS } from '../../src/parts/hair/custom/params';
 import { HAIR_STYLES } from '../../src/parts/registry';
 import { WorldProvider } from '../../src/state/WorldProvider';
+import { DRESSING } from '../doubles';
 
 const FRINGE_KEYS = [
   'hair.fringe.none',
@@ -17,10 +18,20 @@ const FRINGE_KEYS = [
 
 const slider = (key: MessageKey): HTMLElement => screen.getByLabelText(ptBR[key]);
 
-const mount = () =>
+/** Reopened the way the child reopens it: from what was written down. */
+const reopen = () =>
   render(
     <I18nProvider>
       <WorldProvider>
+        <App />
+      </WorldProvider>
+    </I18nProvider>,
+  );
+
+const mount = () =>
+  render(
+    <I18nProvider>
+      <WorldProvider world={DRESSING}>
         <App />
       </WorldProvider>
     </I18nProvider>,
@@ -201,7 +212,9 @@ describe('the axes that shape it', () => {
 
     // Unmounting flushes the pending autosave, the way closing the app does.
     first.unmount();
-    mount();
+    /* Reopened from storage rather than from an injected world — that is the
+       whole of what this test is about. */
+    reopen();
 
     expect(layerPath('hairBack')).toBe(hairBackPath({ ...DEFAULT_HAIR_PARAMS, wave: 1 }));
     expect(slider('hair.wave')).toHaveValue('1');

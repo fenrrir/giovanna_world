@@ -2,9 +2,10 @@ import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import { ANCHORS, VIEW_BOX } from '../../src/anchors';
-import { ENVIRONMENT_IDS } from '../../src/model/places';
-import { PALETTES } from '../../src/model/palettes';
-import { ENVIRONMENTS_BY_ID, type Environment } from '../../src/world/registry';
+import { ENVIRONMENT_IDS, LOCATION_IDS } from '../../src/model/places';
+import { PALETTES, WORLD_COLORS } from '../../src/model/palettes';
+import { MAP_SPOTS } from '../../src/world/anchors';
+import { ENVIRONMENTS_BY_ID, WORLD_MAP, type Environment } from '../../src/world/registry';
 import { boundsOf, colorsOf, pathDataOf } from './svgGeometry';
 
 /**
@@ -27,14 +28,23 @@ const HEX = /^#[0-9A-Fa-f]{6}$/;
 /** How tall she is drawn, from the top of her skull to the sole of her foot. */
 const DOLL_HEIGHT = ANCHORS.sole.y - ANCHORS.skullTop.y;
 
-const renderEnvironment = (environment: Environment, color: string): SVGSVGElement => {
-  const { container } = render(<svg>{environment.render(color)}</svg>);
+/** What every place owes, whether a doll can stand in it or not. */
+type Drawn = { id: string; defaultColor: string; render: (color: string) => React.ReactNode };
+
+const FIXED = new Set(Object.values(WORLD_COLORS).map((color) => color.toUpperCase()));
+
+const renderPlace = (place: Drawn, color: string): SVGSVGElement => {
+  const { container } = render(<svg>{place.render(color)}</svg>);
 
   return container.querySelector('svg')!;
 };
 
+const renderEnvironment = renderPlace;
+
 const everyEnvironment = (): [string, Environment][] =>
   ENVIRONMENT_IDS.map((id) => [id, ENVIRONMENTS_BY_ID[id]]);
+
+const everyPlace = (): [string, Drawn][] => [...everyEnvironment(), ['map', WORLD_MAP]];
 
 describe('the world registry', () => {
   it('has a place to draw for every environment the taxonomy names', () => {
@@ -48,7 +58,7 @@ describe('the world registry', () => {
   });
 });
 
-describe.each(everyEnvironment())('%s', (id, environment) => {
+describe.each(everyPlace())('%s', (id, environment) => {
   it('opens in a colour that is a colour', () => {
     expect(environment.defaultColor, `${id} has no usable default colour`).toMatch(HEX);
   });
@@ -70,15 +80,22 @@ describe.each(everyEnvironment())('%s', (id, environment) => {
     );
   });
 
-  it('derives every tone from the colour it is given', () => {
+  /*
+   * A place may keep colours of its own — a house derived from the colour of
+   * the grass is a green house — but only the ones `WORLD_COLORS` declares.
+   * Anything else that survives a change of colour was hardcoded.
+   */
+  it('derives every tone from the colour it is given, or declares it fixed', () => {
     const before = colorsOf(renderEnvironment(environment, PALETTES.fabric[0]));
     const after = colorsOf(renderEnvironment(environment, PALETTES.fabric.at(-1)!));
 
     expect(before, `${id} paints nothing`).not.toStrictEqual([]);
-    expect(
-      before.filter((color) => after.includes(color)),
-      `${id} hardcodes a tone instead of deriving it via shade`,
-    ).toStrictEqual([]);
+
+    for (const color of before.filter((one) => after.includes(one))) {
+      expect(FIXED.has(color), `${id} hardcodes ${color} instead of deriving or declaring it`).toBe(
+        true,
+      );
+    }
   });
 
   it.each([...PALETTES.fabric])('uses no forbidden svg feature in %s', (color) => {
@@ -98,7 +115,13 @@ describe.each(everyEnvironment())('%s', (id, environment) => {
       expect(d, `${id} uses a relative path command`).toMatch(ABSOLUTE_PATH);
     }
   });
+});
 
+/*
+ * What only a room owes: a floor a doll can stand on. The map has none — she
+ * looks at it rather than standing on it.
+ */
+describe.each(everyEnvironment())('%s floor', (id, environment) => {
   it('puts its floor inside the room', () => {
     expect(environment.floor.y, `${id} has a floor above the ceiling`).toBeGreaterThan(0);
     expect(environment.floor.y, `${id} has a floor below the room`).toBeLessThanOrEqual(
@@ -119,5 +142,46 @@ describe.each(everyEnvironment())('%s', (id, environment) => {
       floor.y - floor.scale * DOLL_HEIGHT,
       `${id} pushes her head out of the room`,
     ).toBeGreaterThanOrEqual(0);
+  });
+});
+
+/*
+ * The map's own rule. A finger is a blunt instrument: two places whose discs
+ * overlap would each steal taps meant for the other, and a place drawn off the
+ * canvas could never be tapped at all.
+ */
+describe('the map', () => {
+  it.each([...LOCATION_IDS])('keeps %s inside the canvas', (id) => {
+    const spot = MAP_SPOTS[id];
+
+    expect(spot.x - spot.r, `${id} hangs off the left`).toBeGreaterThanOrEqual(0);
+    expect(spot.y - spot.r, `${id} hangs off the top`).toBeGreaterThanOrEqual(0);
+    expect(spot.x + spot.r, `${id} hangs off the right`).toBeLessThanOrEqual(VIEW_BOX.width);
+    expect(spot.y + spot.r, `${id} hangs off the bottom`).toBeLessThanOrEqual(VIEW_BOX.height);
+  });
+
+  it('never lets two places share a finger', () => {
+    for (const one of LOCATION_IDS) {
+      for (const other of LOCATION_IDS.filter((id) => id !== one)) {
+        const a = MAP_SPOTS[one];
+        const b = MAP_SPOTS[other];
+
+        expect(
+          Math.hypot(a.x - b.x, a.y - b.y),
+          `${one} and ${other} overlap`,
+        ).toBeGreaterThanOrEqual(a.r + b.r);
+      }
+    }
+  });
+
+  it('draws something for every place the taxonomy names', () => {
+    const drawn = renderPlace(WORLD_MAP, WORLD_MAP.defaultColor);
+
+    for (const id of LOCATION_IDS) {
+      expect(
+        drawn.querySelector(`[data-location="${id}"]`),
+        `${id} is not on the map`,
+      ).not.toBeNull();
+    }
   });
 });

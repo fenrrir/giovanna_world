@@ -5,6 +5,7 @@ import { App } from '../../src/App';
 import { PAINTED_SLOTS } from '../../src/model/slots';
 import { I18nProvider, ptBR } from '../../src/i18n';
 import { WorldProvider } from '../../src/state/WorldProvider';
+import { DRESSING } from '../doubles';
 import { DRAG_THRESHOLD_PX, RETURN_MS } from '../../src/ui/useDrag';
 
 /**
@@ -37,7 +38,7 @@ const stubStageRect = (): void => {
 const mount = () =>
   render(
     <I18nProvider>
-      <WorldProvider>
+      <WorldProvider world={DRESSING}>
         <App />
       </WorldProvider>
     </I18nProvider>,

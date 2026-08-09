@@ -7,6 +7,7 @@ import type { Look } from '../../src/model/types';
 import { DEFAULT_WORLD, type World } from '../../src/model/world';
 import { AUTOSAVE_DELAY_MS, WorldProvider } from '../../src/state/WorldProvider';
 import { useLook } from '../../src/state/lookContext';
+import { useWorld } from '../../src/state/worldContext';
 import { stubLookup, stubPart } from '../doubles';
 
 const top = stubPart('top', 'top.t-shirt');
@@ -33,22 +34,37 @@ const fakeStorage = (seed: Record<string, string> = {}): Storage => {
   };
 };
 
-/** Exposes the store and lets a test drive it. */
+/**
+ * Exposes the store and lets a test drive it.
+ *
+ * On `useWorld` rather than `useLook`, because the world opens on the map with
+ * nobody being dressed — and a store test should not have to put somebody in a
+ * wardrobe first to watch a write happen. The wrapping `useLook` does is proved
+ * by `worldReducer` and by every test that dresses the doll through the trays.
+ */
 const Probe = (): React.JSX.Element => {
-  const { look, dispatch } = useLook();
+  const { world, dispatch } = useWorld();
 
   return (
     <button
       type="button"
-      data-skin={look.skin}
-      data-top={look.equipped.top?.partId ?? ''}
+      data-skin={world.dolls[0].skin}
+      data-top={world.dolls[0].equipped.top?.partId ?? ''}
+      data-here={world.here ?? ''}
       onClick={() => {
-        dispatch({ type: 'setSkin', color: '#C68A5E' });
+        dispatch({ type: 'goTo', here: 'park.meadow' });
       }}
     >
-      skin
+      the world
     </button>
   );
+};
+
+/** A doll being dressed, for the one hook that insists on there being one. */
+const Dressing = (): React.JSX.Element => {
+  const { look } = useLook();
+
+  return <span>{look.skin}</span>;
 };
 
 const mount = (storage: Storage) => {
@@ -67,7 +83,7 @@ const storedWorld = (storage: Storage): World | null => {
   return raw === null ? null : (JSON.parse(raw) as World);
 };
 
-const dressedSkin = (storage: Storage): string | undefined => storedWorld(storage)?.dolls[0].skin;
+const storedHere = (storage: Storage): string | null | undefined => storedWorld(storage)?.here;
 
 describe('WorldProvider', () => {
   beforeEach(() => {
@@ -165,7 +181,7 @@ describe('WorldProvider', () => {
         vi.advanceTimersByTime(AUTOSAVE_DELAY_MS);
       });
 
-      expect(dressedSkin(storage)).toBe('#C68A5E');
+      expect(storedHere(storage)).toBe('park.meadow');
     });
 
     it('collapses a burst of changes into a single write', () => {
@@ -183,7 +199,7 @@ describe('WorldProvider', () => {
       });
 
       expect(setItem).toHaveBeenCalledTimes(1);
-      expect(dressedSkin(storage)).toBe('#C68A5E');
+      expect(storedHere(storage)).toBe('park.meadow');
     });
 
     it('flushes a pending write when the app closes', () => {
@@ -198,7 +214,7 @@ describe('WorldProvider', () => {
 
       unmount();
 
-      expect(dressedSkin(storage)).toBe('#C68A5E');
+      expect(storedHere(storage)).toBe('park.meadow');
     });
   });
 
@@ -237,7 +253,7 @@ describe('WorldProvider', () => {
       vi.advanceTimersByTime(AUTOSAVE_DELAY_MS);
     });
 
-    expect(localStorage.getItem(CURRENT_WORLD_KEY)).toContain('#C68A5E');
+    expect(localStorage.getItem(CURRENT_WORLD_KEY)).toContain('park.meadow');
   });
 
   /* Every test that wants a screen would otherwise have to walk there first,
@@ -246,12 +262,16 @@ describe('WorldProvider', () => {
     const storage = fakeStorage({ [CURRENT_WORLD_KEY]: JSON.stringify(DEFAULT_WORLD) });
 
     render(
-      <WorldProvider storage={storage} lookup={lookup} world={{ ...DEFAULT_WORLD, dressing: 1 }}>
+      <WorldProvider
+        storage={storage}
+        lookup={lookup}
+        world={{ ...DEFAULT_WORLD, here: 'park.meadow' }}
+      >
         <Probe />
       </WorldProvider>,
     );
 
-    expect(screen.getByRole('button')).toHaveAttribute('data-skin', DEFAULT_WORLD.dolls[1].skin);
+    expect(screen.getByRole('button')).toHaveAttribute('data-here', 'park.meadow');
   });
 });
 
@@ -279,8 +299,18 @@ const quietly = (run: () => void): void => {
 describe('useLook', () => {
   it('refuses to run outside a provider, because there is no sane default state', () => {
     quietly(() => {
-      expect(() => render(<Probe />)).toThrow(/WorldProvider/);
+      expect(() => render(<Dressing />)).toThrow(/WorldProvider/);
     });
+  });
+
+  it('hands back the doll she is dressing', () => {
+    render(
+      <WorldProvider lookup={lookup} world={{ ...DEFAULT_WORLD, dressing: 1 }}>
+        <Dressing />
+      </WorldProvider>,
+    );
+
+    expect(screen.getByText(DEFAULT_WORLD.dolls[1].skin)).toBeInTheDocument();
   });
 
   /*
@@ -293,7 +323,7 @@ describe('useLook', () => {
       expect(() =>
         render(
           <WorldProvider lookup={lookup} world={{ ...DEFAULT_WORLD, dressing: null }}>
-            <Probe />
+            <Dressing />
           </WorldProvider>,
         ),
       ).toThrow(/being dressed/);

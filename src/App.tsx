@@ -2,6 +2,7 @@ import type { JSX } from 'react';
 
 import { useWorld } from './state/worldContext';
 import { DressView } from './ui/DressView';
+import { MapView } from './ui/MapView';
 import { PlaceView } from './ui/PlaceView';
 import styles from './App.module.css';
 
@@ -17,21 +18,21 @@ import styles from './App.module.css';
  * tap from wherever she is, which is what SPEC section 4's rule becomes once
  * the game has more than one room in it.
  *
- * `here === null` is the map, and there is no map drawn yet. It renders an
- * empty stage rather than guessing at a room, and nothing dispatches its way
- * until the map arrives.
+ * `here === null` is the map: nowhere in particular, which is where she starts
+ * and where the track between the places is drawn.
  */
 export const App = (): JSX.Element => {
   const { world } = useWorld();
 
   return (
     <main className={styles.app}>
-      {world.here !== null &&
-        (world.dressing === null ? (
-          <PlaceView here={world.here} />
-        ) : (
-          <DressView here={world.here} doll={world.dressing} />
-        ))}
+      {world.here === null ? (
+        <MapView />
+      ) : world.dressing === null ? (
+        <PlaceView here={world.here} />
+      ) : (
+        <DressView here={world.here} doll={world.dressing} />
+      )}
     </main>
   );
 };

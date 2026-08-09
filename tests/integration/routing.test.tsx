@@ -22,7 +22,7 @@ describe('the hidden dev route', () => {
   it('shows the game at the root', () => {
     render(<Root />);
 
-    expect(screen.getByRole('img', { name: ptBR['doll.label'] })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: ptBR['place.map'] })).toBeInTheDocument();
     expect(screen.queryByText(ptBR['dev.sheet.title'])).toBeNull();
   });
 
@@ -39,13 +39,13 @@ describe('the hidden dev route', () => {
 
     render(<Root />);
 
-    expect(screen.getByRole('img', { name: ptBR['doll.label'] })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: ptBR['place.map'] })).toBeInTheDocument();
   });
 
   it('switches when the hash changes while the app is open', () => {
     render(<Root />);
 
-    expect(screen.getByRole('img', { name: ptBR['doll.label'] })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: ptBR['place.map'] })).toBeInTheDocument();
 
     goTo(DEV_SHEET_HASH);
     fireHashChange();
@@ -55,7 +55,7 @@ describe('the hidden dev route', () => {
     goTo('');
     fireHashChange();
 
-    expect(screen.getByRole('img', { name: ptBR['doll.label'] })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: ptBR['place.map'] })).toBeInTheDocument();
   });
 
   it('stops listening once unmounted', () => {

@@ -7,8 +7,8 @@ import { worldReducer } from './worldReducer';
 
 const tShirt = stubPart('top', 'top.t-shirt');
 
-const dressingSecond: World = { ...DEFAULT_WORLD, dressing: 1 };
-const playing: World = { ...DEFAULT_WORLD, dressing: null };
+const dressingSecond: World = { ...DEFAULT_WORLD, here: 'house.bedroom', dressing: 1 };
+const playing: World = { ...DEFAULT_WORLD, here: 'house.bedroom', dressing: null };
 
 describe('worldReducer', () => {
   /*
@@ -49,15 +49,13 @@ describe('worldReducer', () => {
   });
 
   it('turns her attention to another doll, and to none', () => {
-    expect(worldReducer(DEFAULT_WORLD, { type: 'dressDoll', doll: 1 }).dressing).toBe(1);
-    expect(worldReducer(DEFAULT_WORLD, { type: 'dressDoll', doll: null }).dressing).toBeNull();
+    expect(worldReducer(playing, { type: 'dressDoll', doll: 1 }).dressing).toBe(1);
+    expect(worldReducer(dressingSecond, { type: 'dressDoll', doll: null }).dressing).toBeNull();
   });
 
   it('takes her to another room, and out to the map', () => {
-    expect(worldReducer(DEFAULT_WORLD, { type: 'goTo', here: 'park.meadow' }).here).toBe(
-      'park.meadow',
-    );
-    expect(worldReducer(DEFAULT_WORLD, { type: 'goTo', here: null }).here).toBeNull();
+    expect(worldReducer(playing, { type: 'goTo', here: 'park.meadow' }).here).toBe('park.meadow');
+    expect(worldReducer(playing, { type: 'goTo', here: null }).here).toBeNull();
   });
 
   it('stands a doll where she was dropped, and takes her away again', () => {

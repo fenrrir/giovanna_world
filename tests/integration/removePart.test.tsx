@@ -5,6 +5,7 @@ import { App } from '../../src/App';
 import { PAINTED_SLOTS } from '../../src/model/slots';
 import { I18nProvider, ptBR } from '../../src/i18n';
 import { WorldProvider } from '../../src/state/WorldProvider';
+import { DRESSING } from '../doubles';
 
 /**
  * jsdom lays nothing out and implements no hit testing, so both are stubbed:
@@ -40,7 +41,7 @@ const pointAt = (slot: string | null): void => {
 const mount = () =>
   render(
     <I18nProvider>
-      <WorldProvider>
+      <WorldProvider world={DRESSING}>
         <App />
       </WorldProvider>
     </I18nProvider>,

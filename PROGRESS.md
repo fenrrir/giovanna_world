@@ -13,9 +13,9 @@ The session entry point. Read this before anything else, act on **Next up**, upd
 
 **Phase 4 in progress: the world.** Plan at
 [docs/plans/2026-08-08-world.md](docs/plans/2026-08-08-world.md) — a map, locations holding several
-environments each, and a doll you put inside one. **Tasks 1 to 4 are done.** The scene is a place
-now, both dolls stand in rooms, and tapping one dresses her. Next is task 5, the map — the first
-drawing the world asks for, and the thing that makes a location mean something on screen.
+environments each, and a doll you put inside one. **Tasks 1 to 5 are done.** The app opens on a map,
+tapping a building goes inside, and a location narrows the rail to its own rooms. Next is task 6 —
+the drag that chooses where a doll stands and takes her out again.
 
 Read that plan before touching anything: it carries the one thing this repository could not have
 told you, which is that **deleting a slot from the taxonomy crashes rather than repairing on read**
@@ -517,6 +517,41 @@ carrying: at the inherited scale of 1 the dolls fill a room, which is the same f
 gave and the same answer — the room drawn for the world will ask for less. And a doll placed alone
 lands at a quarter across rather than in the middle, because a quarter and three quarters is the only
 pair that does not overlap at that scale; the drag will let her put them where she likes.
+
+### The map, and what a location turned out to be
+
+`world/anchors.ts` holds the spot each location sits at, and it exists for the reason `anchors.ts`
+does: **two files have to agree about those numbers.** The map draws a building at the spot and the
+finger has to land on the same disc, so a coordinate chosen twice would drift and she would tap a
+house that took her nowhere. The contract suite holds every spot inside the canvas and refuses two
+that could share a finger.
+
+`WORLD_COLORS` arrives with the first drawing that needs it, which is what deferring it in task 3
+was for. It is the counterpart of `FIXED_COLORS`, granted for the same reason: a house derived from
+the colour of the grass is a green house. Kept as small as it can be — a trunk and a door are the
+same brown on purpose, because a second brown is a colour nobody could tell from the first. The
+world contract now allows a place to keep a declared colour and still refuses an undeclared one.
+
+**A location has no drawing of its own, and it does not need one.** Its picture in the rail is cut
+out of the map by `Thumb`'s focus box, at its own spot — the same house she can see, at no extra
+art. Showing the room inside instead was tried first and read as a different place altogether: she
+is choosing the building in front of her, so the picture has to be of that. It is the third thing
+the spots are used for, which is what makes them worth having.
+
+**That is also the whole of what a location means on screen.** The map says which places exist;
+being inside one narrows the rail to its rooms, with the map always one tap away. Nothing else in
+the model changed to make that true.
+
+**What looking at it caught**, and neither would have failed a test: the park's shadow sat well
+below its own trees, because it was derived from the tap disc rather than from where the trunks end
+— the baseline is passed in now, and the comment says why. And the track ran below both places,
+reading as a stray stripe rather than a path; it runs at the height they stand at, with the places
+drawn over it.
+
+**The cost to watch on the iPad.** She now taps twice — a building, then a doll — before the
+wardrobe on the very first open. Every open after that resumes where she left off. It is the one
+thing in this change that pushes against SPEC section 17's last criterion, the one the whole
+project is measured by, and only a child can settle it.
 
 ### Still deferred
 

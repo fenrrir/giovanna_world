@@ -8,6 +8,7 @@ import { CURRENT_WORLD_KEY } from '../../src/lib/storage';
 import type { Look } from '../../src/model/types';
 import type { World } from '../../src/model/world';
 import { AUTOSAVE_DELAY_MS, WorldProvider } from '../../src/state/WorldProvider';
+import { DRESSING } from '../doubles';
 import { DEFAULT_LOOK } from '../../src/model/defaults';
 import { RANDOM_TRAYS } from '../../src/ui/trays';
 import { LONG_PRESS_MS } from '../../src/ui/useLongPress';
@@ -15,7 +16,7 @@ import { LONG_PRESS_MS } from '../../src/ui/useLongPress';
 const mount = () => {
   const view = render(
     <I18nProvider>
-      <WorldProvider>
+      <WorldProvider world={DRESSING}>
         <App />
       </WorldProvider>
     </I18nProvider>,

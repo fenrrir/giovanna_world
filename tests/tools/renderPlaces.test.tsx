@@ -3,7 +3,7 @@ import { describe, it } from 'vitest';
 
 import { ENVIRONMENT_IDS } from '../../src/model/places';
 import { dollTransform } from '../../src/world/placement';
-import { ENVIRONMENTS_BY_ID } from '../../src/world/registry';
+import { ENVIRONMENTS_BY_ID, WORLD_MAP } from '../../src/world/registry';
 import { DRESSED, HOLE_BACKDROP, drawLook, slug, writePreview } from './preview';
 
 /**
@@ -26,6 +26,14 @@ import { DRESSED, HOLE_BACKDROP, drawLook, slug, writePreview } from './preview'
 const STANDS = [0, 0.5, 1];
 
 describe('places', () => {
+  /* The map has no doll standing in it, and what can be wrong with it is what a
+     thumbnail of it will look like: two places that read as two places. */
+  it('writes the map', () => {
+    const drawn = renderToStaticMarkup(<g>{WORLD_MAP.render(WORLD_MAP.defaultColor)}</g>);
+
+    writePreview('place-map', drawn);
+  });
+
   it.each([...ENVIRONMENT_IDS])('writes %s with somebody standing in it', (id) => {
     const environment = ENVIRONMENTS_BY_ID[id];
     const room = renderToStaticMarkup(<g>{environment.render(environment.defaultColor)}</g>);

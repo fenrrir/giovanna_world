@@ -9,6 +9,7 @@ import { CURRENT_WORLD_KEY } from '../../src/lib/storage';
 import type { Look } from '../../src/model/types';
 import type { World } from '../../src/model/world';
 import { AUTOSAVE_DELAY_MS, WorldProvider } from '../../src/state/WorldProvider';
+import { DRESSING } from '../doubles';
 
 const fakeStorage = (): Storage => {
   const entries = new Map<string, string>();
@@ -35,7 +36,7 @@ const mount = (storage: Storage = fakeStorage()) => {
   const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
   const view = render(
     <I18nProvider>
-      <WorldProvider storage={storage}>
+      <WorldProvider world={DRESSING} storage={storage}>
         <App />
       </WorldProvider>
     </I18nProvider>,
