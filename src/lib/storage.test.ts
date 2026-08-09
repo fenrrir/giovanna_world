@@ -2,7 +2,8 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { DEFAULT_LOOK } from '../model/defaults';
 import type { Look } from '../model/types';
-import { CURRENT_LOOK_KEY, loadLook, saveLook } from './storage';
+import { DEFAULT_WORLD } from '../model/world';
+import { CURRENT_LOOK_KEY, loadLook, saveWorld } from './storage';
 
 /** A Storage double, so the tests never depend on the ambient localStorage. */
 const fakeStorage = (seed: Record<string, string> = {}): Storage => {
@@ -32,22 +33,18 @@ const A_LOOK: Look = {
   equipped: { top: { partId: 'top.t-shirt', color: '#1D9E75' } },
 };
 
-describe('saveLook and loadLook', () => {
-  it('round-trips a look', () => {
+/*
+ * Nothing writes `look:current` any more — the world does the saving now. It is
+ * still read, once, to carry the outfit she was wearing into the first doll.
+ */
+describe('the look a previous version left', () => {
+  it('reads back from the key the spec names', () => {
     const storage = fakeStorage();
-
-    saveLook(A_LOOK, storage);
-
-    expect(loadLook(storage)).toStrictEqual(A_LOOK);
-  });
-
-  it('writes under the key the spec names', () => {
-    const storage = fakeStorage();
-
-    saveLook(A_LOOK, storage);
 
     expect(CURRENT_LOOK_KEY).toBe('look:current');
-    expect(storage.getItem(CURRENT_LOOK_KEY)).toBe(JSON.stringify(A_LOOK));
+    storage.setItem(CURRENT_LOOK_KEY, JSON.stringify(A_LOOK));
+
+    expect(loadLook(storage)).toStrictEqual(A_LOOK);
   });
 });
 
@@ -105,7 +102,7 @@ describe('with no store available', () => {
 
   it('writes nothing rather than throwing', () => {
     expect(() => {
-      saveLook(A_LOOK, null);
+      saveWorld(DEFAULT_WORLD, null);
     }).not.toThrow();
   });
 
@@ -149,7 +146,7 @@ describe('with no store available', () => {
   it('writes nothing when the host defines no store', () => {
     withoutLocalStorage(() => {
       expect(() => {
-        saveLook(A_LOOK);
+        saveWorld(DEFAULT_WORLD);
       }).not.toThrow();
     });
   });
@@ -163,21 +160,21 @@ describe('with no store available', () => {
   it('writes nothing when the browser denies access to the store', () => {
     withBlockedLocalStorage(() => {
       expect(() => {
-        saveLook(A_LOOK);
+        saveWorld(DEFAULT_WORLD);
       }).not.toThrow();
     });
   });
 });
 
-describe('saveLook', () => {
-  it('swallows a quota error, because losing a look is a normal scenario', () => {
+describe('saveWorld', () => {
+  it('swallows a quota error, because losing what she made is a normal scenario', () => {
     const storage = fakeStorage();
     vi.spyOn(storage, 'setItem').mockImplementation(() => {
       throw new DOMException('quota', 'QuotaExceededError');
     });
 
     expect(() => {
-      saveLook(A_LOOK, storage);
+      saveWorld(DEFAULT_WORLD, storage);
     }).not.toThrow();
   });
 });

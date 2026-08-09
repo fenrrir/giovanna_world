@@ -3,14 +3,14 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { App } from '../../src/App';
 import { I18nProvider, ptBR } from '../../src/i18n';
-import { LookProvider } from '../../src/state/LookProvider';
+import { WorldProvider } from '../../src/state/WorldProvider';
 
 const mount = () =>
   render(
     <I18nProvider>
-      <LookProvider>
+      <WorldProvider>
         <App />
-      </LookProvider>
+      </WorldProvider>
     </I18nProvider>,
   );
 

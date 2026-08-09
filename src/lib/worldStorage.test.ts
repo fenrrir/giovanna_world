@@ -95,13 +95,17 @@ describe('the world on disk', () => {
     expect(openingWorld(storage).dolls[1]).toStrictEqual(DEFAULT_WORLD.dolls[1]);
   });
 
-  it('leaves the place she was standing in behind', () => {
+  /* Carried across whole rather than edited on the way. Whatever she can no
+     longer wear falls away on read, where every other repair happens. */
+  it('carries the outfit across without editing it', () => {
     const worn = {
       ...DEFAULT_LOOK,
-      equipped: { ...DEFAULT_LOOK.equipped, scene: { partId: 'scene.meadow', color: '#1D9E75' } },
+      equipped: { ...DEFAULT_LOOK.equipped, top: { partId: 'top.t-shirt', color: '#1D9E75' } },
     };
 
-    expect(openingWorld(holding(worn, CURRENT_LOOK_KEY)).dolls[0].equipped.scene).toBeUndefined();
+    expect(openingWorld(holding(worn, CURRENT_LOOK_KEY)).dolls[0].equipped).toStrictEqual(
+      worn.equipped,
+    );
   });
 
   it('prefers the world she left over the look she used to wear', () => {

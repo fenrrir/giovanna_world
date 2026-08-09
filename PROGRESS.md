@@ -13,8 +13,9 @@ The session entry point. Read this before anything else, act on **Next up**, upd
 
 **Phase 4 in progress: the world.** Plan at
 [docs/plans/2026-08-08-world.md](docs/plans/2026-08-08-world.md) — a map, locations holding several
-environments each, and a doll you put inside one. **Tasks 1 to 3 of nine are done**; next is task 4,
-the shell moving onto the world — the big one, and the one that must not be split.
+environments each, and a doll you put inside one. **Tasks 1 to 3 are done, and task 4 is half
+done**: the shell now runs on the world, and nothing on screen has changed yet. Next is the other
+half — `scene` leaving the slot taxonomy and the places rail replacing the scene tray.
 
 Read that plan before touching anything: it carries the one thing this repository could not have
 told you, which is that **deleting a slot from the taxonomy crashes rather than repairing on read**
@@ -453,6 +454,32 @@ The dev sheet was deliberately left blind to places. It is built around `TraySlo
 and what can be wrong with a room — feet sunk into the floor, a head out of the ceiling, two dolls
 overlapping — is a doll-and-room question the previews answer and a side-by-side contact sheet does
 not. Revisit it the day places need comparing against each other rather than against a doll.
+
+### The shell runs on the world, and task 4 was split to prove it
+
+The plan said task 4 must not be split because the app is broken between the two providers. That
+turned out not to be true, and the reason is the thing worth keeping: **`useLook()` kept its exact
+shape**. It hands back the dressed doll and a dispatch that wraps every `LookAction` in
+`{ type: 'dress' }`, so all seven of its consumers — `SlotBar`, `PartTray`, `ColorTray`,
+`ParamsPanel`, `SavedTray`, `RandomButton`, `DraggableDoll` — are untouched, and the app on the
+world looks pixel for pixel like the app on a single `Look`. That made a commit that changes nothing
+visible possible, and it is worth having on its own: the mechanical half (seventeen test files
+changing provider) is separated from the behavioural half that follows.
+
+`useLook()` throws when nobody is being dressed rather than falling back to the first doll. A
+fallback would let a tray silently recolour the wrong one with nothing on screen to say so.
+
+**`WorldProvider` takes an injected world.** Every integration test mounts it to reach one screen,
+and without a way in each of them would have to walk there first — turning every test of a tray into
+a test of navigation too. The precedent was already there: it takes an injected `storage` and
+`lookup` for the same reason.
+
+**What running it caught.** The migration was written to strip the backdrop out of the look on its
+way into the first doll. Reading it back in a real browser showed that is a commit too early: while
+`scene` is still a slot there is nowhere else to stand, so it only cost her a sky for no benefit.
+The migration now carries the look across whole, and the backdrop falls away on read with everything
+else the moment the slot goes. It also settles the general rule — **a migration moves data, it does
+not edit it**; the repair belongs where every other repair already is.
 
 ### Still deferred
 

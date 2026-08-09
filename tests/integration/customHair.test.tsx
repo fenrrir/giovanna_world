@@ -6,7 +6,7 @@ import { I18nProvider, ptBR, type MessageKey } from '../../src/i18n';
 import { hairBackPath, hairFrontPath } from '../../src/parts/hair/custom/geometry';
 import { DEFAULT_HAIR_PARAMS } from '../../src/parts/hair/custom/params';
 import { HAIR_STYLES } from '../../src/parts/registry';
-import { LookProvider } from '../../src/state/LookProvider';
+import { WorldProvider } from '../../src/state/WorldProvider';
 
 const FRINGE_KEYS = [
   'hair.fringe.none',
@@ -20,9 +20,9 @@ const slider = (key: MessageKey): HTMLElement => screen.getByLabelText(ptBR[key]
 const mount = () =>
   render(
     <I18nProvider>
-      <LookProvider>
+      <WorldProvider>
         <App />
-      </LookProvider>
+      </WorldProvider>
     </I18nProvider>,
   );
 

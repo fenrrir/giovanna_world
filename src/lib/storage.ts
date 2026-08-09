@@ -1,4 +1,3 @@
-import { withoutScene } from '../model/look';
 import type { EquippedPart, Look } from '../model/types';
 import {
   DEFAULT_WORLD,
@@ -84,14 +83,6 @@ export const loadLook = (storage: Storage | null = browserStorage()): Look | nul
     return isLook(parsed) ? parsed : null;
   } catch {
     return null;
-  }
-};
-
-export const saveLook = (look: Look, storage: Storage | null = browserStorage()): void => {
-  try {
-    storage?.setItem(CURRENT_LOOK_KEY, JSON.stringify(look));
-  } catch {
-    // A full or unavailable store must never surface as an error on screen.
   }
 };
 
@@ -211,17 +202,16 @@ export const saveWorld = (world: World, storage: Storage | null = browserStorage
 /**
  * The look she was wearing before there was a world, as the first doll.
  *
- * The one migration this app performs, and it runs once. The backdrop she was
- * standing in is dropped rather than carried: it belonged to neither doll,
- * which is the whole reason it moved out of `Look`. She keeps the outfit, which
- * is the part she made.
+ * The one migration this app performs, and it runs once. It carries the look
+ * across whole rather than editing it on the way: whatever the doll was wearing
+ * then is still hers, and anything she can no longer wear falls away on read
+ * like every other repair (`sanitizeLook`). Taking the backdrop out here would
+ * only cost her a sky before there is anywhere else to stand.
  */
 const migrated = (storage: Storage | null): World | null => {
   const worn = loadLook(storage);
 
-  return worn === null
-    ? null
-    : { ...DEFAULT_WORLD, dolls: [withoutScene(worn), DEFAULT_WORLD.dolls[1]] };
+  return worn === null ? null : { ...DEFAULT_WORLD, dolls: [worn, DEFAULT_WORLD.dolls[1]] };
 };
 
 /** What the app opens on: what she left, else what she wore, else the default. */

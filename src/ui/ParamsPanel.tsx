@@ -33,7 +33,7 @@ const STEP = 0.05;
  * it stays inside the game's single level of navigation with no modal and no
  * way back to look for.
  *
- * Every change dispatches straight away; the 300 ms autosave in LookProvider is
+ * Every change dispatches straight away; the 300 ms autosave in WorldProvider is
  * what absorbs a finger dragging an axis from end to end, exactly as it does
  * for the colour picker.
  */

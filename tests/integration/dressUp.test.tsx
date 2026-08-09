@@ -5,9 +5,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../../src/App';
 import { PAINTED_SLOTS } from '../../src/model/slots';
 import { I18nProvider, ptBR } from '../../src/i18n';
-import { CURRENT_LOOK_KEY } from '../../src/lib/storage';
+import { CURRENT_WORLD_KEY } from '../../src/lib/storage';
 import type { Look } from '../../src/model/types';
-import { AUTOSAVE_DELAY_MS, LookProvider } from '../../src/state/LookProvider';
+import type { World } from '../../src/model/world';
+import { AUTOSAVE_DELAY_MS, WorldProvider } from '../../src/state/WorldProvider';
 
 const fakeStorage = (): Storage => {
   const entries = new Map<string, string>();
@@ -34,9 +35,9 @@ const mount = (storage: Storage = fakeStorage()) => {
   const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
   const view = render(
     <I18nProvider>
-      <LookProvider storage={storage}>
+      <WorldProvider storage={storage}>
         <App />
-      </LookProvider>
+      </WorldProvider>
     </I18nProvider>,
   );
 
@@ -67,10 +68,11 @@ const colorPicker = (): HTMLElement => screen.getByLabelText(ptBR['color.pick'])
 const partButtons = (): HTMLElement[] =>
   screen.getAllByRole('button', { name: /^Vestir esta peça/ });
 
+/** The doll she is dressing, as the autosave wrote her down. */
 const storedLook = (storage: Storage): Look | null => {
-  const raw = storage.getItem(CURRENT_LOOK_KEY);
+  const raw = storage.getItem(CURRENT_WORLD_KEY);
 
-  return raw === null ? null : (JSON.parse(raw) as Look);
+  return raw === null ? null : (JSON.parse(raw) as World).dolls[0];
 };
 
 describe('dressing the doll', () => {

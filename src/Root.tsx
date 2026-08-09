@@ -3,7 +3,7 @@ import { useEffect, useState, type JSX } from 'react';
 import { App } from './App';
 import { Sheet } from './dev/Sheet';
 import { I18nProvider } from './i18n';
-import { LookProvider } from './state/LookProvider';
+import { WorldProvider } from './state/WorldProvider';
 
 /** The hidden development route, kept off the child's path (SPEC section 11). */
 export const DEV_SHEET_HASH = '#/dev/sheet';
@@ -34,7 +34,7 @@ export const Root = (): JSX.Element => {
 
   return (
     <I18nProvider>
-      <LookProvider>{hash.startsWith(DEV_SHEET_HASH) ? <Sheet /> : <App />}</LookProvider>
+      <WorldProvider>{hash.startsWith(DEV_SHEET_HASH) ? <Sheet /> : <App />}</WorldProvider>
     </I18nProvider>
   );
 };

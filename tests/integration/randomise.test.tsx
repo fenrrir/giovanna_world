@@ -4,9 +4,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../../src/App';
 import { PAINTED_SLOTS } from '../../src/model/slots';
 import { I18nProvider, ptBR } from '../../src/i18n';
-import { CURRENT_LOOK_KEY } from '../../src/lib/storage';
+import { CURRENT_WORLD_KEY } from '../../src/lib/storage';
 import type { Look } from '../../src/model/types';
-import { AUTOSAVE_DELAY_MS, LookProvider } from '../../src/state/LookProvider';
+import type { World } from '../../src/model/world';
+import { AUTOSAVE_DELAY_MS, WorldProvider } from '../../src/state/WorldProvider';
 import { DEFAULT_LOOK } from '../../src/model/defaults';
 import { RANDOM_TRAYS } from '../../src/ui/trays';
 import { LONG_PRESS_MS } from '../../src/ui/useLongPress';
@@ -14,9 +15,9 @@ import { LONG_PRESS_MS } from '../../src/ui/useLongPress';
 const mount = () => {
   const view = render(
     <I18nProvider>
-      <LookProvider>
+      <WorldProvider>
         <App />
-      </LookProvider>
+      </WorldProvider>
     </I18nProvider>,
   );
 
@@ -48,6 +49,13 @@ const release = (button: HTMLElement): void => {
   act(() => {
     button.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
   });
+};
+
+/** The doll she is dressing, as the autosave wrote her down. */
+const dressedDoll = (): Look | null => {
+  const raw = localStorage.getItem(CURRENT_WORLD_KEY);
+
+  return raw === null ? null : (JSON.parse(raw) as World).dolls[0];
 };
 
 describe('randomising the outfit', () => {
@@ -86,7 +94,7 @@ describe('randomising the outfit', () => {
       vi.advanceTimersByTime(AUTOSAVE_DELAY_MS);
     });
 
-    const saved = JSON.parse(localStorage.getItem(CURRENT_LOOK_KEY) ?? 'null') as Look | null;
+    const saved = dressedDoll();
 
     /*
      * The outfit and the face, derived rather than listed so a tray added later
@@ -164,7 +172,7 @@ describe('randomising the outfit', () => {
       vi.advanceTimersByTime(AUTOSAVE_DELAY_MS);
     });
 
-    const saved = JSON.parse(localStorage.getItem(CURRENT_LOOK_KEY) ?? 'null') as Look | null;
+    const saved = dressedDoll();
 
     expect(saved?.equipped.top).toBeDefined();
     expect(saved?.equipped.shoes).toBeDefined();

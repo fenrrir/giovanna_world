@@ -77,16 +77,16 @@ describe('the randomiser', () => {
 });
 
 const mountApp = async (): Promise<void> => {
-  const [{ App }, { LookProvider }] = await Promise.all([
+  const [{ App }, { WorldProvider }] = await Promise.all([
     import('../../src/App'),
-    import('../../src/state/LookProvider'),
+    import('../../src/state/WorldProvider'),
   ]);
 
   render(
     <I18nProvider>
-      <LookProvider>
+      <WorldProvider>
         <App />
-      </LookProvider>
+      </WorldProvider>
     </I18nProvider>,
   );
 };

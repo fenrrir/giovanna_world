@@ -6,14 +6,14 @@ import { I18nProvider, ptBR } from '../../src/i18n';
 import { SAVED_LOOKS_KEY } from '../../src/lib/storage';
 import { DEFAULT_LOOK } from '../../src/model/defaults';
 import type { Look } from '../../src/model/types';
-import { LookProvider } from '../../src/state/LookProvider';
+import { WorldProvider } from '../../src/state/WorldProvider';
 
 const mount = () =>
   render(
     <I18nProvider>
-      <LookProvider>
+      <WorldProvider>
         <App />
-      </LookProvider>
+      </WorldProvider>
     </I18nProvider>,
   );
 

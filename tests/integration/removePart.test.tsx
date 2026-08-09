@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../../src/App';
 import { PAINTED_SLOTS } from '../../src/model/slots';
 import { I18nProvider, ptBR } from '../../src/i18n';
-import { LookProvider } from '../../src/state/LookProvider';
+import { WorldProvider } from '../../src/state/WorldProvider';
 
 /**
  * jsdom lays nothing out and implements no hit testing, so both are stubbed:
@@ -40,9 +40,9 @@ const pointAt = (slot: string | null): void => {
 const mount = () =>
   render(
     <I18nProvider>
-      <LookProvider>
+      <WorldProvider>
         <App />
-      </LookProvider>
+      </WorldProvider>
     </I18nProvider>,
   );
 

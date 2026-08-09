@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { App } from '../../src/App';
 import { I18nProvider, ptBR } from '../../src/i18n';
-import { LookProvider } from '../../src/state/LookProvider';
+import { WorldProvider } from '../../src/state/WorldProvider';
 
 /**
  * jsdom lays nothing out, so a rail is always zero tall and a chevron would
@@ -26,9 +26,9 @@ const measureRail = (scrollTop: number, clientHeight = 400, scrollHeight = 900):
 const mount = () =>
   render(
     <I18nProvider>
-      <LookProvider>
+      <WorldProvider>
         <App />
-      </LookProvider>
+      </WorldProvider>
     </I18nProvider>,
   );
 
