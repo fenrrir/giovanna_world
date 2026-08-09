@@ -13,8 +13,8 @@ The session entry point. Read this before anything else, act on **Next up**, upd
 
 **Phase 4 in progress: the world.** Plan at
 [docs/plans/2026-08-08-world.md](docs/plans/2026-08-08-world.md) — a map, locations holding several
-environments each, and a doll you put inside one. **Tasks 1 and 2 of nine are done**; next is task 3,
-the `src/world/` content layer, which is still no UI.
+environments each, and a doll you put inside one. **Tasks 1 to 3 of nine are done**; next is task 4,
+the shell moving onto the world — the big one, and the one that must not be split.
 
 Read that plan before touching anything: it carries the one thing this repository could not have
 told you, which is that **deleting a slot from the taxonomy crashes rather than repairing on read**
@@ -419,6 +419,40 @@ idea there is a world above it.
 migrate from. `look:current` **is** migrated, once, into the first doll: the earlier decision not to
 migrate it turned on having to guess which doll a sky belonged to, and the sky now belongs to
 neither.
+
+### `src/world/` is the art layer, and a place is not a part
+
+`world/registry.ts` is to places what `parts/registry.ts` is to parts: the only import point, one
+line per room. An `Environment` carries its artwork, the `floor` a doll stands on and the colour it
+opens in — and it is deliberately **not** a `Part`. A part is worn and owes the lateral margin; a
+place is where the doll is and owes the opposite. That is what lets `Slot` shed `scene` in the next
+task instead of carrying a member that breaks every rule the others keep.
+
+`ENVIRONMENTS_BY_ID` is keyed by `EnvironmentId`, so **naming a room in the taxonomy is a compile
+error until it has something to draw**. It is the mechanism behind holding `house.livingRoom` back
+until its own session.
+
+The two backdrops that predate the world are borrowed rather than copied — one import line each from
+`parts/scene/`, which is not deleted yet. Deleting it while `scene` is still a slot would leave the
+tray empty for one commit and take her backdrops away; the artwork moves in whole when the slot goes.
+
+**`x` runs over where her centre may be, not across the canvas.** That one choice in
+`dollTransform` is what keeps the clamp honest at any size: a plain 0..1 across the canvas leaves
+half of her outside it at either end, and the room would have to know how wide she is. At 0 her
+declared bounds land exactly on the left edge, at 1 exactly on the right, at every scale — a test
+pins it, and it is what makes the per-part lateral-margin rule mean something once a doll can be
+stood in a corner.
+
+**What looking at it showed.** `preview/place-*.svg` puts three dolls in a room at x 0, 0.5 and 1,
+which answers the floor line, the size and the clamp in one image. Both inherited rooms are exactly
+as they were — and that is the finding: **at scale 1 she is a giant standing in the meadow**, head
+above the horizon. Correct, inherited, and left alone on purpose; the room drawn _for_ the world will
+ask for a smaller scale, and that is the session to revisit these two in.
+
+The dev sheet was deliberately left blind to places. It is built around `TraySlot` and `trayItems`,
+and what can be wrong with a room — feet sunk into the floor, a head out of the ceiling, two dolls
+overlapping — is a doll-and-room question the previews answer and a side-by-side contact sheet does
+not. Revisit it the day places need comparing against each other rather than against a doll.
 
 ### Still deferred
 
