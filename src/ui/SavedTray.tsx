@@ -1,7 +1,9 @@
 import { useState, type JSX } from 'react';
 
 import { useTranslation } from '../i18n';
-import { loadSavedLooks, saveSavedLooks, withSavedLook } from '../lib/storage';
+import { loadSavedLooks, lookSignature, saveSavedLooks, withSavedLook } from '../lib/storage';
+import { inCurrentScene, withoutScene } from '../model/look';
+import { sanitizeLook } from '../model/sanitize';
 import type { Look } from '../model/types';
 import { BODY, findPart } from '../parts/registry';
 import { Doll } from '../render/Doll';
@@ -20,8 +22,15 @@ const Star = (): JSX.Element => (
   </svg>
 );
 
-/** What tells one kept look from another: everything about it. */
-const signature = (look: Look): string => JSON.stringify(look);
+/**
+ * A kept outfit, as the album should have stored it.
+ *
+ * `loadSavedLooks` knows nothing of the registry by design, so an entry kept by
+ * an earlier version still carries whatever that version could wear — including
+ * the place she was standing in, and slots this one has since dropped. Both are
+ * repaired here rather than left to surface as a backdrop she did not ask for.
+ */
+const asOutfit = (look: Look): Look => sanitizeLook(withoutScene(look), findPart);
 
 /**
  * The looks she chose to keep.
@@ -41,16 +50,21 @@ const signature = (look: Look): string => JSON.stringify(look);
 export const SavedTray = (): JSX.Element => {
   const { t } = useTranslation();
   const { look, dispatch } = useLook();
-  const [album, setAlbum] = useState<Look[]>(() => loadSavedLooks());
+  const [album, setAlbum] = useState<Look[]>(() => loadSavedLooks().map(asOutfit));
+
+  /* What the star keeps: the doll, not the room. Where she is standing belongs
+     to the stage rather than to her, so it is no more hers to remember than the
+     time of day is. */
+  const outfit = withoutScene(look);
 
   const keep = (): void => {
-    const next = withSavedLook(album, look);
+    const next = withSavedLook(album, outfit);
 
     setAlbum(next);
     saveSavedLooks(next);
   };
 
-  const worn = signature(look);
+  const worn = lookSignature(outfit);
 
   return (
     /* The same column the pieces stand in, minus the colours: there is nothing
@@ -64,12 +78,14 @@ export const SavedTray = (): JSX.Element => {
         </li>
 
         {album.map((kept) => (
-          <li key={signature(kept)}>
+          <li key={lookSignature(kept)}>
             <TapTarget
               label={t('saved.wear')}
-              selected={signature(kept) === worn}
+              selected={lookSignature(kept) === worn}
               onSelect={() => {
-                dispatch({ type: 'replaceLook', look: kept });
+                /* Put back on where she is now, not where she was when she
+                   kept it: the outfit is hers to carry, the room is not. */
+                dispatch({ type: 'replaceLook', look: inCurrentScene(kept, look) });
               }}
             >
               <Doll

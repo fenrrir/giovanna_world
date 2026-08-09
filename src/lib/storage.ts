@@ -1,5 +1,6 @@
 import { DEFAULT_STAGE, type Stage } from '../model/stage';
 import type { EquippedPart, Look } from '../model/types';
+import { canonicalJson } from './canonical';
 
 /** The active look, written with a 300 ms debounce (SPEC section 14). */
 export const CURRENT_LOOK_KEY = 'look:current';
@@ -114,6 +115,15 @@ export const saveSavedLooks = (
 };
 
 /**
+ * What tells one outfit from another: everything about it, spelled the one way.
+ *
+ * Canonical rather than plain JSON because the same outfit arrives here written
+ * two ways — read back off the disk and rebuilt by the reducer — and comparing
+ * the raw text would call those two different outfits.
+ */
+export const lookSignature = (look: Look): string => canonicalJson(look);
+
+/**
  * The album with this look kept, newest first.
  *
  * Keeping the same look twice does nothing but move it to the front: a child
@@ -122,9 +132,9 @@ export const saveSavedLooks = (
  * why there is no way to delete one — the album empties itself.
  */
 export const withSavedLook = (saved: readonly Look[], look: Look): Look[] => {
-  const same = JSON.stringify(look);
+  const same = lookSignature(look);
 
-  return [look, ...saved.filter((kept) => JSON.stringify(kept) !== same)].slice(0, MAX_SAVED_LOOKS);
+  return [look, ...saved.filter((kept) => lookSignature(kept) !== same)].slice(0, MAX_SAVED_LOOKS);
 };
 
 const isStage = (value: unknown): value is Stage =>

@@ -1,6 +1,6 @@
 import type { PartLookup } from '../model/sanitize';
-import { Z, type Slot } from '../model/slots';
-import type { EquippedPart, Look, Part } from '../model/types';
+import { Z, isSlot, type Slot } from '../model/slots';
+import type { Look, Part } from '../model/types';
 
 export type ResolvedLayer = { slot: Slot; part: Part; color: string };
 
@@ -15,9 +15,14 @@ type EquippedLayer = { slot: Slot; part: Part; color: string };
 const equippedLayers = (look: Look, lookup: PartLookup): EquippedLayer[] => {
   const layers: EquippedLayer[] = [];
 
-  const entries = Object.entries(look.equipped) as [Slot, EquippedPart][];
+  const entries = Object.entries(look.equipped);
 
   for (const [slot, entry] of entries) {
+    // The album renders looks straight off the disk, unsanitised, so a slot
+    // this version has dropped arrives here too — and `Z[slot]` has no entry
+    // for it either. Checked before the lookup, which cannot be asked.
+    if (!isSlot(slot)) continue;
+
     const part = lookup(slot, entry.partId, entry.params);
 
     // A part removed from the registry is skipped silently (SPEC section 14).

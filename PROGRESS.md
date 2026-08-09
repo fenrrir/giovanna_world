@@ -11,6 +11,15 @@ The session entry point. Read this before anything else, act on **Next up**, upd
 
 ## Next up
 
+**Phase 4 has started: the world.** Plan at
+[docs/plans/2026-08-08-world.md](docs/plans/2026-08-08-world.md) — a map, locations holding several
+environments each, and a doll you put inside one. **Task 1 of nine is done** (this commit); next is
+task 2, `World` and `worldReducer`, which is pure model with no UI.
+
+Read that plan before touching anything: it carries the one thing this repository could not have
+told you, which is that **deleting a slot from the taxonomy crashes rather than repairing on read**
+— see the section below.
+
 **Phase 2 in progress.** Randomise, drag-and-drop, taking a piece off, the zoom slider, the
 scrolling tray bar, the free colour picker, `accessoryHead` (one bow), the face — eyebrows, mouth
 and cheeks — and the **parametric hair generator** are done. Next on the list below: the three
@@ -345,6 +354,46 @@ Three things fell out of it:
 roughly 744×591 under the old stack — the rails cost proportionally more of a narrow window than a
 wide one. It is a landscape game and landscape is where the whole gain is; the portrait case is
 still functional, with no overflow and every target over 60 px.
+
+## Phase 4 — the world
+
+**Repair on read was never total. It only looked that way.** SPEC §7a promises that a stored look is
+repaired rather than rejected, and that held for a part leaving the registry. It did not hold for a
+_slot_ leaving the taxonomy, which is the very next thing this project does to `scene`:
+
+- `findPart` is `INDEX[slot].get(partId)`, and `INDEX` is built from the keys of `PARTS_BY_SLOT`.
+  Drop a slot and `INDEX[slot]` is `undefined`, so `.get` throws.
+- `noUncheckedIndexedAccess` does not catch it. It governs index signatures and arrays, not
+  `Record<FiniteUnion, X>`, which TypeScript models as known properties — the compiler is certain
+  the Map is there.
+- What let a departed name reach the lookup was `Object.entries(look.equipped) as [Slot, …][]`, in
+  both `sanitizeLook` and `equippedLayers`. `isLook` validates the values of `equipped` and never
+  its keys, so a stored name sails through storage untouched.
+- `sanitizeLook` runs inside the store's lazy initialiser, so the failure is a **white screen on the
+  iPad, holding the outfit she was wearing** — and no suite here would have seen it, because they
+  all start from empty storage.
+
+`isSlot` closes it, and both casts are gone rather than narrowed: `Object.entries` now gives back
+the strings the object really has. The lesson generalises past `scene` — **a cast over stored data
+is a lie the type checker will help you tell**, so check the name before handing it to anything
+indexed by it.
+
+**The album keeps the doll, not the room.** That was the reported bug and it is fixed, but the
+interesting half was underneath. `loadSavedLooks` knows nothing of the registry by design, so a kept
+entry carried whatever an older version could wear; `replaceLook` returned it verbatim, putting the
+dead key straight back into live state and into the next autosave. Two consequences worth
+remembering:
+
+- Wearing a kept outfit used to move her — the backdrop came back with the clothes. `inCurrentScene`
+  is what keeps the outfit hers and the room the stage's.
+- Identity of a look is `canonicalJson`, not `JSON.stringify`. Once the album sanitises on read, the
+  same outfit reaches the comparison spelled two ways — `sanitizeLook` rebuilds `equipped` in
+  iteration order and fills the painted slots in last, while the reducer writes each piece as she
+  puts it on. Compared raw, those are two outfits: the kept one never showed as worn and the star
+  kept adding twins she could not tell apart.
+
+`src/model/look.ts` is deliberately temporary. When `scene` leaves `Look` in task 4 of the plan it
+is deleted, not rewritten — `sanitizeLook` will do the same job by itself.
 
 ### Still deferred
 

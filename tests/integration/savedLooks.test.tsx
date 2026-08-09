@@ -4,6 +4,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { App } from '../../src/App';
 import { I18nProvider, ptBR } from '../../src/i18n';
 import { SAVED_LOOKS_KEY } from '../../src/lib/storage';
+import { DEFAULT_LOOK } from '../../src/model/defaults';
+import type { Look } from '../../src/model/types';
 import { LookProvider } from '../../src/state/LookProvider';
 
 const mount = () =>
@@ -30,12 +32,19 @@ const keep = (): void => {
 
 const kept = (): HTMLElement[] => screen.queryAllByRole('button', { name: ptBR['saved.wear'] });
 
-const wearSomething = (tray: keyof typeof ptBR): void => {
+const pieces = (): HTMLElement[] => screen.getAllByRole('button', { name: /^Vestir esta peça/ });
+
+const wearSomething = (tray: keyof typeof ptBR, which = 0): void => {
   openTray(tray);
-  tap(screen.getAllByRole('button', { name: /^Vestir esta peça/ })[0]!);
+  tap(pieces()[which]!);
 };
 
+/** Which piece of the open tray is marked as the one she is wearing. */
+const wornPiece = (): number => pieces().findIndex((piece) => piece.ariaPressed === 'true');
+
 const stored = (): unknown => JSON.parse(localStorage.getItem(SAVED_LOOKS_KEY) ?? 'null');
+
+const storedAlbum = (): Look[] => (stored() ?? []) as Look[];
 
 describe('the album of looks she keeps', () => {
   beforeEach(() => {
@@ -125,6 +134,55 @@ describe('the album of looks she keeps', () => {
 
     expect(screen.queryByLabelText(ptBR['color.pick'])).toBeNull();
     expect(screen.getByRole('img', { name: ptBR['doll.label'] })).toBeInTheDocument();
+  });
+
+  /*
+   * The star means "I want to find this outfit again", not "I want this
+   * afternoon again". Where she is standing belongs to the stage rather than to
+   * the doll, so keeping her cannot keep the meadow with her.
+   */
+  it('keeps the doll and leaves the place she was standing in', () => {
+    mount();
+    wearSomething('tray.scene');
+    wearSomething('tray.top');
+    openTray('tray.saved');
+    keep();
+
+    expect(storedAlbum()[0]?.equipped.top).toBeDefined();
+    expect(storedAlbum()[0]?.equipped.scene).toBeUndefined();
+  });
+
+  it('does not move her when she puts a kept outfit back on', () => {
+    mount();
+    wearSomething('tray.scene');
+    openTray('tray.saved');
+    keep();
+
+    // A different backdrop, then the kept outfit back: she stays in the second.
+    wearSomething('tray.scene', 1);
+    openTray('tray.saved');
+    tap(kept()[0]!);
+    openTray('tray.scene');
+
+    expect(wornPiece()).toBe(1);
+  });
+
+  /* An entry kept before the album knew the difference still carries a place,
+     and it must not drag her back there. */
+  it('ignores the place an older entry remembers', () => {
+    const older: Look = {
+      ...DEFAULT_LOOK,
+      equipped: { ...DEFAULT_LOOK.equipped, scene: { partId: 'scene.meadow', color: '#1D9E75' } },
+    };
+
+    localStorage.setItem(SAVED_LOOKS_KEY, JSON.stringify([older]));
+    mount();
+    wearSomething('tray.scene', 1);
+    openTray('tray.saved');
+    tap(kept()[0]!);
+    openTray('tray.scene');
+
+    expect(wornPiece()).toBe(1);
   });
 
   it('adds no words to the interface', () => {

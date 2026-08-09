@@ -1,6 +1,6 @@
 import { DEFAULT_LOOK } from './defaults';
-import { PAINTED_SLOTS, type Slot } from './slots';
-import type { EquippedPart, Look, Part, PartParams } from './types';
+import { PAINTED_SLOTS, isSlot, type Slot } from './slots';
+import type { Look, Part, PartParams } from './types';
 
 /**
  * Resolves a slot and part id to the part itself, or undefined when the part is
@@ -39,11 +39,16 @@ const withFace = (look: Look): Look => {
 };
 
 export const sanitizeLook = (look: Look, lookup: PartLookup): Look => {
-  const entries = Object.entries(withFace(look).equipped) as [Slot, EquippedPart][];
+  /* No cast. `Object.entries` gives back the string keys the object really has,
+     and pretending they are `Slot`s is exactly what used to let a departed one
+     through to a lookup that cannot answer it. */
+  const entries = Object.entries(withFace(look).equipped);
   const equipped: Look['equipped'] = {};
 
   for (const [slot, entry] of entries) {
-    if (lookup(slot, entry.partId)) {
+    // The slot is checked before the part, because a name from outside the
+    // taxonomy is not a question the lookup can be asked (see `isSlot`).
+    if (isSlot(slot) && lookup(slot, entry.partId)) {
       equipped[slot] = entry;
     }
   }

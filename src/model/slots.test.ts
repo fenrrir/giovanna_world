@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { RENDER_ORDER, SELECTABLE_SLOTS, Z } from './slots';
+import { RENDER_ORDER, SELECTABLE_SLOTS, Z, isSlot } from './slots';
 
 describe('Z', () => {
   it("holds every slot with its spec value, and the face in the body's gap", () => {
@@ -56,6 +56,27 @@ describe('RENDER_ORDER', () => {
   it('starts at the backdrop and ends at the handheld object', () => {
     expect(RENDER_ORDER[0]).toBe('scene');
     expect(RENDER_ORDER.at(-1)).toBe('handheld');
+  });
+});
+
+describe('isSlot', () => {
+  it('recognises every slot the taxonomy declares', () => {
+    for (const slot of RENDER_ORDER) {
+      expect(isSlot(slot)).toBe(true);
+    }
+  });
+
+  /*
+   * The reason this exists: a stored look's keys are strings, and the app reads
+   * looks written by versions of itself that had slots this one does not. The
+   * lookup is indexed by slot, so an unknown name has to be caught here rather
+   * than handed on.
+   */
+  it('refuses a name from outside it, however plausible', () => {
+    // A tray identifier rather than a slot, and the likeliest near-miss there is.
+    expect(isSlot('hair')).toBe(false);
+    expect(isSlot('nonsense')).toBe(false);
+    expect(isSlot('')).toBe(false);
   });
 });
 

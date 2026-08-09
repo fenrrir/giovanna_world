@@ -1,5 +1,5 @@
 import type { PartLookup } from '../src/model/sanitize';
-import type { Slot } from '../src/model/slots';
+import { RENDER_ORDER, type Slot } from '../src/model/slots';
 import type { HairStyle, Part } from '../src/model/types';
 
 /**
@@ -27,3 +27,24 @@ export const stubLookup =
   (...parts: Part[]): PartLookup =>
   (slot, partId) =>
     parts.find((part) => part.slot === slot && part.id === partId);
+
+/**
+ * A lookup built the way the real registry builds one: an index keyed by slot.
+ *
+ * `findPart` is `INDEX[slot].get(partId)`, so a slot the taxonomy has never
+ * heard of throws instead of answering undefined. That is not a flaw to paper
+ * over in the double — it is the behaviour every caller has to survive, because
+ * the slot arrives out of storage as a string and no cast can make it true.
+ *
+ * Every known slot gets an entry, empty or not, exactly as `indexBySlot` does.
+ * Only a name from outside the taxonomy is missing, and only that one throws.
+ */
+export const indexedLookup = (...parts: Part[]): PartLookup => {
+  const index = Object.fromEntries(
+    RENDER_ORDER.map((slot) => [slot, new Map<string, Part>()]),
+  ) as Record<Slot, Map<string, Part>>;
+
+  for (const part of parts) index[part.slot].set(part.id, part);
+
+  return (slot, partId) => index[slot].get(partId);
+};

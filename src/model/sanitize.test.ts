@@ -1,13 +1,26 @@
 import { describe, expect, it } from 'vitest';
 
-import { stubLookup, stubPart } from '../../tests/doubles';
+import { indexedLookup, stubLookup, stubPart } from '../../tests/doubles';
 import { sanitizeLook } from './sanitize';
-import type { Look } from './types';
+import type { EquippedPart, Look } from './types';
 
 const top = stubPart('top', 'top.t-shirt');
 const bottom = stubPart('bottom', 'bottom.skirt');
 
 const look = (equipped: Look['equipped']): Look => ({
+  schemaVersion: 1,
+  skin: '#F7DCC3',
+  equipped,
+});
+
+/**
+ * What `loadLook` hands back once a slot has left the taxonomy.
+ *
+ * `isLook` checks the values of `equipped` and never its keys, so a name no
+ * version of this app knows about reaches here intact. The cast is the point of
+ * the test rather than a shortcut: it is the same cast `sanitizeLook` makes.
+ */
+const fromStorage = (equipped: Record<string, EquippedPart>): Look => ({
   schemaVersion: 1,
   skin: '#F7DCC3',
   equipped,
@@ -52,5 +65,29 @@ describe('sanitizeLook', () => {
 
     expect(result).not.toBe(stored);
     expect(stored.equipped.top).toBeDefined();
+  });
+
+  /*
+   * A part leaving the registry and a whole slot leaving the taxonomy are not
+   * the same repair, and only the first one used to work. The lookup is indexed
+   * by slot, so asking it about a name it has never heard of throws — and this
+   * runs inside the lazy initialiser of the store, where a throw is a white
+   * screen holding the outfit she was wearing.
+   */
+  it('drops a slot the taxonomy no longer has, without asking the registry about it', () => {
+    const stored = fromStorage({
+      top: { partId: 'top.t-shirt', color: '#1D9E75' },
+      backdrop: { partId: 'backdrop.meadow', color: '#1D9E75' },
+    });
+
+    expect(sanitizeLook(stored, indexedLookup(top)).equipped).toStrictEqual({
+      top: { partId: 'top.t-shirt', color: '#1D9E75' },
+    });
+  });
+
+  it('survives a stored look made entirely of slots that no longer exist', () => {
+    const stored = fromStorage({ backdrop: { partId: 'backdrop.meadow', color: '#1D9E75' } });
+
+    expect(sanitizeLook(stored, indexedLookup(top)).equipped).toStrictEqual({});
   });
 });

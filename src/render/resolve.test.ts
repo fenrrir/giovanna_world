@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { stubLookup, stubPart } from '../../tests/doubles';
+import { indexedLookup, stubLookup, stubPart } from '../../tests/doubles';
 import { DEFAULT_LOOK } from '../model/defaults';
 import { lookReducer } from '../model/reducer';
 import type { PartLookup } from '../model/sanitize';
@@ -184,5 +184,24 @@ describe('resolveLayers', () => {
     });
 
     expect(slotsOf(look)).toStrictEqual(['hairBack', 'body', 'hairFront']);
+  });
+
+  /*
+   * The album renders looks straight off the disk without sanitising them, so
+   * this path meets a departed slot too — and it sorts by `Z[slot]` afterwards,
+   * which a name outside the taxonomy has no entry in either.
+   */
+  it('paints a look holding a slot the taxonomy no longer has', () => {
+    const stored = {
+      ...DEFAULT_LOOK,
+      equipped: {
+        top: { partId: 'top.t-shirt', color: '#1D9E75' },
+        backdrop: { partId: 'backdrop.meadow', color: '#1D9E75' },
+      },
+    } as Look;
+
+    expect(
+      resolveLayers(stored, indexedLookup(body, tShirt), body).map((layer) => layer.slot),
+    ).toStrictEqual(['body', 'top']);
   });
 });

@@ -74,6 +74,22 @@ describe('withSavedLook', () => {
     expect(() => withSavedLook(album, DEFAULT_LOOK)).not.toThrow();
     expect(album).toHaveLength(1);
   });
+
+  /*
+   * The same outfit reaches here spelled two ways: `sanitizeLook` rebuilds
+   * `equipped` in iteration order and refills the painted slots at the end,
+   * while the reducer writes each piece as she puts it on. Compared as raw
+   * text those are two outfits, so the album fills with twins she cannot tell
+   * apart and none of them ever shows as the one she is wearing.
+   */
+  it('treats one outfit as one, however its keys happen to be ordered', () => {
+    const top = { partId: 'top.t-shirt', color: PALETTES.fabric[0] };
+    const bottom = { partId: 'bottom.skirt', color: PALETTES.fabric[1] };
+    const asWorn: Look = { ...DEFAULT_LOOK, equipped: { top, bottom } };
+    const asRead: Look = { ...DEFAULT_LOOK, equipped: { bottom, top } };
+
+    expect(withSavedLook([asWorn], asRead)).toStrictEqual([asRead]);
+  });
 });
 
 describe('the album on disk', () => {
