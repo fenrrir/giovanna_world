@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { VIEW_BOX } from '../../../anchors';
 import { FOLD, HIGHLIGHT, shade } from '../../../lib/color';
 import { PALETTES, WORLD_COLORS } from '../../../model/palettes';
+import { DOLL_SCALE } from '../../placement';
 import type { Environment } from '../../registry';
 
 /**
@@ -25,7 +26,7 @@ const SKIRTING = 372;
 const SKIRTING_HEIGHT = 10;
 
 /** Where her feet rest, and how tall she stands in this room. */
-const FLOOR = { y: 470, scale: 0.62 };
+const FLOOR = { y: 470, scale: DOLL_SCALE };
 
 const SOFA = { x: 340, seat: 366, width: 210, height: 78 };
 

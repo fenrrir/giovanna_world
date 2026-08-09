@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react';
 
-import { ANCHORS, VIEW_BOX } from '../../../anchors';
+import { VIEW_BOX } from '../../../anchors';
 import { FOLD, HIGHLIGHT, shade } from '../../../lib/color';
 import { PALETTES } from '../../../model/palettes';
+import { DOLL_SCALE } from '../../placement';
 import type { Environment } from '../../registry';
 
 /**
@@ -16,7 +17,14 @@ import type { Environment } from '../../registry';
 
 const { width: W, height: H } = VIEW_BOX;
 
-/** Where the wall meets the floor: behind her knees, as the meadow's horizon is. */
+/**
+ * Where the wall meets the floor.
+ *
+ * Above her feet by enough that the floor reads as floor rather than as a line
+ * she is balanced on. It was drawn when she stood at full height and the join
+ * fell behind her knees; at the size a doll is in a room it sits at her hip,
+ * which is where a skirting board belongs anyway.
+ */
 const SKIRTING = 360;
 const SKIRTING_HEIGHT = 12;
 
@@ -89,7 +97,7 @@ const render = (color: string): ReactNode => {
 
 export const BEDROOM: Environment = {
   id: 'house.bedroom',
-  floor: { y: ANCHORS.sole.y, scale: 1 },
+  floor: { y: 470, scale: DOLL_SCALE },
   defaultColor: PALETTES.fabric[0],
   render,
 };

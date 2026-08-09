@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react';
 
-import { ANCHORS, VIEW_BOX } from '../../../anchors';
+import { VIEW_BOX } from '../../../anchors';
 import { FOLD, HIGHLIGHT, shade } from '../../../lib/color';
 import { PALETTES } from '../../../model/palettes';
+import { DOLL_SCALE } from '../../placement';
 import type { Environment } from '../../registry';
 
 /**
@@ -18,7 +19,13 @@ import type { Environment } from '../../registry';
 
 const { width: W, height: H } = VIEW_BOX;
 
-/** Where the ground meets the sky: below the doll's waist, above her knees. */
+/**
+ * Where the ground meets the sky.
+ *
+ * Well above her feet, so she stands *in* the field rather than on its edge.
+ * Drawn when she was the height of the canvas, which put the horizon across her
+ * middle; at the size a doll is in a room it sits behind her hip.
+ */
 const HORIZON = 360;
 const HILL_RISE = 46;
 const SUN = { x: 96, y: 96, r: 46 };
@@ -75,7 +82,7 @@ const render = (color: string): ReactNode => {
 
 export const MEADOW: Environment = {
   id: 'park.meadow',
-  floor: { y: ANCHORS.sole.y, scale: 1 },
+  floor: { y: 470, scale: DOLL_SCALE },
   defaultColor: PALETTES.fabric[4],
   render,
 };

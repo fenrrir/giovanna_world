@@ -5,6 +5,7 @@ import { ANCHORS, VIEW_BOX } from '../../src/anchors';
 import { ENVIRONMENT_IDS, LOCATION_IDS } from '../../src/model/places';
 import { PALETTES, WORLD_COLORS } from '../../src/model/palettes';
 import { MAP_SPOTS } from '../../src/world/anchors';
+import { DOLL_SCALE } from '../../src/world/placement';
 import { ENVIRONMENTS_BY_ID, WORLD_MAP, type Environment } from '../../src/world/registry';
 import { boundsOf, colorsOf, pathDataOf } from './svgGeometry';
 
@@ -121,6 +122,20 @@ describe.each(everyPlace())('%s', (id, environment) => {
  * What only a room owes: a floor a doll can stand on. The map has none — she
  * looks at it rather than standing on it.
  */
+describe('every room', () => {
+  /*
+   * The bug this exists for: two rooms inherited from the days when a place was
+   * a backdrop kept her at full size while the room drawn for the world had her
+   * at 0.62, so she changed size walking through a door. A doll who does that is
+   * a different doll.
+   */
+  it('stands her at the same size as every other one', () => {
+    for (const [id, environment] of everyEnvironment()) {
+      expect(environment.floor.scale, `${id} stands her at her own size`).toBe(DOLL_SCALE);
+    }
+  });
+});
+
 describe.each(everyEnvironment())('%s floor', (id, environment) => {
   it('puts its floor inside the room', () => {
     expect(environment.floor.y, `${id} has a floor above the ceiling`).toBeGreaterThan(0);

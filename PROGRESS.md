@@ -606,8 +606,17 @@ rather than a wall, and painting it would be painting everywhere at once.
 `house.livingRoom` is the first room drawn **for** the world rather than inherited by it, and it is
 where the scale finding from the previews got its answer: she stands at **0.62**, which leaves the
 sofa behind her looking like furniture instead of a footstool and leaves two of them room to stand
-apart. The two backdrops that predate the world keep scale 1 — changing them would change what the
-child already has — so the two scales sit side by side on purpose.
+apart.
+
+**Every room stands her at that size now**, and getting there took being told. The two backdrops
+that predate the world were left at 1 on the reasoning that changing them would change what the
+child already has — which was the wrong thing to protect. She grew and shrank walking through a
+door, and a doll who does that is a different doll. `DOLL_SCALE` says it once, in
+`world/placement.ts`, and a contract test holds every room to it; a room still chooses its own floor
+_height_, because that is what its drawing decides.
+
+The lesson generalises past this: **consistency between places beats preserving how one place used
+to look.** A rule the previews showed twice and I recorded twice instead of acting on.
 
 Its furniture is placed **around where she stands**, not by eye: two dolls land at a quarter and
 three quarters of the floor, so anything drawn there is behind her for good. The picture hangs above

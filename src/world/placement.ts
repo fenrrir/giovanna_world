@@ -13,6 +13,20 @@ import { ANCHORS, VIEW_BOX } from '../anchors';
 export type Floor = { y: number; scale: number };
 
 /**
+ * How tall a doll stands in a room. The same in every one of them.
+ *
+ * She was drawn at full canvas height, which is right when she *is* the picture
+ * and wrong once she is somebody in a room: at 1 she fills the wall and reads
+ * as a giant. At this size the furniture behind her looks like furniture.
+ *
+ * Shared rather than chosen per room, because a doll who changes size when she
+ * walks through a door is a different doll. A room may still put its floor at
+ * its own height — that is what its drawing decides — but not her size, and a
+ * test in the world contract holds every room to it.
+ */
+export const DOLL_SCALE = 0.62;
+
+/**
  * Only what the maths needs, so the anchors can be injected.
  *
  * The whole doll is not the dependency — her feet and her width are. Declaring
