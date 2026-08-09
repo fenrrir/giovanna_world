@@ -51,8 +51,9 @@ the right abstraction. Deliberately nothing generic was built for it: `hair.cust
 nothing else. When the time comes, the pieces that will want generalising are `TrayItem.shaped`
 and `HairParamsPanel`, not the builders.
 
-The iPad validation is still owed: four of the nine acceptance criteria in SPEC §17 are verified,
-and of the five still open, four need the device and the last needs the child.
+The iPad validation is nearly closed: six of the nine acceptance criteria in SPEC §17 are verified,
+including installing to the home screen and running in aeroplane mode, both done on the device.
+Three remain — two gestures to try on the iPad and the one only the child can answer.
 
 ## Status
 
@@ -400,19 +401,20 @@ is her saying she wants to find this one again.
 
 From SPEC §17. Ticked only where actually verified; the rest name the exact step still owed.
 
-Four of the nine are done. The five open ones all need the iPad — install it from
-https://fenrrir.github.io/giovanna_world/ and work down the list. `npm run dev:lan` is faster for
-iterating but cannot answer the offline one; see the README for which criteria it can prove.
+Six of the nine are done. Two of the three still open need the iPad in hand; the last needs the
+child. Install it from https://fenrrir.github.io/giovanna_world/ and work down the list.
+`npm run dev:lan` is faster for iterating but cannot answer the offline one; see the README for
+which criteria it can prove.
 
-- [ ] **Installs from the iPad home screen and opens full screen, without an address bar.**
-      Needs the iPad: Safari → https://fenrrir.github.io/giovanna_world/ → Share → Add to Home
-      Screen, then open from the home screen. The manifest declares `display: standalone` and
+- [x] **Installs from the iPad home screen and opens full screen, without an address bar.**
+      Done on the device: Safari → Share → Add to Home Screen, and opening from the icon gives
+      full screen with no Safari chrome at all. The manifest declares `display: standalone` and
       `start_url: /giovanna_world/`, and the iOS meta tags are in `index.html`.
-- [ ] **Works with the iPad in aeroplane mode, from load through to autosave.**
-      Verified on the live site that the service worker registers and reaches `activated`, and
-      that its Workbox precache holds all 12 runtime entries — `index.html`, the JS bundle, the
-      CSS, the manifest and every icon. Autosave was seen writing `look:current`. What is still
-      untested is the last step: cut the network and reload.
+- [x] **Works with the iPad in aeroplane mode, from load through to autosave.**
+      Done on the device, which was the last step this was waiting on. Already known before that:
+      the service worker registers and reaches `activated`, its Workbox precache holds all runtime
+      entries — `index.html`, the JS bundle, the CSS, the manifest and every icon — and autosave
+      was seen writing `look:current`.
 - [x] **Not a single word in the game's interface.** Asserted mechanically: the dress-up
       integration test dresses the doll from every tray and then requires the whole rendered tree
       to contain no text at all, with every control named through `aria-label`.
@@ -422,6 +424,11 @@ iterating but cannot answer the offline one; see the README for which criteria i
       Neither width overflows horizontally, which covers the 768–1366 range.
 - [ ] **No elastic overscroll bounce and no accidental double-tap zoom.** `overscroll-behavior:
 none` and `touch-action: manipulation` are in `src/styles/global.css`; needs the iPad.
+      **Test the rails specifically**: since the controls went vertical, `.rail` and `.axes` are
+      scroll containers of their own, and neither carries `overscroll-behavior`. Rolling one past
+      its end can chain to the document and produce exactly the bounce this forbids — which could
+      not happen while the bar ran sideways, because the page has nowhere to go horizontally. If it
+      does, `overscroll-behavior: contain` on both is the fix.
 - [ ] **Holding a finger on the doll does not open Safari's context menu.**
       `-webkit-touch-callout: none` is set; needs the iPad.
 - [x] **The 12 parts pass the 6 criteria from SPEC §12.** All twelve are built and checked
